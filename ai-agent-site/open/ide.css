@@ -356,12 +356,18 @@ html[data-ide-allowed="true"] #gate-wall {
   white-space: nowrap;
 }
 .btn-copy-addr-inline:hover { background: var(--accent); }
-.deployed-runtime {
+.deployed-actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 4px;
 }
-.deployed-runtime.hidden { display: none; }
+.deployed-card:not(.is-live) .deployed-actions {
+  display: none;
+}
+.deployed-card.is-live .deployed-actions {
+  display: flex;
+}
 .fn-orange, .fn-blue {
   width: 100%;
   padding: 12px;

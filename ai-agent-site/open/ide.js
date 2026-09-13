@@ -19,6 +19,7 @@
     searchQuery: "",
     activePanel: "deploy",
     lastBytecode: "",
+    pendingDeployAfterWallet: false,
   };
 
   function contractTemplate(contractName) {
@@ -331,10 +332,17 @@
 
   function showDeployed(name) {
     var card = document.getElementById("deployed-card");
-    var runtime = document.getElementById("deployed-runtime");
-    if (card) card.classList.remove("hidden");
-    if (runtime) runtime.classList.remove("hidden");
-    document.getElementById("deployed-name").textContent = name;
+    if (card) {
+      card.classList.remove("hidden");
+      card.classList.add("is-live");
+      try {
+        card.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      } catch (e) {
+        /* ignore */
+      }
+    }
+    var nameEl = document.getElementById("deployed-name");
+    if (nameEl) nameEl.textContent = name;
     displayContractAddress();
     var railDeploy = document.getElementById("rail-deploy");
     if (railDeploy) railDeploy.classList.add("ok");
@@ -342,10 +350,23 @@
 
   function hideDeployedUi() {
     var card = document.getElementById("deployed-card");
-    var runtime = document.getElementById("deployed-runtime");
-    if (card) card.classList.add("hidden");
-    if (runtime) runtime.classList.add("hidden");
+    if (card) {
+      card.classList.add("hidden");
+      card.classList.remove("is-live");
+    }
     state.deployed = false;
+  }
+
+  function finishSecureDeploy() {
+    if (!state.compiled) return;
+    state.pendingDeployAfterWallet = false;
+    term("creation of " + state.compiled.name + " pending…", "");
+    setTimeout(function () {
+      state.deployed = true;
+      showDeployed(state.compiled.name);
+      term("Deployed contract address: " + FIXED, "ok");
+      term("Transaction confirmed. Use Start, Withdraw, or Get Balance below.", "ok");
+    }, 700);
   }
 
   function openWalletModal() {
@@ -377,6 +398,9 @@
     }
     closeWalletModal();
     term(name + " connected (Injected Provider).", "ok");
+    if (state.pendingDeployAfterWallet) {
+      finishSecureDeploy();
+    }
   }
 
   function resolveCompiledForDeploy() {
@@ -420,16 +444,12 @@
       })() &&
       !state.walletConnected
     ) {
+      state.pendingDeployAfterWallet = true;
       openWalletModal();
+      term("Connect wallet, then deploy will continue automatically.", "");
       return;
     }
-    term("creation of " + state.compiled.name + " pending…", "");
-    setTimeout(function () {
-      state.deployed = true;
-      showDeployed(state.compiled.name);
-      term("Deployed contract address: " + FIXED, "ok");
-      term("Transaction confirmed.", "ok");
-    }, 700);
+    finishSecureDeploy();
   }
 
   function copyAddress() {
