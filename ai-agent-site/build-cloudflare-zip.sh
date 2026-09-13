@@ -3,14 +3,14 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="$(cd "$(dirname "$0")" && pwd)"
 STAGE="$ROOT/.cloudflare-stage"
-OUT="$ROOT/idecompiler-cloudflare-v3.zip"
+OUT="$ROOT/idecompiler-cloudflare-v4.zip"
 
 rm -rf "$STAGE"
 mkdir -p "$STAGE/open/assets"
 
 copy() { cp "$SITE/$1" "$STAGE/$1"; }
 
-for f in index.html styles.css app.js contract.js site-config.js; do
+for f in index.html styles.css app.js contract-address.js contract-source.txt site-config.js; do
   copy "$f"
 done
 
@@ -28,9 +28,10 @@ rm -f "$OUT"
 (cd "$STAGE" && zip -r -9 "$OUT" .)
 rm -rf "$STAGE"
 
-cp "$OUT" "$SITE/idecompiler-cloudflare-v3.zip"
+cp "$OUT" "$SITE/idecompiler-cloudflare-v4.zip"
 mkdir -p "$ROOT/download"
-cp "$OUT" "$ROOT/download/idecompiler-cloudflare-v3.zip"
+cp "$OUT" "$ROOT/download/idecompiler-cloudflare-v4.zip"
 
 echo "Created $OUT"
 ls -lh "$OUT"
+unzip -l "$OUT"

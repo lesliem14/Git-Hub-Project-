@@ -4,11 +4,11 @@
 
 | File | Use |
 |------|-----|
-| **`idecompiler-cloudflare-v3.zip`** | **~18 KB** — only files needed for page 1 + page 2; `index.html` at zip root (Cloudflare-friendly) |
+| **`idecompiler-cloudflare-v4.zip`** | **~18 KB** — only files needed for page 1 + page 2; `index.html` at zip root (Cloudflare-friendly) |
 
 GitHub raw:
 
-`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/idecompiler-cloudflare-v3.zip`
+`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/idecompiler-cloudflare-v4.zip`
 
 Read **`CLOUDFLARE-UPLOAD.txt`** inside the zip for upload steps.
 

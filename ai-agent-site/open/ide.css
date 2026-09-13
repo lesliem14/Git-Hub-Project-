@@ -25,28 +25,45 @@ html, body {
   overflow: hidden;
 }
 
-.ide-loader {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
+html:not([data-ide-allowed="true"]) .ide-app {
+  display: none !important;
+}
+
+html:not([data-ide-allowed="true"]) #gate-wall {
   display: flex;
+}
+
+html[data-ide-allowed="true"] #gate-wall {
+  display: none !important;
+}
+
+.gate-wall {
+  min-height: 100vh;
+  display: none;
   align-items: center;
   justify-content: center;
+  padding: 24px;
   background: var(--bg);
-  transition: opacity 0.35s ease, visibility 0.35s;
 }
-.ide-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-.ide-loader-spinner {
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 14px;
-  border: 3px solid var(--panel);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+.gate-card {
+  max-width: 420px;
+  padding: 28px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  text-align: center;
 }
-.ide-loader-text { text-align: center; color: var(--muted); font-family: var(--mono); font-size: 12px; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.gate-card h1 { margin: 0 0 12px; font-size: 20px; }
+.gate-card p { color: var(--muted); line-height: 1.5; margin: 0 0 20px; }
+.gate-btn {
+  display: inline-block;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: var(--accent-deep);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
 
 .ide-app { display: flex; flex-direction: column; height: 100vh; }
 

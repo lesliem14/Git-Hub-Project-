@@ -1,4 +1,1 @@
-/open      /open/index.html  200
-/open/     /open/index.html  200
-/open.html /index.html        301
-/ide.html  /index.html        301
+/open /open/ 301

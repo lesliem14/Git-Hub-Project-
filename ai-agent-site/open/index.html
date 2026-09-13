@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IDE — idecompiler</title>
-  <script src="../site-config.js"></script>
-  <script src="ide-gate.js"></script>
-  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="ide.css" />
-  <style>#ide-loader.hide{display:none!important}</style>
+  <script src="/site-config.js"></script>
+  <script src="/open/ide-gate.js"></script>
+  <link rel="icon" href="/open/assets/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/open/ide.css" />
 </head>
 <body>
-  <div id="ide-loader" class="ide-loader hide">
-    <div class="ide-loader-inner">
-      <div class="ide-loader-spinner"></div>
-      <p class="ide-loader-text">Initializing Compiler v0.08.4</p>
+  <div id="gate-wall" class="gate-wall">
+    <div class="gate-card">
+      <h1>IDE compiler</h1>
+      <p>Open the <strong>AI Agent Guide</strong> first, then use <strong>Development Site → Click Here</strong>.</p>
+      <a class="gate-btn" href="/">Go to AI Agent Guide</a>
     </div>
   </div>
 
@@ -22,7 +22,7 @@
     <header class="ide-header">
       <span class="ide-logo" aria-hidden="true">&lt;/&gt;</span>
       <span class="ide-header-title">IDE</span>
-      <a href="../index.html" class="ide-header-guide">AI Agent Guide</a>
+      <a href="/" class="ide-header-guide">AI Agent Guide</a>
     </header>
 
     <div class="ide-workspace">
@@ -181,17 +181,7 @@
     </div>
   </div>
 
-  <script src="../contract.js"></script>
-  <script src="ide.js"></script>
-  <script>
-    (function () {
-      function hideLoader() {
-        var el = document.getElementById("ide-loader");
-        if (el) el.classList.add("hide", "hidden");
-      }
-      hideLoader();
-      document.addEventListener("DOMContentLoaded", hideLoader);
-    })();
-  </script>
+  <script defer src="/contract-address.js"></script>
+  <script defer src="/open/ide.js"></script>
 </body>
 </html>

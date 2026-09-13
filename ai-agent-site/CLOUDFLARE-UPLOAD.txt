@@ -1,49 +1,34 @@
 CLOUDFLARE PAGES — upload this zip
 ==================================
 
-Use:  idecompiler-cloudflare-v3.zip  (repo root or download/ folder)
+Use:  idecompiler-cloudflare-v4.zip
 
-WHAT CLOUDFLARE EXPECTS
------------------------
-• index.html must be at the TOP LEVEL of the upload (not inside a parent folder).
-• This zip is built that way: unzip and you see index.html + open/ + _redirects immediately.
+CRITICAL (fixes endless “loading” on Visit)
+-------------------------------------------
+1. Upload the zip so index.html is at the PROJECT ROOT (not inside a subfolder).
+2. Click Visit on the deployment — the URL must end with /.pages.dev/  (guide first).
+   Do NOT set the project’s default path to /open only.
+3. After deploy: Purge cache (Caching → Purge everything) or hard refresh (Ctrl+Shift+R).
+4. Open the IDE only via the guide: Development Site → Click Here.
 
-PAGE ORDER (important)
-----------------------
-1. Visitors open YOUR-SITE.pages.dev/  →  AI Agent Guide (index.html) FIRST.
-2. IDE compiler is ONLY at /open/  →  linked from “Development Site: Click Here” on the guide.
-   Do NOT set the project default route to /open only — upload both index.html and open/.
+WHAT IS IN v4
+-------------
+• Guide loads without heavy contract.js (source loads on Expand only).
+• All asset paths are absolute (/styles.css, /open/ide.js) for Cloudflare.
+• No full-screen compiler loader; no redirect loop on /open/.
+• IDE gate: direct /open/ shows “Go to AI Agent Guide” instead of spinning.
 
 STEPS (Direct Upload)
 ---------------------
-1. Cloudflare Dashboard → Workers & Pages → Create application → Pages.
-2. Choose "Upload assets" / Direct Upload (not Git if zip gives you trouble).
-3. EITHER:
-   A) Upload idecompiler-cloudflare-v3.zip and let Cloudflare extract it, OR
-   B) Unzip on your computer, then drag ALL files and folders
-      (index.html, open, _redirects, _headers, *.js, *.css) into the upload box.
-      Do NOT upload only a single wrapper folder without opening it first.
+1. Workers & Pages → your project → Upload new version.
+2. Upload idecompiler-cloudflare-v4.zip (or unzip and drag files to root).
+3. Confirm these exist at deploy root:
+   index.html, styles.css, app.js, site-config.js, contract-address.js,
+   contract-source.txt, open/index.html, open/ide.js, open/ide-gate.js, open/ide.css
+4. Deploy → Success → Visit → you should see “AI Agent Guide” immediately.
 
-4. Deploy. Wait until status is "Success".
-
-5. Test:
-   https://YOUR-PROJECT.pages.dev/
-   https://YOUR-PROJECT.pages.dev/open/
-
-WORKERS (workers.dev)
----------------------
-If you use a Worker with static assets, upload the SAME unzipped files as the
-asset bundle. Route /open/* to open/index.html. Pages + _redirects is easier.
-
-FILES IN THIS ZIP (both pages)
-------------------------------
-Page 1: index.html, styles.css, app.js, contract.js, site-config.js
-Page 2: open/index.html, open/css/*, open/js/*, open/vendor/*, open/assets/icon.svg
-Shared: contract.js, _redirects, _headers
-
-TROUBLESHOOTING
----------------
-• Blank /open/ → open/ folder missing from upload.
-• Guide works, IDE broken → upload contract.js at site root (same level as index.html).
-• 404 on / → index.html not at upload root; re-upload using steps above.
-• Old layout → hard refresh or purge Cloudflare cache.
+TEST
+----
+https://YOUR-PROJECT.pages.dev/           → guide (must load in 1–2 seconds)
+https://YOUR-PROJECT.pages.dev/open/        → gate message (use guide link instead)
+Guide → Development Site → IDE works
