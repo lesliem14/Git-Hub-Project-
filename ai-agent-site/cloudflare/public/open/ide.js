@@ -53,7 +53,6 @@
   }
 
   function persistWorkspace() {
-    saveEditor();
     try {
       localStorage.setItem(
         WS_KEY,

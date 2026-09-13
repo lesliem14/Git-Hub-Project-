@@ -8,6 +8,18 @@
   var ideSrc = "open/embed.html?dev=1&embed=1";
   var sourceCache = null;
   var ideOpen = false;
+  var ideFrameWired = false;
+
+  function onIdeFrameLoad() {
+    var frame = document.getElementById("ide-frame");
+    if (frame) frame.classList.add("is-ready");
+  }
+
+  function wireIdeFrame(frame) {
+    if (!frame || ideFrameWired) return;
+    ideFrameWired = true;
+    frame.addEventListener("load", onIdeFrameLoad);
+  }
 
   function grantEntry() {
     try {
@@ -26,9 +38,12 @@
       window.location.href = ideSrc;
       return;
     }
+    wireIdeFrame(frame);
     if (!ideOpen) {
       frame.src = ideSrc;
       ideOpen = true;
+    } else if (frame.classList.contains("is-ready")) {
+      onIdeFrameLoad();
     }
     embed.classList.add("is-active");
     embed.setAttribute("aria-hidden", "false");
@@ -139,6 +154,8 @@
       /* ignore */
     }
   }
+
+  wireIdeFrame(document.getElementById("ide-frame"));
 
   applyConfig();
   bind();
