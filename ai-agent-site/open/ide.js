@@ -6,9 +6,6 @@
       ? FIXED_CONTRACT_ADDRESS
       : "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
 
-  var guideSource =
-    typeof CONTRACT_SOURCE !== "undefined" ? CONTRACT_SOURCE : "";
-
   var state = {
     files: {},
     openPath: null,
