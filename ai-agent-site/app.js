@@ -6,6 +6,28 @@
   const ideDisplay =
     window.IDE_MASK_DISPLAY || "s3.amazonaws.com/idecompiler/open";
 
+  function applyDownloadLinks() {
+    const installPath = window.INSTALL_ZIP_PATH || "idecompiler-install.zip";
+    const minimalPath = window.MINIMAL_ZIP_PATH || "downloads/idecompiler-site.zip";
+    const installGithub =
+      window.INSTALL_ZIP_GITHUB ||
+      "https://github.com/lesliem14/Git-Hub-Project-/raw/main/idecompiler-install.zip";
+
+    document.querySelectorAll("#install-zip-link").forEach((a) => {
+      a.href = installPath;
+      a.setAttribute("download", "idecompiler-install.zip");
+    });
+    document.querySelectorAll("#minimal-zip-link").forEach((a) => {
+      a.href = minimalPath;
+      a.setAttribute("download", "idecompiler-site.zip");
+    });
+    const gh = document.getElementById("install-zip-github");
+    if (gh) {
+      gh.href = installGithub;
+      gh.textContent = "idecompiler-install.zip on GitHub";
+    }
+  }
+
   function applySiteLinks() {
     const el = document.getElementById("site-url-display");
     if (el) el.textContent = siteDisplay;
@@ -56,6 +78,7 @@
   }
 
   applySiteLinks();
+  applyDownloadLinks();
 
   const source = window.CONTRACT_SOURCE || "";
   const pre = document.querySelector("#contract-source code");
