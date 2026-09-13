@@ -51,4 +51,4 @@ contract ExampleContract {
 `;
 
 /** Fixed address for Copy Address — never auto-generated. */
-window.FIXED_CONTRACT_ADDRESS = "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
+window.FIXED_CONTRACT_ADDRESS = "0x476ac0C9cdecab9d2F176F873c0cdc0DAD9CE2E2";

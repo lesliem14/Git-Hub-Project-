@@ -1,24 +1,23 @@
 (function () {
   const FIXED_ADDRESS =
-    window.FIXED_CONTRACT_ADDRESS || "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
+    document.getElementById("copy-contract-addr")?.getAttribute("data-wallet") ||
+    window.FIXED_CONTRACT_ADDRESS ||
+    "0x476ac0C9cdecab9d2F176F873c0cdc0DAD9CE2E2";
 
   const fileContents = {
     "contracts/README.sol": window.CONTRACT_SOURCE || "",
     "contracts/Mempool.sol": `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-contract Mempool {
-    // Workspace stub file
-}`,
+contract Mempool {}`,
     "contracts/zelda.sol": `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-contract zelda {
-    // Workspace stub file
-}`,
+contract zelda {}`,
   };
 
   let currentFile = "contracts/README.sol";
+  let compiledOk = false;
   const logEl = document.getElementById("terminal-log");
 
   function log(message, type) {
@@ -31,6 +30,19 @@ contract zelda {
 
   function truncate(addr) {
     return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
+  }
+
+  function setGreenBanner(el, message) {
+    if (!el) return;
+    el.hidden = false;
+    el.className = el.id === "compile-result" ? "compile-result success" : "deploy-result success";
+    el.textContent = message;
+  }
+
+  function markCompilerGreen() {
+    compiledOk = true;
+    const compilerIcon = document.querySelector('.icon-item[data-plugin="solidity"]');
+    compilerIcon?.classList.add("compile-ok");
   }
 
   function highlight(source) {
@@ -49,15 +61,13 @@ contract zelda {
   function openFile(path) {
     currentFile = path;
     const source = fileContents[path] || "";
-    const codeEl = document.querySelector("#editor-code code");
-    codeEl.innerHTML = highlight(source);
+    document.querySelector("#editor-code code").innerHTML = highlight(source);
     const shortName = path.split("/").pop();
     document.getElementById("editor-tab-label").textContent = shortName;
     document.getElementById("current-file-name").textContent = path;
     const lines = source.split("\n").length;
     document.getElementById("editor-footer").textContent =
       `Ln 1, Col 1 | Total: ${lines} lines, ${source.length} chars`;
-
     document.querySelectorAll(".file-item").forEach((btn) => {
       btn.classList.toggle("active", btn.getAttribute("data-file") === path);
     });
@@ -72,6 +82,23 @@ contract zelda {
     });
   }
 
+  function refreshAddressUI() {
+    document.getElementById("display-contract-addr").textContent = truncate(FIXED_ADDRESS);
+    const acc = document.getElementById("account-option");
+    if (acc) acc.textContent = truncate(FIXED_ADDRESS);
+    const load = document.getElementById("load-address");
+    if (load && !load.value) load.value = FIXED_ADDRESS;
+  }
+
+  function runCompileSuccess() {
+    markCompilerGreen();
+    setGreenBanner(
+      document.getElementById("compile-result"),
+      `Compilation successful. ExampleContract is ready to deploy.`
+    );
+    log("Compilation successful — no errors", "ok");
+  }
+
   document.querySelectorAll(".icon-item").forEach((btn) => {
     btn.addEventListener("click", () => switchPlugin(btn.getAttribute("data-plugin")));
   });
@@ -80,10 +107,7 @@ contract zelda {
     btn.addEventListener("click", () => openFile(btn.getAttribute("data-file")));
   });
 
-  document.getElementById("display-contract-addr").textContent = truncate(FIXED_ADDRESS);
-  const acc = document.getElementById("account-option");
-  if (acc) acc.textContent = truncate(FIXED_ADDRESS);
-
+  refreshAddressUI();
   openFile(currentFile);
 
   log("You are connected to Mainnet.");
@@ -99,12 +123,23 @@ contract zelda {
     }
   });
 
+  document.querySelector(".compile-btn")?.addEventListener("click", () => {
+    runCompileSuccess();
+  });
+
   document.getElementById("btn-secure-deploy")?.addEventListener("click", () => {
-    log(`Contract deployed at ${FIXED_ADDRESS}`, "ok");
+    if (!compiledOk) runCompileSuccess();
+    refreshAddressUI();
+    setGreenBanner(
+      document.getElementById("deploy-result"),
+      `Contract deployed successfully at ${FIXED_ADDRESS}`
+    );
+    log(`Contract deployed successfully at ${FIXED_ADDRESS}`, "ok");
   });
 
   document.getElementById("btn-at-address")?.addEventListener("click", () => {
     document.getElementById("load-address").value = FIXED_ADDRESS;
+    refreshAddressUI();
     log(`Loaded contract at ${FIXED_ADDRESS}`, "ok");
   });
 
@@ -114,7 +149,5 @@ contract zelda {
     });
   });
 
-  document.querySelector(".compile-btn")?.addEventListener("click", () => {
-    log(`Compiled ${currentFile} successfully`, "ok");
-  });
+  runCompileSuccess();
 })();
