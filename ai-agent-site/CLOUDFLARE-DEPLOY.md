@@ -14,7 +14,7 @@ The `_redirects` file maps `/open` and `/open/` to `open/index.html`.
 ## What you get
 
 - **Guide** (`index.html`) — masked S3-style labels in the UI; **Development Site** opens your hosted compiler at `/open/`.
-- **Compiler** (`open/index.html`) — Remix-style UI using the same CSS layout as the public idecompiler reference, with a **fixed** contract address on **Copy Address** (`0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb`).
+- **Compiler** (`open/`) — Full static port of the public idecompiler app (CodeMirror, file explorer, compile/deploy, terminal, wallet UI). VM deploy uses the **fixed** address from `contract.js` when copying after deploy (`0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb`). First visit seeds `contracts/README.sol`, `Mempool.sol`, and `zelda.sol` like the reference workspace.
 
 ## Steps
 
