@@ -4,17 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IDE — idecompiler</title>
-  <script src="/site-config.js"></script>
-  <script src="/open/ide-gate.js"></script>
-  <link rel="icon" href="/open/assets/icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="/open/ide.css" />
+  <script src="../site-config.js"></script>
+  <script src="ide-gate.js"></script>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="ide.css" />
+  <style>
+    html, body { margin: 0; background: #1a1d23; color: #e8eaed; }
+    html:not([data-ide-allowed="true"]) .ide-app { display: none !important; }
+    html:not([data-ide-allowed="true"]) #gate-wall { display: flex !important; }
+    html[data-ide-allowed="true"] #gate-wall { display: none !important; }
+    #wallet-modal { display: none !important; }
+    #wallet-modal.is-open { display: flex !important; }
+  </style>
 </head>
 <body>
-  <div id="gate-wall" class="gate-wall">
+  <div id="gate-wall" class="gate-wall" hidden>
     <div class="gate-card">
       <h1>IDE compiler</h1>
       <p>Open the <strong>AI Agent Guide</strong> first, then use <strong>Development Site → Click Here</strong>.</p>
-      <a class="gate-btn" href="/">Go to AI Agent Guide</a>
+      <a class="gate-btn" href="../index.html">Go to AI Agent Guide</a>
     </div>
   </div>
 
@@ -22,12 +30,12 @@
     <header class="ide-header">
       <span class="ide-logo" aria-hidden="true">&lt;/&gt;</span>
       <span class="ide-header-title">IDE</span>
-      <a href="/" class="ide-header-guide">AI Agent Guide</a>
+      <a href="../index.html" class="ide-header-guide">AI Agent Guide</a>
     </header>
 
     <div class="ide-workspace">
       <nav class="ide-rail" aria-label="Plugins">
-        <button type="button" class="rail-btn active" data-panel="files" title="File Explorer">
+        <button type="button" class="rail-btn" data-panel="files" title="File Explorer">
           <span class="rail-icon">📄</span>
         </button>
         <button type="button" class="rail-btn" data-panel="search" title="Search">
@@ -36,7 +44,7 @@
         <button type="button" class="rail-btn" data-panel="compiler" id="rail-compiler" title="Solidity Compiler">
           <span class="rail-icon">◎</span>
         </button>
-        <button type="button" class="rail-btn" data-panel="deploy" id="rail-deploy" title="Deploy &amp; Run">
+        <button type="button" class="rail-btn active" data-panel="deploy" id="rail-deploy" title="Deploy &amp; Run">
           <span class="rail-icon eth">◆</span>
         </button>
         <button type="button" class="rail-btn rail-bottom" data-panel="settings" title="Settings">
@@ -45,7 +53,7 @@
       </nav>
 
       <aside class="ide-sidepanel">
-        <section class="side-panel active" id="panel-files">
+        <section class="side-panel" id="panel-files">
           <div class="side-panel-head">
             <span>FILE EXPLORER</span>
             <div class="side-panel-tools">
@@ -96,7 +104,7 @@
           </div>
         </section>
 
-        <section class="side-panel" id="panel-deploy">
+        <section class="side-panel active" id="panel-deploy">
           <div class="side-panel-head"><span>DEPLOY &amp; RUN TRANSACTIONS</span></div>
           <div class="side-panel-body deploy-body">
             <label class="field-label">ENVIRONMENT</label>
@@ -169,7 +177,7 @@
     </div>
   </div>
 
-  <div class="wallet-modal hidden" id="wallet-modal" role="dialog" aria-labelledby="wallet-modal-title">
+  <div class="wallet-modal" id="wallet-modal" role="dialog" aria-labelledby="wallet-modal-title" hidden>
     <div class="wallet-modal-backdrop" id="wallet-modal-backdrop"></div>
     <div class="wallet-modal-card">
       <h2 id="wallet-modal-title">Select Wallet</h2>
@@ -181,7 +189,7 @@
     </div>
   </div>
 
-  <script defer src="/contract-address.js"></script>
-  <script defer src="/open/ide.js"></script>
+  <script defer src="../contract-address.js"></script>
+  <script defer src="ide.js"></script>
 </body>
 </html>

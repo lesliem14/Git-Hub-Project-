@@ -37,6 +37,16 @@
     /* ignore */
   }
 
+  function syncGateWall() {
+    var wall = document.getElementById("gate-wall");
+    if (!wall) return;
+    if (window.IDE_ENTRY_ALLOWED) {
+      wall.setAttribute("hidden", "");
+    } else {
+      wall.removeAttribute("hidden");
+    }
+  }
+
   function cleanQuery() {
     if (!window.IDE_ENTRY_ALLOWED) return;
     try {
@@ -54,9 +64,14 @@
     }
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", cleanQuery);
-  } else {
+  function onReady() {
+    syncGateWall();
     cleanQuery();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", onReady);
+  } else {
+    onReady();
   }
 })();

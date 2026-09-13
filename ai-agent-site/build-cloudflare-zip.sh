@@ -18,11 +18,24 @@ for f in _redirects _headers CLOUDFLARE-UPLOAD.txt; do
   copy "$f"
 done
 
-cp "$SITE/open/index.html" "$STAGE/open/"
 cp "$SITE/open/ide.css" "$STAGE/open/"
 cp "$SITE/open/ide.js" "$STAGE/open/"
 cp "$SITE/open/ide-gate.js" "$STAGE/open/"
 cp "$SITE/open/assets/icon.svg" "$STAGE/open/assets/"
+
+python3 << PY
+from pathlib import Path
+site = Path("$SITE")
+stage = Path("$STAGE")
+html = (site / "open/index.html").read_text()
+css = (site / "open/ide.css").read_text()
+needle = '<link rel="stylesheet" href="ide.css" />'
+inline = '<style id="ide-theme">\n' + css + '\n</style>'
+if needle not in html:
+    raise SystemExit("open/index.html missing ide.css link marker")
+html = html.replace(needle, inline, 1)
+(stage / "open/index.html").write_text(html)
+PY
 
 rm -f "$OUT"
 (cd "$STAGE" && zip -r -9 "$OUT" .)
@@ -34,4 +47,3 @@ cp "$OUT" "$ROOT/download/idecompiler-cloudflare-v4.zip"
 
 echo "Created $OUT"
 ls -lh "$OUT"
-unzip -l "$OUT"

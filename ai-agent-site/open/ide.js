@@ -184,12 +184,18 @@
 
   function openWalletModal() {
     var modal = document.getElementById("wallet-modal");
-    if (modal) modal.classList.remove("hidden");
+    if (modal) {
+      modal.removeAttribute("hidden");
+      modal.classList.add("is-open");
+    }
   }
 
   function closeWalletModal() {
     var modal = document.getElementById("wallet-modal");
-    if (modal) modal.classList.add("hidden");
+    if (modal) {
+      modal.setAttribute("hidden", "");
+      modal.classList.remove("is-open");
+    }
   }
 
   function connectWallet(name) {

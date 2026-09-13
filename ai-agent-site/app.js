@@ -22,8 +22,15 @@
   var maskEl = document.getElementById("dev-site-mask");
   if (maskEl) maskEl.textContent = ideDisplay;
 
+  function guideIdeHref() {
+    var base = (ideUrl || "open/").replace(/^\//, "");
+    if (base.indexOf("open") !== 0) base = "open/";
+    if (!base.endsWith("/")) base += "/";
+    return withEntryUrl(base);
+  }
+
   document.querySelectorAll("#dev-site-link, #dev-site-link-2").forEach(function (a) {
-    a.href = withEntryUrl(ideUrl.indexOf("/") === 0 ? ideUrl : "/" + ideUrl.replace(/^\//, ""));
+    a.href = guideIdeHref();
     a.addEventListener("click", grantIdeEntry);
     if (window.IDE_OPEN_IN_NEW_TAB) {
       a.target = "_blank";
@@ -38,7 +45,7 @@
     }
     if (sourceLoading) return;
     sourceLoading = true;
-    fetch("/contract-source.txt", { cache: "no-cache" })
+    fetch("contract-source.txt", { cache: "no-cache" })
       .then(function (r) {
         if (!r.ok) throw new Error("fetch failed");
         return r.text();
