@@ -52,6 +52,34 @@
     gutter.scrollTop = ed.scrollTop;
   }
 
+  function persistWorkspace() {
+    saveEditor();
+    try {
+      localStorage.setItem(
+        WS_KEY,
+        JSON.stringify({ files: state.files, openPath: state.openPath })
+      );
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function restoreWorkspace() {
+    try {
+      var raw = localStorage.getItem(WS_KEY);
+      if (!raw) return false;
+      var data = JSON.parse(raw);
+      if (data.files && typeof data.files === "object") {
+        state.files = data.files;
+        state.openPath = data.openPath || state.openPath;
+        return true;
+      }
+    } catch (e) {
+      /* ignore */
+    }
+    return false;
+  }
+
   function seedFiles() {
     state.files["default_workspace/contracts/README.sol"] =
       "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n\n/// @notice Welcome — create a new file (one word) and paste the guide source.\ncontract README {\n    string public message = \"idecompiler\";\n}\n";
@@ -130,6 +158,7 @@
       var ed = document.getElementById("editor");
       if (ed) state.files[state.openPath] = ed.value;
     }
+    persistWorkspace();
   }
 
   function parseContractName(src) {
@@ -362,12 +391,22 @@
   function init() {
     hideLoader();
     seedFiles();
+    if (!restoreWorkspace()) {
+      /* defaults from seedFiles */
+    }
     renderTree();
     openFile(state.openPath);
     bind();
     setPanel("deploy");
     updateLineGutter();
     term("Terminal initialized.", "ok");
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "idecompiler-ready" }, "*");
+      }
+    } catch (e) {
+      /* ignore */
+    }
   }
 
   if (document.readyState === "loading") {

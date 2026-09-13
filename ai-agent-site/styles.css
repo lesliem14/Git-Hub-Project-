@@ -145,6 +145,23 @@ a:hover {
 .code-block code .kw { color: #79c0ff; }
 .code-block code .cm { color: #8b949e; }
 
+html.boot-ide #guide-main {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#guide-main {
+  transition: opacity 0.32s ease;
+}
+
+#guide-main.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  width: 100%;
+  visibility: hidden;
+}
+
 .ide-embed {
   position: fixed;
   inset: 0;
@@ -152,10 +169,66 @@ a:hover {
   display: flex;
   flex-direction: column;
   background: #1a1d23;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 0.32s ease, transform 0.32s ease, visibility 0.32s;
 }
 
-.ide-embed[hidden] {
+.ide-embed.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.ide-embed-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ide-embed-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: #1a1d23;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.ide-embed-loading[hidden] {
   display: none !important;
+}
+
+.ide-embed-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #252a33;
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: ide-spin 0.75s linear infinite;
+}
+
+@keyframes ide-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ide-embed-frame {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.ide-embed-frame.is-ready {
+  opacity: 1;
 }
 
 .ide-embed-bar {

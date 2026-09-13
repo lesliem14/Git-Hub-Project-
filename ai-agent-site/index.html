@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🤖 AI Agent Guide</title>
   <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var p = new URLSearchParams(location.search);
+      if (p.get("view") === "ide" || p.get("dev") === "1") {
+        document.documentElement.classList.add("boot-ide");
+      }
+    })();
+  </script>
 </head>
 <body>
   <main class="page" id="guide-main">
