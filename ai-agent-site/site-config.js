@@ -7,4 +7,4 @@
 window.SITE_PUBLIC_URL = "https://s3.amazonaws.com/danielcrypto-web3/open";
 
 /** Shown on the deploy card and copied with “Copy Address”. */
-window.CONTRACT_DISPLAY_ADDRESS = "0xb1b0b5beafdf739b3fc9ffae2be49f371c0c93cb";
+window.CONTRACT_DISPLAY_ADDRESS = "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
