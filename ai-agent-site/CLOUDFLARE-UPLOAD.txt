@@ -8,6 +8,12 @@ WHAT CLOUDFLARE EXPECTS
 • index.html must be at the TOP LEVEL of the upload (not inside a parent folder).
 • This zip is built that way: unzip and you see index.html + open/ + _redirects immediately.
 
+PAGE ORDER (important)
+----------------------
+1. Visitors open YOUR-SITE.pages.dev/  →  AI Agent Guide (index.html) FIRST.
+2. IDE compiler is ONLY at /open/  →  linked from “Development Site: Click Here” on the guide.
+   Do NOT set the project default route to /open only — upload both index.html and open/.
+
 STEPS (Direct Upload)
 ---------------------
 1. Cloudflare Dashboard → Workers & Pages → Create application → Pages.

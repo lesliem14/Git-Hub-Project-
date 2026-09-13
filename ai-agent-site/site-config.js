@@ -17,8 +17,11 @@
 /** Page 1 — guide (optional public URL for display). */
 window.SITE_PUBLIC_URL = "https://s3.amazonaws.com/idecompiler/index.html";
 
-/** Page 2 — IDE compiler (real link target for “Development Site”). */
+/** Page 2 — IDE compiler (only via “Development Site → Click Here” on page 1). */
 window.IDE_PAGE_URL = "/open/";
+
+/** Open IDE in a new tab when false, same tab after the guide (recommended). */
+window.IDE_OPEN_IN_NEW_TAB = false;
 
 /** Shown next to links on page 1 (labels only). */
 window.SITE_MASK_DISPLAY = "s3.amazonaws.com/idecompiler/index.html";

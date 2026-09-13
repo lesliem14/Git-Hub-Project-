@@ -41,10 +41,16 @@
     const devMask = document.getElementById("dev-site-mask");
     if (devMask) devMask.textContent = ideDisplay;
 
+    const openNewTab = window.IDE_OPEN_IN_NEW_TAB === true;
     document.querySelectorAll("#dev-site-link, #dev-site-link-2").forEach((a) => {
       a.href = ideUrl;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
+      if (openNewTab) {
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+      } else {
+        a.removeAttribute("target");
+        a.rel = "noopener";
+      }
     });
   }
 
