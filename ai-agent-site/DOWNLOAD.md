@@ -1,34 +1,48 @@
-# Download the site
+# Installation zip (download)
 
-## 9 files (S3 / simple hosting) — external folder
+## Full install — recommended
 
-**Path in repo:** `download/`
+Download **`idecompiler-install.zip`** from the **repository root** (same branch as this project).
 
-| Download | Contents |
-|----------|----------|
-| **[`download/idecompiler-site.zip`](../download/idecompiler-site.zip)** | Folder **`idecompiler-site/`** with **9 files** only |
-| **[`download/idecompiler-site/`](../download/idecompiler-site/)** | Same files unzipped (clone repo or download folder from GitHub) |
+| File | Size | Use |
+|------|------|-----|
+| **`idecompiler-install.zip`** | ~116 KB | **Complete install** — guide + full IDE at `/open/` |
+| `drop-site.zip` | Same as above | Alias |
+| `ai-agent-site-cloudflare.zip` | Same as above | Alias |
 
-The nine files:
+Also in folder **`download/`**: `download/idecompiler-install.zip` (copy of the same archive).
 
-1. `index.html`  
-2. `open.html` (S3 key: `open`)  
-3. `ide.html`  
-4. `styles.css`  
-5. `ide.css`  
-6. `app.js`  
-7. `ide.js`  
-8. `contract.js`  
-9. `site-config.js`  
+### GitHub direct link
 
-GitHub raw zip URL (branch `cursor/ai-agent-s3-webpage-b474`):
+`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/idecompiler-install.zip`
 
-`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/download/idecompiler-site.zip`
+(Replace branch name if yours differs.)
 
-Unzip, then upload **all files** inside `idecompiler-site/` to your bucket. Rename `open.html` → object key **`open`**.
+### Install steps
 
-See **`download/README.md`** for S3 steps.
+1. Download **`idecompiler-install.zip`**.
+2. Unzip into a folder, e.g. `my-site`:
+   - Windows: right-click → **Extract All**
+   - Mac/Linux: `unzip idecompiler-install.zip -d my-site`
+3. Upload **all extracted files** to your host:
+   - **Cloudflare Pages / Workers** — drag the whole folder into **Upload assets**
+   - **Amazon S3** — upload every object to the bucket prefix (see `UPLOAD-S3.txt`)
+4. Open:
+   - Guide: `https://<your-host>/`
+   - IDE: `https://<your-host>/open/`
 
-## Full Cloudflare compiler (large bundle)
+Included docs inside the zip:
 
-Repo root **`drop-site.zip`** / **`ai-agent-site-cloudflare.zip`** includes the guide plus the full `/open/` idecompiler app (40+ files). Use that for Cloudflare Pages, not the 9-file zip.
+- **`CLOUDFLARE-DEPLOY.md`** — Cloudflare Pages
+- **`WORKERS-DEPLOY.md`** — Workers.dev `/open` URL
+- **`README.md`** — overview
+
+You should see **46 files** in the zip, including `open/index.html` and `open/js/app.js`.
+
+---
+
+## Small bundle (9 files only)
+
+For minimal S3 hosting **without** the full left-panel IDE, use **`download/idecompiler-site.zip`** (9 files in folder `idecompiler-site/`). See **`download/README.md`**.
+
+That zip does **not** include the full compiler; use **`idecompiler-install.zip`** for Workers and full IDE functionality.

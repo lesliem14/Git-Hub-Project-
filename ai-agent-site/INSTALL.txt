@@ -1,0 +1,17 @@
+IDE Compiler — installation zip
+================================
+
+1. Download: idecompiler-install.zip (repo root or download/ folder)
+
+2. Unzip to a folder on your computer.
+
+3. Upload ALL files inside the unzip folder to your web host
+   (Cloudflare Pages, Workers static assets, or S3 bucket).
+
+4. URLs after deploy:
+   - Guide:  https://YOUR-HOST/
+   - IDE:    https://YOUR-HOST/open/
+
+5. Read CLOUDFLARE-DEPLOY.md or WORKERS-DEPLOY.md inside the zip.
+
+Do not use idecompiler-site.zip (9 files) if you need the full IDE.

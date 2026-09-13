@@ -1,32 +1,25 @@
-# External download — 9-file site bundle
+# Download folder
 
-Download **`idecompiler-site.zip`** from this folder (GitHub: open `download/idecompiler-site.zip` → **Download**).
+## Full installation (use this)
 
-## Contents (folder `idecompiler-site/`)
+| File | Description |
+|------|-------------|
+| **[`idecompiler-install.zip`](idecompiler-install.zip)** | **Full site** — AI Agent Guide + IDE (`open/` with 46 files) |
 
-| File | Purpose |
-|------|---------|
-| `index.html` | AI Agent Guide (home) |
-| `open.html` | Compiler UI — upload to S3 as object key **`open`** (no `.html`) |
-| `ide.html` | Same compiler (optional duplicate) |
-| `styles.css` | Guide styles |
-| `ide.css` | Compiler styles |
-| `app.js` | Guide logic |
-| `ide.js` | Compiler logic (fixed Copy Address) |
-| `contract.js` | ExampleContract source + fixed address |
-| `site-config.js` | URLs and masked labels |
+Same file at repo root: **`/idecompiler-install.zip`**
 
-## S3 upload
+**Install:** unzip → upload everything to Cloudflare Pages, Workers, or S3 → visit `/` and `/open/`.
 
-Upload all files to the **same bucket prefix** (e.g. bucket `idecompiler`):
+---
 
-- `open.html` → rename key to **`open`**
-- Everything else keeps its filename
+## Minimal 9-file bundle (S3 only)
 
-See `idecompiler-site/UPLOAD-S3.txt` inside the zip (copied from project docs).
+| File | Description |
+|------|-------------|
+| [`idecompiler-site.zip`](idecompiler-site.zip) | Guide + legacy `open.html` only (no full IDE) |
 
-## Full IDE on Cloudflare Workers (`/open`)
+Folder **[`idecompiler-site/`](idecompiler-site/)** — same 9 files unzipped.
 
-For `https://….workers.dev/open` you **must** use repo root **`drop-site.zip`** (includes `open/` folder, left-side Deploy & Run, compiler, file explorer). The 9-file zip is not enough.
+---
 
-See **`ai-agent-site/WORKERS-DEPLOY.md`** in the full bundle.
+See **`../ai-agent-site/DOWNLOAD.md`** for GitHub raw URLs and step-by-step install.
