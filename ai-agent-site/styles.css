@@ -185,6 +185,17 @@ a:hover {
   word-break: break-all;
 }
 
+.masked-url {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.masked-url code {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: #7ee787;
+}
+
 /* Deploy panel (Remix-style) */
 .deploy-panel {
   margin-top: 2.5rem;

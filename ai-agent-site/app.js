@@ -1,5 +1,6 @@
 (function () {
   function resolveIdeUrl() {
+    if (window.IDE_ACTUAL_URL) return window.IDE_ACTUAL_URL;
     if (window.IDE_PAGE_URL) return window.IDE_PAGE_URL;
     try {
       return new URL("ide.html", window.location.href).href;
@@ -8,23 +9,27 @@
     }
   }
 
-  const siteUrl =
-    window.SITE_PUBLIC_URL ||
-    window.location.href.replace(/[#?].*$/, "").split("/").slice(0, -1).concat(["index.html"]).join("/") ||
-    window.location.href;
-  const ideUrl = resolveIdeUrl();
-
-  function siteUrlForDisplay(url) {
-    return url.replace(/^https?:\/\//i, "");
+  function resolveSiteUrl() {
+    if (window.SITE_ACTUAL_URL) return window.SITE_ACTUAL_URL;
+    if (window.SITE_PUBLIC_URL) return window.SITE_PUBLIC_URL;
+    return window.location.href.replace(/[#?].*$/, "");
   }
 
+  const ideUrl = resolveIdeUrl();
+  const siteUrl = resolveSiteUrl();
+  const siteDisplay = window.SITE_MASK_DISPLAY || siteUrl.replace(/^https?:\/\//i, "");
+  const ideDisplay = window.IDE_MASK_DISPLAY || ideUrl.replace(/^https?:\/\//i, "");
+
   function applySiteLinks() {
-    const display = siteUrlForDisplay(siteUrl);
     const el = document.getElementById("site-url-display");
-    if (el) el.textContent = display;
+    if (el) el.textContent = siteDisplay;
+
+    const devMask = document.getElementById("dev-site-mask");
+    if (devMask) devMask.textContent = ideDisplay;
 
     document.querySelectorAll("#dev-site-link, #dev-site-link-2").forEach((a) => {
       a.href = ideUrl;
+      a.title = ideDisplay;
     });
   }
 
