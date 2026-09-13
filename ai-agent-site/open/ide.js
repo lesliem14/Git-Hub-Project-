@@ -11,6 +11,7 @@
   var state = {
     files: {},
     openPath: null,
+    openTabs: [],
     compiled: null,
     deployed: false,
     walletConnected: false,
@@ -19,6 +20,128 @@
     activePanel: "deploy",
     lastBytecode: "",
   };
+
+  function contractTemplate(contractName) {
+    return (
+      "// SPDX-License-Identifier: MIT\n" +
+      "pragma solidity ^0.8.4;\n\n" +
+      "contract " +
+      contractName +
+      " {\n" +
+      "    constructor() {}\n\n" +
+      "    function deployable() public pure returns (bool) {\n" +
+      "        return true;\n" +
+      "    }\n" +
+      "}\n"
+    );
+  }
+
+  function nameFromFileBase(base) {
+    if (!base) return "Contract";
+    var part = base.replace(/[^a-zA-Z0-9_]/g, "");
+    if (!part) return "Contract";
+    if (/^[0-9]/.test(part)) part = "C" + part;
+    return part.charAt(0).toUpperCase() + part.slice(1);
+  }
+
+  function ensureOpenTab(path) {
+    if (!path) return;
+    if (state.openTabs.indexOf(path) === -1) {
+      state.openTabs.push(path);
+    }
+  }
+
+  function renderEditorTabs() {
+    var bar = document.getElementById("editor-tabs");
+    if (!bar) return;
+    bar.innerHTML = "";
+    state.openTabs = state.openTabs.filter(function (p) {
+      return state.files[p] !== undefined;
+    });
+    state.openTabs.forEach(function (path) {
+      var name = path.split("/").pop();
+      var tab = document.createElement("button");
+      tab.type = "button";
+      tab.className =
+        "editor-tab" + (state.openPath === path ? " active" : "");
+      tab.setAttribute("role", "tab");
+      tab.setAttribute("aria-selected", state.openPath === path ? "true" : "false");
+      var label = document.createElement("span");
+      label.textContent = name;
+      tab.appendChild(label);
+      var close = document.createElement("button");
+      close.type = "button";
+      close.className = "editor-tab-close";
+      close.setAttribute("aria-label", "Close " + name);
+      close.textContent = "×";
+      close.addEventListener("click", function (e) {
+        e.stopPropagation();
+        closeTab(path);
+      });
+      tab.appendChild(close);
+      tab.addEventListener("click", function () {
+        openFile(path);
+      });
+      bar.appendChild(tab);
+    });
+    var add = document.createElement("button");
+    add.type = "button";
+    add.className = "editor-tab-add";
+    add.id = "btn-tab-new";
+    add.title = "New contract";
+    add.textContent = "+";
+    add.addEventListener("click", newFile);
+    bar.appendChild(add);
+  }
+
+  function closeTab(path) {
+    var idx = state.openTabs.indexOf(path);
+    if (idx === -1) return;
+    if (state.openTabs.length <= 1) {
+      term("Keep at least one contract file open.", "warn");
+      return;
+    }
+    state.openTabs.splice(idx, 1);
+    if (state.openPath === path) {
+      var next = state.openTabs[Math.max(0, idx - 1)];
+      openFile(next);
+    } else {
+      renderEditorTabs();
+    }
+  }
+
+  function listAllContracts() {
+    var out = [];
+    Object.keys(state.files).forEach(function (path) {
+      if (!path.endsWith(".sol")) return;
+      var src = state.files[path] || "";
+      var name = parseContractName(src);
+      if (name) out.push({ name: name, path: path });
+    });
+    return out;
+  }
+
+  function refreshDeployContractSelect(preferName) {
+    var sel = document.getElementById("deploy-contract");
+    if (!sel) return;
+    var contracts = listAllContracts();
+    var prev = preferName || (state.compiled && state.compiled.name) || sel.value;
+    sel.innerHTML = "";
+    if (!contracts.length) {
+      var empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = "— compile a contract —";
+      sel.appendChild(empty);
+      return;
+    }
+    contracts.forEach(function (c) {
+      var opt = document.createElement("option");
+      opt.value = c.name;
+      opt.textContent = c.name + " (" + c.path.split("/").pop() + ")";
+      if (c.name === prev) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
 
   function hideLoader() {
     var el = document.getElementById("ide-loader");
@@ -142,14 +265,15 @@
     if (state.files[path] === undefined) return;
     saveEditor();
     state.openPath = path;
+    ensureOpenTab(path);
     var ed = document.getElementById("editor");
     if (ed) ed.value = state.files[path];
-    var tabs = document.getElementById("editor-tabs");
-    if (tabs) tabs.textContent = path.split("/").pop();
     updateLineGutter();
     var autoCompile = document.getElementById("auto-compile");
     if (autoCompile && autoCompile.checked) compile(true);
     renderTree();
+    renderEditorTabs();
+    refreshDeployContractSelect();
   }
 
   function saveEditor() {
@@ -183,15 +307,7 @@
     state.lastBytecode = "0x6080…" + name;
     var verEl = document.getElementById("compiler-version");
     var ver = (verEl && verEl.value) || "0.8.4";
-    var sel = document.getElementById("deploy-contract");
-    if (sel) {
-      sel.innerHTML = "";
-      var opt = document.createElement("option");
-      opt.value = name;
-      opt.textContent = name;
-      opt.selected = true;
-      sel.appendChild(opt);
-    }
+    refreshDeployContractSelect(name);
     document.getElementById("compile-status").textContent =
       "✓ Compilation successful";
     var railCompiler = document.getElementById("rail-compiler");
@@ -199,6 +315,8 @@
     if (!silent) {
       term("Compiling " + path.split("/").pop() + " with " + ver + "…", "");
       term("Compilation successful. Contract: " + name + ".", "ok");
+      term("Switch to Deploy & Run → Secure Deploy.", "ok");
+      setPanel("deploy");
     }
     hideLoader();
   }
@@ -243,11 +361,39 @@
     term(name + " connected (Injected Provider).", "ok");
   }
 
+  function resolveCompiledForDeploy() {
+    var sel = document.getElementById("deploy-contract");
+    var name = sel && sel.value;
+    if (!name) return null;
+    var list = listAllContracts();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].name === name) return list[i];
+    }
+    return null;
+  }
+
   function secureDeploy() {
-    if (!state.compiled) {
-      term("Compile your contract first (Solidity Compiler tab).", "warn");
+    var picked = resolveCompiledForDeploy();
+    if (!picked) {
+      term("Select a contract (compile in Solidity Compiler tab first).", "warn");
       setPanel("compiler");
       return;
+    }
+    if (
+      state.compiled &&
+      state.compiled.name === picked.name &&
+      state.compiled.path === picked.path
+    ) {
+      /* already compiled selection */
+    } else {
+      state.openPath = picked.path;
+      openFile(picked.path);
+      compile(true);
+      if (!state.compiled) {
+        term("Compilation failed — fix errors and try again.", "err");
+        setPanel("compiler");
+        return;
+      }
     }
     if (
       (function () {
@@ -285,7 +431,7 @@
   }
 
   function newFile() {
-    var word = prompt("New file name (one word):", "swap");
+    var word = prompt("New contract name (one word):", "swap");
     if (!word) return;
     word = word.replace(/[^a-zA-Z0-9_]/g, "");
     if (!word) return;
@@ -293,13 +439,15 @@
     if (state.files[path]) {
       term("File already exists.", "warn");
       openFile(path);
+      setPanel("files");
       return;
     }
-    state.files[path] =
-      "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n\n";
+    var contractName = nameFromFileBase(word);
+    state.files[path] = contractTemplate(contractName);
     openFile(path);
     renderTree();
-    term("Created " + word + ".sol — paste your contract and compile.", "ok");
+    setPanel("files");
+    term("Created " + word + ".sol — edit, compile, then Secure Deploy.", "ok");
   }
 
   function newFolder() {
@@ -383,6 +531,14 @@
           opt.textContent = "Account 0 (0 ETH)";
           sel.appendChild(opt);
         }
+        term("Remix VM — deploy without wallet extension.", "ok");
+      }
+    });
+    on("deploy-contract", "change", function () {
+      var picked = resolveCompiledForDeploy();
+      if (picked) {
+        state.openPath = picked.path;
+        openFile(picked.path);
       }
     });
   }
@@ -394,9 +550,19 @@
       /* defaults from seedFiles */
     }
     renderTree();
-    openFile(state.openPath);
+    if (state.openPath) ensureOpenTab(state.openPath);
+    Object.keys(state.files)
+      .filter(function (p) {
+        return p.endsWith(".sol");
+      })
+      .slice(0, 5)
+      .forEach(function (p) {
+        ensureOpenTab(p);
+      });
+    openFile(state.openPath || Object.keys(state.files)[0]);
     bind();
     setPanel("deploy");
+    refreshDeployContractSelect();
     updateLineGutter();
     term("Terminal initialized.", "ok");
     try {

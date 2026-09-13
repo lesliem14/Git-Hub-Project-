@@ -24,16 +24,13 @@
 
     <div class="ide-workspace">
       <nav class="ide-rail" aria-label="Plugins">
-        <button type="button" class="rail-btn" data-panel="files" title="File Explorer">
+        <button type="button" class="rail-btn" data-panel="files" id="rail-files" title="File Explorer">
           <span class="rail-icon">📄</span>
-        </button>
-        <button type="button" class="rail-btn" data-panel="search" title="Search">
-          <span class="rail-icon">🔍</span>
         </button>
         <button type="button" class="rail-btn" data-panel="compiler" id="rail-compiler" title="Solidity Compiler">
           <span class="rail-icon">◎</span>
         </button>
-        <button type="button" class="rail-btn active" data-panel="deploy" id="rail-deploy" title="Deploy &amp; Run">
+        <button type="button" class="rail-btn active" data-panel="deploy" id="rail-deploy" title="Deploy &amp; Run Transactions">
           <span class="rail-icon eth">◆</span>
         </button>
         <button type="button" class="rail-btn rail-bottom" data-panel="settings" title="Settings">
@@ -54,21 +51,14 @@
             <select class="workspace-select" id="workspace-select">
               <option>default_workspace</option>
             </select>
+            <input type="search" class="field-input tree-search" id="search-input" placeholder="Filter files…" aria-label="Filter files" />
             <button type="button" class="btn-block primary" id="btn-new-file">
-              <span>📄</span> New File
+              <span>📄</span> New Contract (.sol)
             </button>
             <button type="button" class="btn-block primary" id="btn-new-folder">
               <span>📁</span> New Folder
             </button>
             <div class="tree" id="file-tree"></div>
-          </div>
-        </section>
-
-        <section class="side-panel" id="panel-search">
-          <div class="side-panel-head"><span>SEARCH</span></div>
-          <div class="side-panel-body">
-            <input type="search" class="field-input" id="search-input" placeholder="Search in files" />
-            <div class="search-hint">Type to filter files in the explorer.</div>
           </div>
         </section>
 
@@ -149,7 +139,7 @@
 
       <div class="ide-main">
         <div class="editor-wrap">
-          <div class="editor-tabbar" id="editor-tabs"></div>
+          <div class="editor-tabbar" id="editor-tabs" role="tablist" aria-label="Open contracts"></div>
           <div class="editor-shell">
             <pre class="line-gutter" id="line-gutter" aria-hidden="true">1</pre>
             <textarea class="editor" id="editor" spellcheck="false"></textarea>
