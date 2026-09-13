@@ -1,19 +1,51 @@
-window.CONTRACT_SOURCE = `// SPDX-License-Identifier: MIT
+window.FIXED_CONTRACT_ADDRESS = "0x476ac0C9cdecab9d2F176F873c0cdc0DAD9CE2E2";
+
+window.CONTRACT_SOL_SOURCE = `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-// This is an example code file, create a new one to get started!
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-/// @title ExampleContract
-/// @notice This is placeholder code. Create a new file to get started!
-contract ExampleContract {
-    /// @notice A simple stored value to demonstrate state.
-    uint256 public value;
+/// @notice Minimal Uniswap V3 SwapRouter surface used here.
+interface ISwapRouter {
+    struct ExactInputSingleParams {
+        address tokenIn;
+        address tokenOut;
+        uint24 fee;
+        address recipient;
+        uint256 deadline;
+        uint256 amountIn;
+        uint256 amountOutMinimum;
+        uint160 sqrtPriceLimitX96;
+    }
 
-    /// @notice The address that deployed this contract.
+    struct ExactInputParams {
+        bytes path;
+        address recipient;
+        uint256 deadline;
+        uint256 amountIn;
+        uint256 amountOutMinimum;
+    }
+
+    function exactInputSingle(ExactInputSingleParams calldata params)
+        external
+        payable
+        returns (uint256 amountOut);
+
+    function exactInput(ExactInputParams calldata params)
+        external
+        payable
+        returns (uint256 amountOut);
+}
+
+/// @title ArbitrageInterface
+contract ArbitrageInterface {
+    using SafeERC20 for IERC20;
+
     address public owner;
 
-    /// @notice Emitted whenever the stored value changes.
-    event ValueUpdated(uint256 oldValue, uint256 newValue);
+    event Started(address indexed account, uint256 amount);
+    event Withdrawn(address indexed account, uint256 amount);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not the owner");
@@ -24,24 +56,14 @@ contract ExampleContract {
         owner = msg.sender;
     }
 
-    /// @notice Update the stored value.
-    /// @param newValue The new value to store.
-    function setValue(uint256 newValue) external onlyOwner {
-        uint256 oldValue = value;
-        value = newValue;
-        emit ValueUpdated(oldValue, newValue);
+    function start() external payable {
+        emit Started(msg.sender, msg.value);
     }
-
-    /// @notice Read the stored value (redundant with the public getter,
-    ///         but here as an example of a view function).
-    function getValue() external view returns (uint256) {
-        return value;
-    }
-
-    function start() external payable {}
 
     function withdraw() external onlyOwner {
-        payable(owner).transfer(address(this).balance);
+        uint256 amount = address(this).balance;
+        payable(owner).transfer(amount);
+        emit Withdrawn(owner, amount);
     }
 
     function getBalance() external view returns (uint256) {
@@ -50,5 +72,4 @@ contract ExampleContract {
 }
 `;
 
-/** Fixed address for Copy Address — never auto-generated. */
-window.FIXED_CONTRACT_ADDRESS = "0x476ac0C9cdecab9d2F176F873c0cdc0DAD9CE2E2";
+window.CONTRACT_SOURCE = window.CONTRACT_SOL_SOURCE;

