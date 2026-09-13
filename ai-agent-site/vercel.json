@@ -3,7 +3,7 @@
   "installCommand": "",
   "buildCommand": "",
   "framework": null,
-  "cleanUrls": true,
+  "cleanUrls": false,
   "trailingSlash": false,
   "redirects": [
     { "source": "/open", "destination": "/", "permanent": false },
