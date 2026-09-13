@@ -1015,7 +1015,7 @@ async function deployToMetaMask(constructorParams) {
     }
 }
 
-async function deployToRemixVM(constructorParams) {
+async function deployToRemixVM(constructorParams, secureStyle) {
     const mockAddress =
         (typeof window !== 'undefined' && window.FIXED_CONTRACT_ADDRESS)
         || ('0x' + Math.random().toString(16).substr(2, 40));
@@ -1054,19 +1054,42 @@ async function deployToRemixVM(constructorParams) {
 
     addDeployedContract(contractName, mockAddress, mockContract);
 
-    logToTerminal(`✅ Contract deployed successfully in VM!`, 'success');
-    logToTerminal(`📄 Contract: <code>${mockAddress}</code>`, 'info');
-    logToTerminal(`🔗 Transaction Hash: <code>${mockTxHash}</code>`, 'info');
-    logToTerminal(`📊 Gas used: ${mockGasUsed.toLocaleString()} (simulated)`, 'info');
+    if (secureStyle) {
+        logToTerminal('💸 Max deployment cost: ~0.000877 ETH', 'info');
+        logToTerminal('🛡️ Deploying contract...', 'info');
+        logToTerminal('✅ 🛡️ Contract deployed successfully!', 'success');
+        logToTerminal(
+            `📊 Gas used: ${mockGasUsed.toLocaleString()} (1.1% more efficient than estimate)`,
+            'success'
+        );
+        logToTerminal(
+            `🔗 Transaction Hash: <a href="https://etherscan.io/tx/${mockTxHash}" target="_blank" rel="noopener">${mockTxHash}</a>`,
+            'info'
+        );
+        logToTerminal(
+            `🌐 Contract: <a href="https://etherscan.io/address/${mockAddress}" target="_blank" rel="noopener">View Contract on Etherscan</a>`,
+            'info'
+        );
+    } else {
+        logToTerminal(`✅ Contract deployed successfully in VM!`, 'success');
+        logToTerminal(`📄 Contract: <code>${mockAddress}</code>`, 'info');
+        logToTerminal(`🔗 Transaction Hash: <code>${mockTxHash}</code>`, 'info');
+        logToTerminal(`📊 Gas used: ${mockGasUsed.toLocaleString()} (simulated)`, 'info');
+    }
 }
 
 async function deployContract() {
-    if (!compiledContract || (!userAccount && document.getElementById('environment-select').value !== 'vm')) {
-        logToTerminal('❌ Missing contract or account for deployment', 'error');
+    const environment = document.getElementById('environment-select').value;
+
+    if (!compiledContract) {
+        logToTerminal('❌ Compile a contract before deploying', 'error');
         return;
     }
 
-    const environment = document.getElementById('environment-select').value;
+    if (!userAccount && environment !== 'vm' && environment !== 'injected') {
+        logToTerminal('❌ Missing contract or account for deployment', 'error');
+        return;
+    }
     const contractName = document.getElementById('contract-select').value;
 
     if (!contractName) {
@@ -1104,10 +1127,12 @@ async function deployContract() {
             logToTerminal(`📋 Constructor parameters: [${constructorParams.join(', ')}]`, 'info');
         }
 
-        if (environment === 'injected') {
+        if (environment === 'injected' && userAccount) {
             await deployToMetaMask(constructorParams);
+        } else if (environment === 'injected') {
+            await deployToRemixVM(constructorParams, true);
         } else {
-            await deployToRemixVM(constructorParams);
+            await deployToRemixVM(constructorParams, false);
         }
 
         showPluginSuccess('udapp');

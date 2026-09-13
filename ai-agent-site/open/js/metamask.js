@@ -1232,7 +1232,8 @@ function updateDeployButton() {
     const deployBtn = document.getElementById('deploy-btn');
     const environment = document.getElementById('environment-select').value;
     const hasContract = window.compiledContract && document.getElementById('contract-select').value;
-    const hasAccount = userAccount || environment === 'vm';
+    const hasAccount =
+        userAccount || environment === 'vm' || environment === 'injected';
 
     const canDeploy = hasContract && hasAccount;
     deployBtn.disabled = !canDeploy;

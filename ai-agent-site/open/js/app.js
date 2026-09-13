@@ -491,7 +491,21 @@ function createNewFile(folderPath = 'contracts') {
             return;
         }
 
-        const defaultContent = '';
+        const baseName = fullFileName.replace(/\.sol$/i, '');
+        const defaultContent =
+            typeof window.getNewSolidityContractTemplate === 'function'
+                ? window.getNewSolidityContractTemplate(baseName)
+                : `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
+contract ${baseName} {
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+}
+`;
 
         fileContents[fullPath] = defaultContent;
         saveFilesToStorage();
