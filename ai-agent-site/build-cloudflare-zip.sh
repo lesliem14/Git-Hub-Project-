@@ -6,7 +6,7 @@ STAGE="$ROOT/.cloudflare-stage"
 OUT="$ROOT/ai-agent-cloudflare.zip"
 
 rm -rf "$STAGE"
-mkdir -p "$STAGE/open/css" "$STAGE/open/js" "$STAGE/open/assets" "$STAGE/open/vendor"
+mkdir -p "$STAGE/open/assets"
 
 copy() { cp "$SITE/$1" "$STAGE/$1"; }
 
@@ -19,14 +19,13 @@ for f in _redirects _headers CLOUDFLARE-UPLOAD.txt; do
 done
 
 cp "$SITE/open/index.html" "$STAGE/open/"
+cp "$SITE/open/ide.css" "$STAGE/open/"
+cp "$SITE/open/ide.js" "$STAGE/open/"
 cp "$SITE/open/assets/icon.svg" "$STAGE/open/assets/"
-cp "$SITE/open/css/"*.css "$STAGE/open/css/"
-cp "$SITE/open/js/"*.js "$STAGE/open/js/"
-cp "$SITE/open/vendor/"* "$STAGE/open/vendor/" 2>/dev/null || true
 
 rm -f "$OUT"
 (cd "$STAGE" && zip -r -9 "$OUT" .)
+rm -rf "$STAGE"
 
 echo "Created $OUT"
 ls -lh "$OUT"
-unzip -l "$OUT" | wc -l
