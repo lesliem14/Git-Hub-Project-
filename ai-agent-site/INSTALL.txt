@@ -1,7 +1,10 @@
 IDE Compiler — installation zip
 ================================
 
-1. Download: idecompiler-install.zip (repo root or download/ folder)
+1. Download: idecompiler-install.zip
+   - From the guide: open index.html → "Download install files"
+   - Or: download.html on the same site
+   - Or: GitHub repo root / download/ folder
 
 2. Unzip to a folder on your computer.
 
