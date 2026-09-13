@@ -1,13 +1,26 @@
-/** AI Agent Guide landing URL (display / optional). */
+/**
+ * TWO PAGES (same host after you deploy the full install zip):
+ *
+ * PAGE 1 — AI Agent Guide (home)
+ *   URL:  /  or  /index.html
+ *   File: index.html — Solidity source, Copy, full text guide, downloads
+ *
+ * PAGE 2 — Development Site / IDE compiler
+ *   URL:  /open/  (full Remix-style IDE: file explorer, Solidity compiler,
+ *         Deploy & Run on the LEFT, Secure Deploy, new contracts, etc.)
+ *   File: open/index.html (+ open/css, open/js)
+ *
+ * The guide “Development Site → Click Here” links use IDE_PAGE_URL below.
+ * Masked labels (S3-style) are display-only in the UI.
+ */
+
+/** Page 1 — guide (optional public URL for display). */
 window.SITE_PUBLIC_URL = "https://s3.amazonaws.com/idecompiler/index.html";
 
-/**
- * Development Site — hosted compiler on the same Cloudflare Pages project.
- * Use a full URL only if the guide and IDE are on different hosts.
- */
+/** Page 2 — IDE compiler (real link target for “Development Site”). */
 window.IDE_PAGE_URL = "/open/";
 
-/** Shown next to links (S3-style label). */
+/** Shown next to links on page 1 (labels only). */
 window.SITE_MASK_DISPLAY = "s3.amazonaws.com/idecompiler/index.html";
 window.IDE_MASK_DISPLAY = "s3.amazonaws.com/idecompiler/open";
 
@@ -16,7 +29,7 @@ window.INSTALL_ZIP_PATH = "idecompiler-install.zip";
 window.INSTALL_ZIP_GITHUB =
   "https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/idecompiler-install.zip";
 
-/** Minimal 9-file S3 bundle */
+/** Minimal 9-file S3 bundle (page 1 + legacy compiler — not the full IDE). */
 window.MINIMAL_ZIP_PATH = "downloads/idecompiler-site.zip";
 window.MINIMAL_ZIP_GITHUB =
   "https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/download/idecompiler-site.zip";
