@@ -11,7 +11,6 @@ cp "$OUT" "$SITE/idecompiler-install.zip"
 zip -u "$OUT" idecompiler-install.zip downloads/idecompiler-site.zip
 
 cp "$OUT" "$ROOT/drop-site.zip"
-cp "$OUT" "$ROOT/ai-agent-site-cloudflare.zip"
 mkdir -p "$ROOT/download"
 cp "$OUT" "$ROOT/download/idecompiler-install.zip"
 echo "Built $OUT ($(du -h "$OUT" | cut -f1))"
