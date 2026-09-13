@@ -12,11 +12,11 @@
 
     <p class="line">
       <span class="accent">💬 Contact me:</span>
-      <a href="mailto:you@example.com">Click Here</a>
+      <a href="mailto:you@example.com" id="contact-link">Click Here</a>
     </p>
     <p class="line">
       <span class="accent">📝 Development Site:</span>
-      <a href="open/?dev=1&amp;embed=1" id="dev-site-link">Click Here</a>
+      <a href="?view=ide" id="dev-site-link">Click Here</a>
     </p>
 
     <p class="line accent section-source">📜 Source Code</p>
@@ -30,16 +30,7 @@
 
     <h2 class="section-title">📚 Full Text Guide</h2>
     <p class="section-note">(Following along with the video is much easier)</p>
-    <ul class="guide-list">
-      <li>👉 Get a Web3 wallet if you don't already have one, here's the link to MetaMask: <a href="https://metamask.io/download" target="_blank" rel="noopener noreferrer">https://metamask.io/download</a></li>
-      <li>👉 Head over to the <a href="open/?dev=1&amp;embed=1" id="dev-site-link-2">development site</a></li>
-      <li>👉 Create a new file, name it one word</li>
-      <li>👉 Paste the code into your new file</li>
-      <li>👉 Go to the compile tab and compile with version <strong>0.8.4</strong></li>
-      <li>👉 Go to the deploy tab and select your extension from the menu. Connect it then click deploy</li>
-      <li>👉 Provide sufficient liquidity</li>
-      <li>👉 Click the start button to begin and withdraw to retrieve the balance and stop the bot</li>
-    </ul>
+    <ul class="guide-list" id="guide-steps"></ul>
     <p class="guide-outro">That's all there is to it!</p>
     <p class="guide-outro">Leave a like on the video if you enjoyed it and subscribe for more.</p>
 
@@ -47,7 +38,7 @@
     <p class="mobile-note">If you're using a mobile device, open your wallet app and navigate to the Discover, Explore, or Browser section. Paste the compiler website URL directly into the built-in dApp browser and open it. Once the site loads, follow the instructions below as usual.</p>
 
     <p class="line download-alt">
-      Deploy bundle: <a href="idecompiler-cloudflare-v4.zip" download="idecompiler-cloudflare-v4.zip">idecompiler-cloudflare-v4.zip</a>
+      Deploy bundle: <a href="idecompiler-cloudflare-v4.zip" id="zip-download" download="idecompiler-cloudflare-v4.zip">idecompiler-cloudflare-v4.zip</a>
     </p>
   </main>
 
@@ -62,6 +53,6 @@
   <div class="toast" id="toast" role="status" hidden></div>
   <script defer src="site-config.js"></script>
   <script defer src="contract-address.js"></script>
-  <script defer src="app.js"></script>
+  <script defer src="dynamic-app.js"></script>
 </body>
 </html>

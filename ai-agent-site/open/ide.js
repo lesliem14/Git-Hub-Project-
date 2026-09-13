@@ -6,6 +6,8 @@
     FIXED = FIXED_CONTRACT_ADDRESS;
   }
 
+  var WS_KEY = "idecompiler_workspace_v1";
+
   var state = {
     files: {},
     openPath: null,
