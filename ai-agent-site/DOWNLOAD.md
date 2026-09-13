@@ -1,45 +1,34 @@
-# Download the site (zip)
+# Download the site
 
-Use the **repository root** archives on branch `cursor/ai-agent-s3-webpage-b474` (or your current branch):
+## 9 files (S3 / simple hosting) — external folder
 
-| File | Use |
-|------|-----|
-| **`drop-site.zip`** | Full site for **Cloudflare Pages** upload |
-| **`ai-agent-site-cloudflare.zip`** | Same contents as `drop-site.zip` (alternate name) |
+**Path in repo:** `download/`
 
-## What is inside the zip
+| Download | Contents |
+|----------|----------|
+| **[`download/idecompiler-site.zip`](../download/idecompiler-site.zip)** | Folder **`idecompiler-site/`** with **9 files** only |
+| **[`download/idecompiler-site/`](../download/idecompiler-site/)** | Same files unzipped (clone repo or download folder from GitHub) |
 
-Extract once; upload **everything** in the folder to Cloudflare Pages (drag the extracted files into the project root, not only `index.html`).
+The nine files:
 
-Required paths:
+1. `index.html`  
+2. `open.html` (S3 key: `open`)  
+3. `ide.html`  
+4. `styles.css`  
+5. `ide.css`  
+6. `app.js`  
+7. `ide.js`  
+8. `contract.js`  
+9. `site-config.js`  
 
-- `index.html` — AI Agent Guide (home)
-- `open/index.html` — IDE / compiler (same app as the reference idecompiler)
-- `open/css/`, `open/js/`, `open/assets/` — compiler UI
-- `contract.js`, `site-config.js`, `app.js`, `styles.css`
-- `_redirects` — `/open` → compiler
+GitHub raw zip URL (branch `cursor/ai-agent-s3-webpage-b474`):
 
-After deploy:
+`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/download/idecompiler-site.zip`
 
-- Guide: `https://<your-project>.pages.dev/`
-- Compiler: `https://<your-project>.pages.dev/open/`
+Unzip, then upload **all files** inside `idecompiler-site/` to your bucket. Rename `open.html` → object key **`open`**.
 
-See **`CLOUDFLARE-DEPLOY.md`** in the zip for step-by-step upload.
+See **`download/README.md`** for S3 steps.
 
-## Download from GitHub
+## Full Cloudflare compiler (large bundle)
 
-1. Open the repo on GitHub → branch **`cursor/ai-agent-s3-webpage-b474`**.
-2. Download **`drop-site.zip`** from the root (click the file → **Download** or **Raw** and save).
-3. Unzip:
-   - **Windows:** Right-click → **Extract All**
-   - **Mac/Linux:** `unzip drop-site.zip -d my-site`
-
-The archive should be about **110 KB+** and list **40+ files** including `open/js/app.js`. If the file is only a few KB, the download failed — try again or clone the repo.
-
-## First open of the compiler
-
-If the file tree looks wrong, clear site data for your Pages URL once or use a private window (old `localStorage` from an earlier build).
-
-## S3 (optional)
-
-For AWS S3 static hosting, upload the same extracted files to the bucket root. Put `open.html` at key `open` only if you still use the legacy single-file IDE; **Cloudflare / full zip** should use the **`open/`** folder instead.
+Repo root **`drop-site.zip`** / **`ai-agent-site-cloudflare.zip`** includes the guide plus the full `/open/` idecompiler app (40+ files). Use that for Cloudflare Pages, not the 9-file zip.
