@@ -10,22 +10,12 @@
   <link rel="stylesheet" href="ide.css" />
   <style>
     html, body { margin: 0; background: #1a1d23; color: #e8eaed; }
-    html:not([data-ide-allowed="true"]) .ide-app { display: none !important; }
-    html:not([data-ide-allowed="true"]) #gate-wall { display: flex !important; }
-    html[data-ide-allowed="true"] #gate-wall { display: none !important; }
     #wallet-modal { display: none !important; }
     #wallet-modal.is-open { display: flex !important; }
+    html.ide-embed-mode .ide-header-guide { display: none; }
   </style>
 </head>
 <body>
-  <div id="gate-wall" class="gate-wall" hidden>
-    <div class="gate-card">
-      <h1>IDE compiler</h1>
-      <p>Open the <strong>AI Agent Guide</strong> first, then use <strong>Development Site → Click Here</strong>.</p>
-      <a class="gate-btn" href="../index.html">Go to AI Agent Guide</a>
-    </div>
-  </div>
-
   <div class="ide-app">
     <header class="ide-header">
       <span class="ide-logo" aria-hidden="true">&lt;/&gt;</span>
