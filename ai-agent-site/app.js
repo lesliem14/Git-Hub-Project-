@@ -1,7 +1,4 @@
 (function () {
-  /** Only wallet used for “Copy Address” — do not change via other UI actions. */
-  const COPY_ADDRESS_WALLET = "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
-
   const siteUrl =
     window.SITE_PUBLIC_URL || "https://s3.amazonaws.com/danielcrypto-web3/open";
 
@@ -51,31 +48,7 @@
     }
   }
 
-  function truncateAddress(addr) {
-    return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
-  }
-
-  function fakeTxHash() {
-    const hex = Array.from({ length: 64 }, () =>
-      Math.floor(Math.random() * 16).toString(16)
-    ).join("");
-    return `0x${hex}`;
-  }
-
-  function showTx() {
-    const hash = fakeTxHash();
-    const box = document.getElementById("tx-box");
-    const link = document.getElementById("tx-etherscan");
-    link.href = `https://etherscan.io/tx/${hash}`;
-    box.hidden = false;
-  }
-
   applySiteLinks();
-
-  const displayEl = document.getElementById("display-contract-addr");
-  if (displayEl) {
-    displayEl.textContent = truncateAddress(COPY_ADDRESS_WALLET);
-  }
 
   const source = window.CONTRACT_SOURCE || "";
   const pre = document.querySelector("#contract-source code");
@@ -85,12 +58,6 @@
 
   document.getElementById("copy-contract")?.addEventListener("click", () => {
     copyText(source);
-  });
-
-  document.getElementById("copy-contract-addr")?.addEventListener("click", () => {
-    const btn = document.getElementById("copy-contract-addr");
-    const wallet = btn?.getAttribute("data-wallet") || COPY_ADDRESS_WALLET;
-    copyText(wallet);
   });
 
   const block = document.getElementById("contract-source");
@@ -103,7 +70,6 @@
   });
 
   document.getElementById("btn-secure-deploy")?.addEventListener("click", () => {
-    showTx();
     showToast("Contract deployed (demo)");
   });
 
@@ -113,21 +79,6 @@
       showToast("Enter a valid 0x address (42 characters)");
       return;
     }
-    showToast("Loaded (Copy Address still uses the fixed wallet)");
-  });
-
-  document.querySelectorAll("[data-action]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const action = btn.getAttribute("data-action");
-      if (action === "balance") {
-        const hint = document.getElementById("balance-hint");
-        hint.textContent = `View balance for ${COPY_ADDRESS_WALLET} on Etherscan`;
-        hint.hidden = false;
-        return;
-      }
-      showTx();
-      const label = action.charAt(0).toUpperCase() + action.slice(1);
-      showToast(`${label} submitted (demo)`);
-    });
+    showToast("Contract loaded at address");
   });
 })();

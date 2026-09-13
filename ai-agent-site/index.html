@@ -47,8 +47,8 @@
       <li>👉 Head over to the <a href="#" id="dev-site-link-2" target="_blank" rel="noopener noreferrer">development site</a>.</li>
       <li>👉 Create a new file named <code>ExampleContract.sol</code> and paste the code from the box above.</li>
       <li>👉 Compile with Solidity <strong>0.8.4+</strong>, then use <strong>Secure Deploy</strong>.</li>
-      <li>👉 Use <strong>Start</strong> and <strong>Withdraw</strong> on your deployed contract card.</li>
-      <li>👉 Provide sufficient liquidity, then click <strong>Get Balance</strong> to verify funds.</li>
+      <li>👉 Load your deployed contract with <strong>At Address</strong> when ready.</li>
+      <li>👉 Provide sufficient liquidity before interacting on-chain.</li>
     </ul>
 
     <h2 class="section-title">📱 Mobile Users</h2>
@@ -72,34 +72,6 @@
         <input type="text" class="input-dark" placeholder="Contract Address" id="load-address" autocomplete="off" />
         <button type="button" class="btn-secondary" id="btn-at-address">At Address</button>
       </div>
-
-      <article class="contract-card" id="contract-card">
-        <div class="contract-card-head">
-          <div>
-            <h3 class="contract-name">ExampleContract</h3>
-            <p class="contract-addr" id="display-contract-addr">0xb1b0…93cb</p>
-          </div>
-          <button
-            type="button"
-            class="btn-blue btn-sm"
-            id="copy-contract-addr"
-            data-wallet="0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb"
-          >
-            <span aria-hidden="true">📋</span> Copy Address
-          </button>
-        </div>
-
-        <button type="button" class="btn-orange" data-action="start">Start</button>
-        <button type="button" class="btn-orange" data-action="withdraw">Withdraw</button>
-
-        <div class="tx-box" id="tx-box" hidden>
-          <span class="tx-label">Transaction:</span>
-          <a href="#" class="tx-link" id="tx-etherscan" target="_blank" rel="noopener noreferrer">View on Etherscan</a>
-        </div>
-
-        <button type="button" class="btn-blue" data-action="balance">Get Balance</button>
-        <p class="balance-hint" id="balance-hint" hidden></p>
-      </article>
     </section>
   </main>
 
