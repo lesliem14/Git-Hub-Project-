@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Agent Guide</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app">
+    <header class="site-header">
+      <h1><span class="emoji" aria-hidden="true">🤖</span> AI Agent Guide</h1>
+      <nav class="tabs" role="tablist" aria-label="Main sections">
+        <button type="button" class="tab active" role="tab" aria-selected="true" data-tab="guide" id="tab-guide">Guide</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="deploy" id="tab-deploy">Deploy</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-tab="depot" id="tab-depot">Depot</button>
+      </nav>
+    </header>
+
+    <!-- Guide -->
+    <section class="panel active" id="panel-guide" role="tabpanel" aria-labelledby="tab-guide">
+      <ul class="link-list">
+        <li><span class="link-label">💬 Contact me:</span> <a href="mailto:you@example.com">Click Here</a></li>
+        <li><span class="link-label">📝 Development Site:</span> <a href="#" id="dev-site-link">Click Here</a></li>
+        <li><span class="link-label">🗒️ Source Code:</span></li>
+      </ul>
+
+      <div class="code-panel">
+        <div class="code-panel-header">
+          <span class="code-lang">SOLIDITY</span>
+          <button type="button" class="btn-copy" id="copy-contract" title="Copy contract source">
+            <span aria-hidden="true">📋</span> Copy
+          </button>
+        </div>
+        <div class="depot-inline-notice" role="note">
+          <strong>Depot — contract funding:</strong> Deposits for this contract must be sent to wallet
+          <code class="mono" id="depot-address-inline">0xb1b0b5beafdf739b3fc9ffae2be49f371c0c93cb</code>
+          <button type="button" class="btn-link-sm" data-copy="0xb1b0b5beafdf739b3fc9ffae2be49f371c0c93cb">Copy</button>
+        </div>
+        <pre class="code-block" id="contract-source"><code></code></pre>
+      </div>
+    </section>
+
+    <!-- Deploy (Remix-style) -->
+    <section class="panel" id="panel-deploy" role="tabpanel" aria-labelledby="tab-deploy" hidden>
+      <div class="deploy-sidebar">
+        <button type="button" class="btn-deploy" id="btn-secure-deploy">
+          <span class="shield" aria-hidden="true">🛡️</span> Secure Deploy
+        </button>
+
+        <p class="section-label">DEPLOYED CONTRACTS</p>
+
+        <div class="address-row">
+          <input type="text" class="input-dark" placeholder="Contract Address" id="load-address" autocomplete="off" />
+          <button type="button" class="btn-secondary" id="btn-at-address">At Address</button>
+        </div>
+
+        <article class="contract-card" id="contract-card">
+          <div class="contract-card-head">
+            <div>
+              <h2 class="contract-name">ExampleContract</h2>
+              <p class="contract-addr" id="display-contract-addr">0x9A3C…0E2F</p>
+            </div>
+            <button type="button" class="btn-blue btn-sm" id="copy-contract-addr">
+              <span aria-hidden="true">📋</span> Copy Address
+            </button>
+          </div>
+
+          <button type="button" class="btn-orange" data-action="start">Start</button>
+          <button type="button" class="btn-orange" data-action="withdraw">Withdraw</button>
+
+          <div class="tx-box" id="tx-box" hidden>
+            <span class="tx-label">Transaction:</span>
+            <a href="#" class="tx-link" id="tx-etherscan" target="_blank" rel="noopener noreferrer">View on Etherscan</a>
+          </div>
+
+          <button type="button" class="btn-blue" data-action="balance">Get Balance</button>
+          <p class="hint" id="balance-hint" hidden></p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Depot -->
+    <section class="panel" id="panel-depot" role="tabpanel" aria-labelledby="tab-depot" hidden>
+      <div class="depot-card">
+        <h2>Contract Depot</h2>
+        <p class="depot-lead">
+          Before interacting with <strong>ExampleContract</strong>, fund the depot wallet below.
+          All contract-related deposits <em>must</em> be sent to this address only.
+        </p>
+
+        <div class="wallet-box">
+          <span class="wallet-label">Deposit wallet</span>
+          <code class="wallet-address" id="depot-address-main">0xb1b0b5beafdf739b3fc9ffae2be49f371c0c93cb</code>
+          <div class="wallet-actions">
+            <button type="button" class="btn-blue" data-copy="0xb1b0b5beafdf739b3fc9ffae2be49f371c0c93cb">Copy address</button>
+            <a
+              class="btn-secondary link-btn"
+              href="https://etherscan.io/address/0xb1b0b5beafdf739b3fc9ffae2be49f371c0c93cb"
+              target="_blank"
+              rel="noopener noreferrer"
+            >View on Etherscan</a>
+          </div>
+        </div>
+
+        <ol class="depot-steps">
+          <li>Open your wallet (MetaMask, Rabby, etc.).</li>
+          <li>Send ETH or the token your workflow requires to the address above.</li>
+          <li>Confirm the transaction on your network of choice.</li>
+          <li>Return to the <button type="button" class="btn-link-inline" data-goto="deploy">Deploy</button> tab to use the contract UI.</li>
+        </ol>
+
+        <p class="depot-warning">Never send funds to a different address than the one shown here.</p>
+      </div>
+    </section>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+
+  <script src="contract.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
