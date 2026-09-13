@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>idecompiler — Solidity IDE</title>
+  <title>IDE — idecompiler</title>
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="ide.css" />
   <script>
     (function () {
@@ -14,10 +15,8 @@
       }
       if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", hide);
-      } else {
-        hide();
-      }
-      setTimeout(hide, 2500);
+      } else hide();
+      setTimeout(hide, 2000);
     })();
   </script>
 </head>
@@ -25,85 +24,162 @@
   <div id="ide-loader" class="ide-loader">
     <div class="ide-loader-inner">
       <div class="ide-loader-spinner"></div>
-      <p class="ide-loader-text">Initializing Compiler v0.08.6</p>
+      <p class="ide-loader-text">Initializing Compiler v0.08.4</p>
     </div>
   </div>
 
   <div class="ide-app">
-    <header class="ide-topbar">
-      <div class="ide-topbar-left">
-        <a href="../index.html" class="ide-back">← Guide</a>
-        <span class="ide-brand">idecompiler</span>
-        <span class="ide-path">s3.amazonaws.com/idecompiler/open</span>
-      </div>
-      <div class="ide-topbar-right">
-        <button type="button" class="ide-icon-btn" id="btn-compile" title="Compile">Compile</button>
-        <button type="button" class="ide-icon-btn" id="btn-theme" title="Theme">☀</button>
-      </div>
+    <header class="ide-header">
+      <span class="ide-logo" aria-hidden="true">&lt;/&gt;</span>
+      <span class="ide-header-title">IDE</span>
+      <a href="../index.html" class="ide-header-guide">AI Agent Guide</a>
     </header>
 
-    <div class="ide-body">
-      <aside class="ide-sidebar ide-sidebar-left">
-        <div class="ide-panel-head">Deploy &amp; Run</div>
-        <div class="ide-deploy-scroll">
-          <div class="ide-deploy-section">
-            <div class="ide-deploy-label">ENVIRONMENT</div>
-            <div class="ide-deploy-value">Injected Provider - MetaMask</div>
+    <div class="ide-workspace">
+      <nav class="ide-rail" aria-label="Plugins">
+        <button type="button" class="rail-btn active" data-panel="files" title="File Explorer">
+          <span class="rail-icon">📄</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="search" title="Search">
+          <span class="rail-icon">🔍</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="compiler" id="rail-compiler" title="Solidity Compiler">
+          <span class="rail-icon">◎</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="deploy" id="rail-deploy" title="Deploy &amp; Run">
+          <span class="rail-icon eth">◆</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="plugins" title="Plugin Manager">
+          <span class="rail-icon">🧩</span>
+        </button>
+        <button type="button" class="rail-btn rail-bottom" data-panel="settings" title="Settings">
+          <span class="rail-icon">⚙</span>
+        </button>
+      </nav>
+
+      <aside class="ide-sidepanel">
+        <section class="side-panel active" id="panel-files">
+          <div class="side-panel-head">
+            <span>FILE EXPLORER</span>
+            <div class="side-panel-tools">
+              <button type="button" class="icon-tool" id="btn-new-file-icon" title="New File">📄+</button>
+              <button type="button" class="icon-tool" id="btn-new-folder-icon" title="New Folder">📁+</button>
+            </div>
           </div>
-          <div class="ide-deploy-section">
-            <div class="ide-deploy-label">ACCOUNT</div>
-            <div class="ide-deploy-value mono" id="deploy-account">0x3782…f055 (0 ETH)</div>
-          </div>
-          <div class="ide-deploy-section">
-            <div class="ide-deploy-label">CONTRACT</div>
-            <select class="ide-select" id="deploy-contract">
-              <option value="">— Select compiled contract —</option>
+          <div class="side-panel-body">
+            <select class="workspace-select" id="workspace-select">
+              <option>default_workspace</option>
             </select>
-            <button type="button" class="ide-btn-deploy" id="btn-secure-deploy">Secure Deploy</button>
+            <button type="button" class="btn-block primary" id="btn-new-file">
+              <span>📄</span> New File
+            </button>
+            <button type="button" class="btn-block primary" id="btn-new-folder">
+              <span>📁</span> New Folder
+            </button>
+            <div class="tree" id="file-tree"></div>
           </div>
-          <div class="ide-deployed-card hidden" id="deployed-card">
-            <div class="ide-deployed-title">DEPLOYED CONTRACTS</div>
-            <div class="ide-deployed-row">
-              <span class="mono" id="deployed-label">ExampleContract</span>
-              <button type="button" class="ide-copy-addr" id="btn-copy-address">Copy Address</button>
-            </div>
-            <div class="ide-deploy-actions">
-              <button type="button" class="ide-action-btn" id="btn-start">Start</button>
-              <button type="button" class="ide-action-btn" id="btn-withdraw">Withdraw</button>
-              <button type="button" class="ide-action-btn" id="btn-balance">Get Balance</button>
+        </section>
+
+        <section class="side-panel" id="panel-search">
+          <div class="side-panel-head"><span>SEARCH</span></div>
+          <div class="side-panel-body">
+            <input type="search" class="field-input" id="search-input" placeholder="Search in files" />
+            <div class="search-hint">Type to filter files in the explorer.</div>
+          </div>
+        </section>
+
+        <section class="side-panel" id="panel-compiler">
+          <div class="side-panel-head"><span>SOLIDITY COMPILER</span></div>
+          <div class="side-panel-body">
+            <label class="field-label">Compiler</label>
+            <select class="field-input" id="compiler-version">
+              <option selected>0.8.4+commit.c7e474f2</option>
+              <option>0.8.6+commit.1159f9de</option>
+            </select>
+            <label class="field-label">Language</label>
+            <select class="field-input"><option>Solidity</option></select>
+            <button type="button" class="btn-block compile" id="btn-compile-panel">Compile README.sol</button>
+            <p class="compile-status" id="compile-status"></p>
+          </div>
+        </section>
+
+        <section class="side-panel" id="panel-deploy">
+          <div class="side-panel-head"><span>DEPLOY &amp; RUN TRANSACTIONS</span></div>
+          <div class="side-panel-body deploy-body">
+            <label class="field-label">Environment</label>
+            <select class="field-input" id="env-select">
+              <option>Injected Provider</option>
+              <option>Remix VM (Prague)</option>
+            </select>
+            <button type="button" class="btn-wallet" id="btn-switch-wallet">⟳ Switch Wallet Extension</button>
+
+            <label class="field-label">Account</label>
+            <select class="field-input" id="account-select">
+              <option value="">No accounts available</option>
+            </select>
+
+            <label class="field-label">Gas limit</label>
+            <input class="field-input" id="gas-limit" type="text" value="3000000" />
+
+            <label class="field-label">Value</label>
+            <input class="field-input" id="tx-value" type="text" value="0" />
+
+            <label class="field-label">Contract</label>
+            <select class="field-input" id="deploy-contract">
+              <option value="">—</option>
+            </select>
+
+            <button type="button" class="btn-secure-deploy" id="btn-secure-deploy">
+              <span class="shield">🛡</span> Secure Deploy
+            </button>
+
+            <div class="deployed-section">
+              <div class="deployed-heading">DEPLOYED CONTRACTS</div>
+              <div class="at-address-row">
+                <input class="field-input" id="at-address-input" placeholder="Contract Address" />
+                <button type="button" class="btn-at-address" id="btn-at-address">At Address</button>
+              </div>
+              <div class="deployed-card hidden" id="deployed-card">
+                <div class="deployed-card-top">
+                  <div>
+                    <div class="deployed-name" id="deployed-name">ExampleContract</div>
+                    <div class="deployed-addr mono" id="deployed-addr">0x0000…0000</div>
+                  </div>
+                  <button type="button" class="btn-copy-addr" id="btn-copy-address">📋 Copy Address</button>
+                </div>
+                <button type="button" class="fn-orange" id="btn-start">Start</button>
+                <button type="button" class="fn-orange" id="btn-withdraw">Withdraw</button>
+                <button type="button" class="fn-blue" id="btn-balance">Get Balance</button>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <section class="side-panel" id="panel-plugins">
+          <div class="side-panel-head"><span>PLUGIN MANAGER</span></div>
+          <div class="side-panel-body"><p class="muted">Core plugins loaded: File Explorer, Compiler, Deploy.</p></div>
+        </section>
+
+        <section class="side-panel" id="panel-settings">
+          <div class="side-panel-head"><span>SETTINGS</span></div>
+          <div class="side-panel-body"><p class="muted">Theme: Dark (default)</p></div>
+        </section>
       </aside>
 
-      <aside class="ide-sidebar ide-sidebar-mid">
-        <div class="ide-panel-head">File Explorer</div>
-        <div class="ide-tree-toolbar">
-          <button type="button" class="ide-tree-btn" id="btn-new-file">New File</button>
-          <button type="button" class="ide-tree-btn" id="btn-new-folder">New Folder</button>
+      <div class="ide-main">
+        <div class="editor-wrap">
+          <div class="editor-tabbar" id="editor-tabs"></div>
+          <textarea class="editor" id="editor" spellcheck="false"></textarea>
         </div>
-        <div class="ide-tree" id="file-tree"></div>
-        <div class="ide-panel-head ide-panel-sub">Solidity Compiler</div>
-        <div class="ide-compiler-mini">
-          <label>Compiler</label>
-          <select id="compiler-version"><option>0.8.6+commit.1159f9de</option></select>
-          <button type="button" class="ide-btn-compile-mini" id="btn-compile-sidebar">Compile</button>
+        <div class="terminal">
+          <div class="terminal-head">
+            <span>Terminal</span>
+            <button type="button" class="term-clear" id="btn-clear-terminal">Clear</button>
+          </div>
+          <div class="terminal-log" id="terminal"></div>
         </div>
-      </aside>
-
-      <main class="ide-editor-wrap">
-        <div class="ide-tabs" id="editor-tabs"></div>
-        <textarea class="ide-editor" id="editor" spellcheck="false"></textarea>
-      </main>
-    </div>
-
-    <footer class="ide-terminal-wrap">
-      <div class="ide-terminal-head">
-        <span>Terminal</span>
-        <button type="button" class="ide-term-clear" id="btn-clear-terminal">Clear</button>
       </div>
-      <div class="ide-terminal" id="terminal"></div>
-    </footer>
+    </div>
   </div>
 
   <script src="../contract.js"></script>

@@ -385,6 +385,11 @@ a:hover {
   color: var(--muted);
 }
 
+.guide-outro {
+  margin: 0.5rem 0 0.25rem;
+  color: var(--text);
+}
+
 .mobile-note {
   margin: 0.5rem 0 0;
   color: var(--muted);
