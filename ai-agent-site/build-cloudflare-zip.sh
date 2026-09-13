@@ -17,7 +17,7 @@ done
 
 cp "$SITE/index.html" "$STAGE/404.html"
 
-for f in _redirects _headers _routes.json CLOUDFLARE-UPLOAD.txt; do
+for f in _redirects _headers CLOUDFLARE-UPLOAD.txt; do
   copy "$f"
 done
 

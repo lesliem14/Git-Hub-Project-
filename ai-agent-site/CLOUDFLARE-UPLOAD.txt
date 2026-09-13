@@ -16,6 +16,7 @@ CLOUDFLARE PAGES (recommended)
 1. Workers & Pages → Create → Pages → Upload assets.
 2. Upload idecompiler-cloudflare-v6.zip (or unzip and drag ALL files to the ROOT).
    Must include at top level: index.html, styles.css, app.js, open/, _redirects, _headers
+   Do NOT add _routes.json — not used for static upload (Pages Functions only).
 3. Deploy → Success → Purge cache.
 4. Visit: https://YOUR-PROJECT.pages.dev/   (trailing path must be / only)
 
