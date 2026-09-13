@@ -5,37 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IDE — idecompiler</title>
   <script src="../site-config.js"></script>
-  <script>
-    (function () {
-      var key = window.IDE_ENTRY_SESSION_KEY || "idecompiler_dev_entry";
-      var home = window.GUIDE_HOME_URL || "/";
-      try {
-        if (!sessionStorage.getItem(key)) {
-          location.replace(home);
-        }
-      } catch (e) {
-        location.replace(home);
-      }
-    })();
-  </script>
+  <script src="ide-gate.js"></script>
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="ide.css" />
-  <script>
-    (function () {
-      function hide() {
-        var el = document.getElementById("ide-loader");
-        if (el) el.classList.add("hidden");
-      }
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", hide);
-      } else hide();
-      setTimeout(hide, 2000);
-    })();
-  </script>
+  <style>#ide-loader.hide{display:none!important}</style>
 </head>
 <body>
-  <div id="ide-loader" class="ide-loader">
+  <div id="ide-loader" class="ide-loader hide">
     <div class="ide-loader-inner">
       <div class="ide-loader-spinner"></div>
       <p class="ide-loader-text">Initializing Compiler v0.08.4</p>
@@ -207,5 +183,15 @@
 
   <script src="../contract.js"></script>
   <script src="ide.js"></script>
+  <script>
+    (function () {
+      function hideLoader() {
+        var el = document.getElementById("ide-loader");
+        if (el) el.classList.add("hide", "hidden");
+      }
+      hideLoader();
+      document.addEventListener("DOMContentLoaded", hideLoader);
+    })();
+  </script>
 </body>
 </html>

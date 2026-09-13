@@ -4,9 +4,9 @@
 
 | File | Description |
 |------|-------------|
-| **[`idecompiler-cloudflare-v2.zip`](idecompiler-cloudflare-v2.zip)** | **Both pages** — guide + IDE, Cloudflare-ready (~18 KB) |
+| **[`idecompiler-cloudflare-v3.zip`](idecompiler-cloudflare-v3.zip)** | **Both pages** — guide + IDE, Cloudflare-ready (~18 KB) |
 
-Repo root: **`/idecompiler-cloudflare-v2.zip`**
+Repo root: **`/idecompiler-cloudflare-v3.zip`**
 
 ## Full installation (docs + extras)
 

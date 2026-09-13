@@ -1,22 +1,6 @@
 (function () {
   "use strict";
 
-  var entryKey =
-    typeof IDE_ENTRY_SESSION_KEY !== "undefined"
-      ? IDE_ENTRY_SESSION_KEY
-      : "idecompiler_dev_entry";
-  var guideHome =
-    typeof GUIDE_HOME_URL !== "undefined" ? GUIDE_HOME_URL : "/";
-  try {
-    if (!sessionStorage.getItem(entryKey)) {
-      window.location.replace(guideHome);
-      return;
-    }
-  } catch (e) {
-    window.location.replace(guideHome);
-    return;
-  }
-
   var FIXED = "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
   if (typeof FIXED_CONTRACT_ADDRESS !== "undefined") {
     FIXED = FIXED_CONTRACT_ADDRESS;
@@ -134,7 +118,8 @@
     var tabs = document.getElementById("editor-tabs");
     if (tabs) tabs.textContent = path.split("/").pop();
     updateLineGutter();
-    if (document.getElementById("auto-compile")?.checked) compile(true);
+    var autoCompile = document.getElementById("auto-compile");
+    if (autoCompile && autoCompile.checked) compile(true);
     renderTree();
   }
 
@@ -166,8 +151,8 @@
     }
     state.compiled = { name: name, path: path };
     state.lastBytecode = "0x6080…" + name;
-    var ver =
-      document.getElementById("compiler-version")?.value || "0.8.4";
+    var verEl = document.getElementById("compiler-version");
+    var ver = (verEl && verEl.value) || "0.8.4";
     var sel = document.getElementById("deploy-contract");
     if (sel) {
       sel.innerHTML = "";
@@ -179,7 +164,8 @@
     }
     document.getElementById("compile-status").textContent =
       "✓ Compilation successful";
-    document.getElementById("rail-compiler")?.classList.add("ok");
+    var railCompiler = document.getElementById("rail-compiler");
+    if (railCompiler) railCompiler.classList.add("ok");
     if (!silent) {
       term("Compiling " + path.split("/").pop() + " with " + ver + "…", "");
       term("Compilation successful. Contract: " + name + ".", "ok");
@@ -192,15 +178,18 @@
     if (card) card.classList.remove("hidden");
     document.getElementById("deployed-name").textContent = name;
     document.getElementById("deployed-addr").textContent = truncAddr(FIXED);
-    document.getElementById("rail-deploy")?.classList.add("ok");
+    var railDeploy = document.getElementById("rail-deploy");
+    if (railDeploy) railDeploy.classList.add("ok");
   }
 
   function openWalletModal() {
-    document.getElementById("wallet-modal")?.classList.remove("hidden");
+    var modal = document.getElementById("wallet-modal");
+    if (modal) modal.classList.remove("hidden");
   }
 
   function closeWalletModal() {
-    document.getElementById("wallet-modal")?.classList.add("hidden");
+    var modal = document.getElementById("wallet-modal");
+    if (modal) modal.classList.add("hidden");
   }
 
   function connectWallet(name) {
@@ -225,7 +214,10 @@
       return;
     }
     if (
-      document.getElementById("env-select")?.value === "Injected Provider" &&
+      (function () {
+        var env = document.getElementById("env-select");
+        return env && env.value === "Injected Provider";
+      })() &&
       !state.walletConnected
     ) {
       openWalletModal();
@@ -242,7 +234,7 @@
 
   function copyAddress() {
     var text = FIXED;
-    if (navigator.clipboard?.writeText) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () {
         term("Copied contract address: " + text, "ok");
       });
@@ -252,7 +244,7 @@
   }
 
   function atAddress() {
-    showDeployed(state.compiled?.name || "Contract");
+    showDeployed(state.compiled ? state.compiled.name : "Contract");
     term("Loaded contract at " + FIXED, "ok");
   }
 
@@ -285,42 +277,44 @@
       });
     });
 
-    document.getElementById("btn-compile-panel")?.addEventListener("click", function () {
-      compile(false);
-    });
-    document.getElementById("btn-secure-deploy")?.addEventListener("click", secureDeploy);
-    document.getElementById("btn-copy-address")?.addEventListener("click", copyAddress);
-    document.getElementById("btn-at-address")?.addEventListener("click", atAddress);
-    document.getElementById("btn-new-file")?.addEventListener("click", newFile);
-    document.getElementById("btn-new-folder")?.addEventListener("click", newFolder);
-    document.getElementById("btn-new-file-icon")?.addEventListener("click", newFile);
-    document.getElementById("btn-new-folder-icon")?.addEventListener("click", newFolder);
-    document.getElementById("btn-switch-wallet")?.addEventListener("click", openWalletModal);
-    document.getElementById("wallet-modal-backdrop")?.addEventListener("click", closeWalletModal);
-    document.getElementById("wallet-modal-close")?.addEventListener("click", closeWalletModal);
+    function on(id, evt, fn) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener(evt, fn);
+    }
+    on("btn-compile-panel", "click", function () { compile(false); });
+    on("btn-secure-deploy", "click", secureDeploy);
+    on("btn-copy-address", "click", copyAddress);
+    on("btn-at-address", "click", atAddress);
+    on("btn-new-file", "click", newFile);
+    on("btn-new-folder", "click", newFolder);
+    on("btn-new-file-icon", "click", newFile);
+    on("btn-new-folder-icon", "click", newFolder);
+    on("btn-switch-wallet", "click", openWalletModal);
+    on("wallet-modal-backdrop", "click", closeWalletModal);
+    on("wallet-modal-close", "click", closeWalletModal);
     document.querySelectorAll(".wallet-option").forEach(function (btn) {
       btn.addEventListener("click", function () {
         connectWallet(btn.getAttribute("data-wallet"));
       });
     });
-    document.getElementById("btn-clear-terminal")?.addEventListener("click", function () {
+    on("btn-clear-terminal", "click", function () {
       var t = document.getElementById("terminal");
       if (t) t.innerHTML = "";
     });
-    document.getElementById("btn-action")?.addEventListener("click", function () {
+    on("btn-action", "click", function () {
       term("Action — transaction sent (demo).", "ok");
     });
-    document.getElementById("btn-withdraw")?.addEventListener("click", function () {
+    on("btn-withdraw", "click", function () {
       term("Withdraw — transaction sent (demo).", "ok");
     });
-    document.getElementById("btn-abi")?.addEventListener("click", function () {
+    on("btn-abi", "click", function () {
       if (!state.compiled) {
         term("Compile first to view ABI.", "warn");
         return;
       }
       term("ABI generated for " + state.compiled.name + ".", "ok");
     });
-    document.getElementById("btn-bytecode")?.addEventListener("click", function () {
+    on("btn-bytecode", "click", function () {
       if (!state.lastBytecode) {
         term("Compile first to view bytecode.", "warn");
         return;
@@ -329,18 +323,21 @@
     });
 
     var ed = document.getElementById("editor");
-    ed?.addEventListener("input", function () {
-      updateLineGutter();
-      if (document.getElementById("auto-compile")?.checked) compile(true);
-    });
-    ed?.addEventListener("scroll", updateLineGutter);
-    ed?.addEventListener("blur", saveEditor);
+    if (ed) {
+      ed.addEventListener("input", function () {
+        updateLineGutter();
+        var auto = document.getElementById("auto-compile");
+        if (auto && auto.checked) compile(true);
+      });
+      ed.addEventListener("scroll", updateLineGutter);
+      ed.addEventListener("blur", saveEditor);
+    }
 
-    document.getElementById("search-input")?.addEventListener("input", function (e) {
+    on("search-input", "input", function (e) {
       state.searchQuery = e.target.value;
       renderTree();
     });
-    document.getElementById("env-select")?.addEventListener("change", function (e) {
+    on("env-select", "change", function (e) {
       if (e.target.value.indexOf("VM") !== -1) {
         state.walletConnected = true;
         var sel = document.getElementById("account-select");

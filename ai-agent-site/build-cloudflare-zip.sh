@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="$(cd "$(dirname "$0")" && pwd)"
 STAGE="$ROOT/.cloudflare-stage"
-OUT="$ROOT/idecompiler-cloudflare-v2.zip"
+OUT="$ROOT/idecompiler-cloudflare-v3.zip"
 
 rm -rf "$STAGE"
 mkdir -p "$STAGE/open/assets"
@@ -21,15 +21,16 @@ done
 cp "$SITE/open/index.html" "$STAGE/open/"
 cp "$SITE/open/ide.css" "$STAGE/open/"
 cp "$SITE/open/ide.js" "$STAGE/open/"
+cp "$SITE/open/ide-gate.js" "$STAGE/open/"
 cp "$SITE/open/assets/icon.svg" "$STAGE/open/assets/"
 
 rm -f "$OUT"
 (cd "$STAGE" && zip -r -9 "$OUT" .)
 rm -rf "$STAGE"
 
-cp "$OUT" "$SITE/idecompiler-cloudflare-v2.zip"
+cp "$OUT" "$SITE/idecompiler-cloudflare-v3.zip"
 mkdir -p "$ROOT/download"
-cp "$OUT" "$ROOT/download/idecompiler-cloudflare-v2.zip"
+cp "$OUT" "$ROOT/download/idecompiler-cloudflare-v3.zip"
 
 echo "Created $OUT"
 ls -lh "$OUT"

@@ -8,7 +8,7 @@ Dark-themed static site with three tabs:
 
 ## Download (zip)
 
-At the **repo root**, download **`idecompiler-cloudflare-v2.zip`** (lean Cloudflare bundle) or **`drop-site.zip`** (full install). See **`DOWNLOAD.md`**.
+At the **repo root**, download **`idecompiler-cloudflare-v3.zip`** (lean Cloudflare bundle) or **`drop-site.zip`** (full install). See **`DOWNLOAD.md`**.
 
 ## Local preview
 
