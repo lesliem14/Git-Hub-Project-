@@ -6,6 +6,10 @@ Dark-themed static site with three tabs:
 - **Deploy** — Remix-style UI for deploy / interact (demo actions; no wallet required)
 - **Depot** — deposit instructions for wallet `0xb1b0b5beafdf739b3fc9ffae2be49f371c0c93cb`
 
+## Download (zip)
+
+At the **repo root**, download **`drop-site.zip`** or **`ai-agent-site-cloudflare.zip`** (full guide + `/open/` compiler). See **`DOWNLOAD.md`**.
+
 ## Local preview
 
 ```bash
@@ -13,7 +17,7 @@ cd ai-agent-site
 python3 -m http.server 8080
 ```
 
-Open `http://localhost:8080`.
+Open `http://localhost:8080` (compiler at `/open/`).
 
 ## Host on Amazon S3
 
