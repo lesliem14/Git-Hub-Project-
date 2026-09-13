@@ -1,4 +1,4 @@
-# Deploy from ai-agent-site/cloudflare after running ../build-cloudflare-zip.sh
+# Deploy from ai-agent-site/cloudflare after running ../build-idecompiler-cloudflare-v7.sh
 #   npx wrangler deploy
 name = "idecompiler-site"
 main = "worker.js"

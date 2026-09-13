@@ -7,7 +7,7 @@ window.SITE_CONFIG = {
     devSiteLabel: "Click Here",
     sourceHeading: "📜 Source Code",
     compilerVersion: "0.8.4",
-    zipName: "idecompiler-cloudflare-v6.zip",
+    zipName: "idecompiler-cloudflare-v7.zip",
   },
   urls: {
     siteMask: "s3.amazonaws.com/danielcrypto-web3/index.html",

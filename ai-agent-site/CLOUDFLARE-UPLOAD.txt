@@ -1,7 +1,8 @@
 CLOUDFLARE — FIX “KEEPS LOADING” ON VISIT
 ==========================================
 
-USE:  idecompiler-cloudflare-v6.zip  (from repo root or ai-agent-site/)
+USE:  idecompiler-cloudflare-v7.zip  (from repo root or ai-agent-site/)
+Run:  bash ai-agent-site/build-idecompiler-cloudflare-v7.sh
 
 WHY VISIT SPINS FOREVER
 -----------------------
@@ -14,7 +15,7 @@ v6 shows the full guide in HTML immediately (inline fallback styles + 404.html).
 CLOUDFLARE PAGES (recommended)
 --------------------------------
 1. Workers & Pages → Create → Pages → Upload assets.
-2. Upload idecompiler-cloudflare-v6.zip (or unzip and drag ALL files to the ROOT).
+2. Upload idecompiler-cloudflare-v7.zip (or unzip and drag ALL files to the ROOT).
    Must include at top level: index.html, styles.css, app.js, open/, _redirects, _headers
    Do NOT add _routes.json — not used for static upload (Pages Functions only).
 3. Deploy → Success → Purge cache.

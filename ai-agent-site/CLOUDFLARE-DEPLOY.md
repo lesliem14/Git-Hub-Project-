@@ -11,7 +11,7 @@ Upload the **entire** `ai-agent-site` folder as your Pages project root (not onl
 
 The `_redirects` file sends `/open` and `/open/` to `/` (guide). Do not expect `/open/` to show the IDE directly.
 
-**Zip for upload:** `idecompiler-cloudflare-v6.zip` at the repo root (run `ai-agent-site/build-cloudflare-zip.sh`).
+**Zip for upload:** `idecompiler-cloudflare-v7.zip` at the repo root (run `ai-agent-site/build-idecompiler-cloudflare-v7.sh`).
 
 ## What you get
 

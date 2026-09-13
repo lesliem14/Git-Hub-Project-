@@ -1,6 +1,8 @@
 NETLIFY DROP — READ THIS (pages not opening = wrong upload)
 ============================================================
 
+USE: idecompiler-cloudflare-v7.zip — extract first.
+
 DO NOT drag the .zip file into Netlify Drop.
 Netlify will publish only the zip file — no index.html — so pages will not open.
 

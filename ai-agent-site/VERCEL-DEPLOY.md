@@ -22,7 +22,7 @@ npx vercel --prod   # production
 
 ## Option C — Upload zip
 
-Run `./build-cloudflare-zip.sh` from this folder. The zip includes `vercel.json`. Unzip and run `npx vercel --prod` from that folder, or import via Git.
+Run `./build-idecompiler-cloudflare-v7.sh` from this folder. The zip includes `vercel.json`. Unzip and run `npx vercel --prod` from that folder, or import via Git.
 
 ## After deploy — check these URLs
 
