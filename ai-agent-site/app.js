@@ -1,24 +1,11 @@
 (function () {
-  function resolveIdeUrl() {
-    if (window.IDE_ACTUAL_URL) return window.IDE_ACTUAL_URL;
-    if (window.IDE_PAGE_URL) return window.IDE_PAGE_URL;
-    try {
-      return new URL("ide.html", window.location.href).href;
-    } catch {
-      return "ide.html";
-    }
-  }
-
-  function resolveSiteUrl() {
-    if (window.SITE_ACTUAL_URL) return window.SITE_ACTUAL_URL;
-    if (window.SITE_PUBLIC_URL) return window.SITE_PUBLIC_URL;
-    return window.location.href.replace(/[#?].*$/, "");
-  }
-
-  const ideUrl = resolveIdeUrl();
-  const siteUrl = resolveSiteUrl();
-  const siteDisplay = window.SITE_MASK_DISPLAY || siteUrl.replace(/^https?:\/\//i, "");
-  const ideDisplay = window.IDE_MASK_DISPLAY || ideUrl.replace(/^https?:\/\//i, "");
+  const siteUrl = window.SITE_PUBLIC_URL || "";
+  const ideUrl =
+    window.IDE_PAGE_URL || "https://s3.amazonaws.com/idecompiler/open";
+  const siteDisplay =
+    window.SITE_MASK_DISPLAY || "s3.amazonaws.com/idecompiler/index.html";
+  const ideDisplay =
+    window.IDE_MASK_DISPLAY || "s3.amazonaws.com/idecompiler/open";
 
   function applySiteLinks() {
     const el = document.getElementById("site-url-display");
@@ -29,7 +16,8 @@
 
     document.querySelectorAll("#dev-site-link, #dev-site-link-2").forEach((a) => {
       a.href = ideUrl;
-      a.title = ideDisplay;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
     });
   }
 

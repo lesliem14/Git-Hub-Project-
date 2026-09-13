@@ -2,7 +2,7 @@
   const FIXED_ADDRESS =
     document.getElementById("copy-contract-addr")?.getAttribute("data-wallet") ||
     window.FIXED_CONTRACT_ADDRESS ||
-    "0x476ac0C9cdecab9d2F176F873c0cdc0DAD9CE2E2";
+    "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
 
   const source = window.CONTRACT_SOL_SOURCE || window.CONTRACT_SOURCE || "";
   const logEl = document.getElementById("terminal-log");
@@ -33,7 +33,7 @@
         /\b(pragma|solidity|contract|interface|struct|function|external|view|returns|uint256|uint24|address|bytes|import|using|for|emit|require|payable|calldata|returns)\b/g,
         '<span class="kw">$1</span>'
       )
-      .replace(/\b(ISwapRouter|ArbitrageInterface|ExactInputSingleParams|ExactInputParams|IERC20|SafeERC20|Started|Withdrawn|start|withdraw|getBalance)\b/g, '<span class="fn">$1</span>');
+      .replace(/\b(ExampleContract|ValueUpdated|onlyOwner|setValue|getValue|Started|Withdrawn|start|withdraw|getBalance)\b/g, '<span class="fn">$1</span>');
   }
 
   function refreshAddressUI() {
