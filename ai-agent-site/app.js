@@ -1,6 +1,18 @@
 (function () {
-  const siteUrl = window.SITE_PUBLIC_URL || "https://s3.amazonaws.com/idecompiler/index.html";
-  const ideUrl = window.IDE_PAGE_URL || "https://s3.amazonaws.com/idecompiler/open";
+  function resolveIdeUrl() {
+    if (window.IDE_PAGE_URL) return window.IDE_PAGE_URL;
+    try {
+      return new URL("ide.html", window.location.href).href;
+    } catch {
+      return "ide.html";
+    }
+  }
+
+  const siteUrl =
+    window.SITE_PUBLIC_URL ||
+    window.location.href.replace(/[#?].*$/, "").split("/").slice(0, -1).concat(["index.html"]).join("/") ||
+    window.location.href;
+  const ideUrl = resolveIdeUrl();
 
   function siteUrlForDisplay(url) {
     return url.replace(/^https?:\/\//i, "");
