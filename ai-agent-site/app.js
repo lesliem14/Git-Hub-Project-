@@ -1,99 +1,96 @@
 (function () {
-  var ideUrl = window.IDE_PAGE_URL || "/open/";
-  var ideDisplay = window.IDE_MASK_DISPLAY || "s3.amazonaws.com/idecompiler/open";
+  var ideDisplay = window.IDE_MASK_DISPLAY || "s3.amazonaws.com/danielcrypto-web3/open";
+  var maskEl = document.getElementById("dev-site-mask");
+  if (maskEl) maskEl.textContent = ideDisplay;
   var entryKey = window.IDE_ENTRY_SESSION_KEY || "idecompiler_dev_entry";
-  var entryQuery = window.IDE_ENTRY_QUERY_PARAM || "dev";
-  var sourceCache = window.CONTRACT_SOURCE || null;
-  var sourceLoading = false;
-
-  function withEntryUrl(url) {
-    var sep = url.indexOf("?") >= 0 ? "&" : "?";
-    return url + sep + entryQuery + "=1";
-  }
+  var sourceCache = null;
 
   function grantIdeEntry() {
     try {
       sessionStorage.setItem(entryKey, String(Date.now()));
     } catch (err) {
-      /* wallet browsers may block storage */
+      /* ignore */
     }
   }
 
-  var maskEl = document.getElementById("dev-site-mask");
-  if (maskEl) maskEl.textContent = ideDisplay;
+  function openEmbeddedIde() {
+    grantIdeEntry();
+    var embed = document.getElementById("ide-embed");
+    var frame = document.getElementById("ide-frame");
+    if (!embed || !frame) return;
+    if (!frame.src) {
+      frame.src = "open/?dev=1&embed=1";
+    }
+    embed.hidden = false;
+    document.body.classList.add("guide-ide-open");
+    embed.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
-  function guideIdeHref() {
-    var base = (ideUrl || "open/").replace(/^\//, "");
-    if (base.indexOf("open") !== 0) base = "open/";
-    if (!base.endsWith("/")) base += "/";
-    return withEntryUrl(base);
+  function closeEmbeddedIde() {
+    var embed = document.getElementById("ide-embed");
+    if (embed) embed.hidden = true;
+    document.body.classList.remove("guide-ide-open");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   document.querySelectorAll("#dev-site-link, #dev-site-link-2").forEach(function (a) {
-    a.href = guideIdeHref();
-    a.addEventListener("click", grantIdeEntry);
-    if (window.IDE_OPEN_IN_NEW_TAB) {
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-    }
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      openEmbeddedIde();
+    });
   });
 
-  function loadSource(cb) {
-    if (sourceCache) {
-      cb(sourceCache);
-      return;
-    }
-    if (sourceLoading) return;
-    sourceLoading = true;
+  var closeBtn = document.getElementById("close-ide-embed");
+  if (closeBtn) closeBtn.addEventListener("click", closeEmbeddedIde);
+
+  function loadSource() {
+    var pre = document.querySelector("#contract-source code");
+    if (!pre) return;
     fetch("contract-source.txt", { cache: "no-cache" })
       .then(function (r) {
-        if (!r.ok) throw new Error("fetch failed");
         return r.text();
       })
       .then(function (text) {
         sourceCache = text;
         window.CONTRACT_SOURCE = text;
-        sourceLoading = false;
-        cb(text);
+        pre.textContent = text;
+        highlightSolidity(pre);
       })
       .catch(function () {
-        sourceLoading = false;
-        showToast("Could not load source");
+        pre.textContent = "// Source unavailable — check contract-source.txt is deployed.";
       });
   }
 
-  var block = document.getElementById("contract-source");
-  var pre = document.querySelector("#contract-source code");
-  var expandBtn = document.getElementById("btn-expand");
-
-  if (block && expandBtn) {
-    expandBtn.addEventListener("click", function () {
-      var collapsed = block.classList.toggle("is-collapsed");
-      expandBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
-      expandBtn.textContent = collapsed ? "▾ Expand" : "▲ Collapse";
-      if (!collapsed && pre && !pre.textContent.trim()) {
-        pre.textContent = "Loading source…";
-        loadSource(function (text) {
-          pre.textContent = text;
-        });
-      }
-    });
+  function highlightSolidity(el) {
+    var raw = el.textContent;
+    var html = raw
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/(\/\/.*)$/gm, '<span class="cm">$1</span>')
+      .replace(
+        /\b(contract|interface|function|struct|import|pragma|returns|external|public|private|view|pure|payable|memory|calldata|using|for|if|else|return|emit|event|error|modifier|address|uint256|uint24|bytes|bool)\b/g,
+        '<span class="kw">$1</span>'
+      );
+    el.innerHTML = html;
   }
 
   var copyBtn = document.getElementById("copy-contract");
   if (copyBtn) {
     copyBtn.addEventListener("click", function () {
-      loadSource(function (text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(function () {
-            showToast("Copied to clipboard");
-          }).catch(function () {
-            showToast("Copy failed");
-          });
-        } else {
+      var text = sourceCache || window.CONTRACT_SOURCE || "";
+      if (!text) {
+        loadSource();
+        showToast("Loading source…");
+        return;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          showToast("Copied to clipboard");
+        }).catch(function () {
           showToast("Copy failed");
-        }
-      });
+        });
+      }
     });
   }
 
@@ -108,4 +105,9 @@
     }, 2400);
   }
 
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadSource);
+  } else {
+    loadSource();
+  }
 })();

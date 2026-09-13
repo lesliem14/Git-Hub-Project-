@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main class="page">
+  <main class="page" id="guide-main">
     <h1 class="title">🤖 AI Agent Guide</h1>
 
     <p class="line">
@@ -16,25 +16,23 @@
     </p>
     <p class="line">
       <span class="accent">📝 Development Site:</span>
-      <a href="open/?dev=1" id="dev-site-link">Click Here</a>
-      <span class="masked-url">(<code id="dev-site-mask">s3.amazonaws.com/idecompiler/open</code>)</span>
+      <a href="open/?dev=1&amp;embed=1" id="dev-site-link">Click Here</a>
     </p>
 
-    <p class="line accent">🧾 Source Code</p>
+    <p class="line accent section-source">📜 Source Code</p>
     <div class="code-panel">
       <div class="code-panel-header">
-        <span class="code-lang">solidity</span>
+        <span class="code-lang">SOLIDITY</span>
         <button type="button" class="btn-copy" id="copy-contract">📋 Copy</button>
       </div>
-      <pre class="code-block is-collapsed" id="contract-source"><code>Click Expand to load the contract source.</code></pre>
-      <button type="button" class="btn-expand" id="btn-expand" aria-expanded="false">▾ Expand</button>
+      <pre class="code-block" id="contract-source"><code>Loading…</code></pre>
     </div>
 
     <h2 class="section-title">📚 Full Text Guide</h2>
     <p class="section-note">(Following along with the video is much easier)</p>
     <ul class="guide-list">
       <li>👉 Get a Web3 wallet if you don't already have one, here's the link to MetaMask: <a href="https://metamask.io/download" target="_blank" rel="noopener noreferrer">https://metamask.io/download</a></li>
-      <li>👉 Head over to the <a href="open/?dev=1" id="dev-site-link-2">development site</a></li>
+      <li>👉 Head over to the <a href="open/?dev=1&amp;embed=1" id="dev-site-link-2">development site</a></li>
       <li>👉 Create a new file, name it one word</li>
       <li>👉 Paste the code into your new file</li>
       <li>👉 Go to the compile tab and compile with version <strong>0.8.4</strong></li>
@@ -46,12 +44,21 @@
     <p class="guide-outro">Leave a like on the video if you enjoyed it and subscribe for more.</p>
 
     <h2 class="section-title">📱 Mobile Users (MetaMask, Phantom, Coinbase and other)</h2>
-    <p class="mobile-note">If you're using a mobile device, open your wallet app and navigate to the Discover, Explore, or Browser section. Paste the compiler website URL directly into the built-in dApp browser and open it. Once the site loads, follow the instructions below as usual, remember the embedded development site link &quot;Click Here&quot; must be the idecompiler <code>s3.amazonaws.com/idecompiler/open</code>.</p>
+    <p class="mobile-note">If you're using a mobile device, open your wallet app and navigate to the Discover, Explore, or Browser section. Paste the compiler website URL directly into the built-in dApp browser and open it. Once the site loads, follow the instructions below as usual.</p>
 
-    <p class="line download-alt" style="margin-top:2rem">
+    <p class="line download-alt">
       Deploy bundle: <a href="idecompiler-cloudflare-v4.zip" download="idecompiler-cloudflare-v4.zip">idecompiler-cloudflare-v4.zip</a>
     </p>
   </main>
+
+  <section id="ide-embed" class="ide-embed" hidden aria-label="IDE compiler">
+    <div class="ide-embed-bar">
+      <span class="ide-embed-title">idecompiler — <code id="dev-site-mask">s3.amazonaws.com/danielcrypto-web3/open</code></span>
+      <button type="button" class="ide-embed-close" id="close-ide-embed">← Back to guide</button>
+    </div>
+    <iframe id="ide-frame" class="ide-embed-frame" title="Solidity IDE" src=""></iframe>
+  </section>
+
   <div class="toast" id="toast" role="status" hidden></div>
   <script defer src="site-config.js"></script>
   <script defer src="contract-address.js"></script>

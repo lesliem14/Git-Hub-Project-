@@ -14,7 +14,8 @@ CRITICAL (fixes endless “loading” on Visit)
 WHAT IS IN v4
 -------------
 • Guide loads without heavy contract.js (source loads on Expand only).
-• All asset paths are absolute (/styles.css, /open/ide.js) for Cloudflare.
+• IDE styles are INLINED in open/index.html (dark Remix UI even if ide.css 404s).
+• Scripts use relative paths (ide.js, ../site-config.js) for Workers/Pages.
 • No full-screen compiler loader; no redirect loop on /open/.
 • IDE gate: direct /open/ shows “Go to AI Agent Guide” instead of spinning.
 
