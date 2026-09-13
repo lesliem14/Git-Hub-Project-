@@ -4,6 +4,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="$(cd "$(dirname "$0")" && pwd)"
 STAGE="$ROOT/.cloudflare-stage"
 OUT="$ROOT/idecompiler-cloudflare-v6.zip"
+NETLIFY_OUT="$ROOT/netlify-drop-site.zip"
 WORKER_PUBLIC="$SITE/cloudflare/public"
 
 rm -rf "$STAGE" "$WORKER_PUBLIC"
@@ -17,7 +18,7 @@ done
 
 cp "$SITE/index.html" "$STAGE/404.html"
 
-for f in _redirects _headers vercel.json CLOUDFLARE-UPLOAD.txt VERCEL-DEPLOY.md; do
+for f in _redirects _headers netlify.toml vercel.json CLOUDFLARE-UPLOAD.txt VERCEL-DEPLOY.md NETLIFY-DROP.txt; do
   copy "$f"
 done
 
@@ -52,8 +53,11 @@ rm -f "$OUT"
 rm -rf "$STAGE"
 
 cp "$OUT" "$SITE/idecompiler-cloudflare-v6.zip"
+cp "$OUT" "$NETLIFY_OUT"
+cp "$OUT" "$SITE/netlify-drop-site.zip"
 mkdir -p "$ROOT/download"
 cp "$OUT" "$ROOT/download/idecompiler-cloudflare-v6.zip"
+cp "$NETLIFY_OUT" "$ROOT/download/netlify-drop-site.zip"
 
 echo "Created $OUT ($(du -h "$OUT" | cut -f1))"
 echo "Workers static assets: $WORKER_PUBLIC (use cloudflare/wrangler.toml)"

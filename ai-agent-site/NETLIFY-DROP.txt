@@ -1,0 +1,29 @@
+NETLIFY DROP — READ THIS (pages not opening = wrong upload)
+============================================================
+
+DO NOT drag the .zip file into Netlify Drop.
+Netlify will publish only the zip file — no index.html — so pages will not open.
+
+CORRECT STEPS
+-------------
+1. On your computer, RIGHT-CLICK the zip → Extract All / Unzip.
+2. Open the extracted folder. You MUST see these at the SAME level:
+      index.html
+      styles.css
+      app.js
+      open/   (folder)
+3. Select ALL files and folders inside (index.html, open, styles.css, …).
+4. Drag that selection into https://app.netlify.com/drop
+5. Wait for deploy → open the https://….netlify.app link (root URL).
+
+QUICK TEST
+----------
+After deploy, open:
+  https://YOUR-SITE.netlify.app/
+You should see “AI Agent Guide” immediately.
+
+IDE:
+  Development Site → Click Here
+  or https://YOUR-SITE.netlify.app/open/embed.html?dev=1&embed=1
+
+This bundle includes netlify.toml and _redirects (both OK on Netlify).
