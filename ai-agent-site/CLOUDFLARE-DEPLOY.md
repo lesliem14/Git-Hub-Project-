@@ -7,9 +7,11 @@ Upload the **entire** `ai-agent-site` folder as your Pages project root (not onl
 | Page | URL |
 |------|-----|
 | AI Agent Guide (home) | `https://<your-project>.pages.dev/` |
-| IDE / Compiler | `https://<your-project>.pages.dev/open/` |
+| IDE (via guide) | **Development Site → Click Here** (overlay or `open/embed.html?dev=1&embed=1`) |
 
-The `_redirects` file maps `/open` and `/open/` to `open/index.html`.
+The `_redirects` file sends `/open` and `/open/` to `/` (guide). Do not expect `/open/` to show the IDE directly.
+
+**Zip for upload:** `idecompiler-cloudflare-v6.zip` at the repo root (run `ai-agent-site/build-cloudflare-zip.sh`).
 
 ## What you get
 

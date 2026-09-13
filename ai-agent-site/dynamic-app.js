@@ -4,7 +4,10 @@
   var urls = cfg.urls || {};
   var entryKey = window.IDE_ENTRY_SESSION_KEY || "idecompiler_dev_entry";
   var sourceCache = null;
-  var ideLoaded = false;
+  var ideFrameStarted = false;
+  var ideFrameReady = false;
+  var currentView = "guide";
+  var transitionMs = 320;
 
   function qs(name) {
     return new URLSearchParams(window.location.search).get(name);
@@ -19,36 +22,74 @@
   }
 
   function ideFrameUrl() {
-    return "open/embed.html?dev=1&embed=1&_=" + Date.now();
+    return "open/embed.html?dev=1&embed=1";
   }
 
-  function setView(view) {
-    var isIde = view === "ide";
-    var guideEl = document.getElementById("guide-main");
-    var embed = document.getElementById("ide-embed");
-    document.body.classList.toggle("guide-ide-open", isIde);
-    if (guideEl) guideEl.hidden = isIde;
-    if (embed) embed.hidden = !isIde;
-    document.title = isIde ? "IDE — idecompiler" : guide.title || "AI Agent Guide";
-    if (isIde) loadIdeFrame();
+  function setLoading(on) {
+    var el = document.getElementById("ide-embed-loading");
+    if (!el) return;
+    if (on) el.removeAttribute("hidden");
+    else el.setAttribute("hidden", "");
   }
 
-  function loadIdeFrame() {
-    grantIdeEntry();
+  function preloadIdeFrame() {
+    if (ideFrameStarted) return;
     var frame = document.getElementById("ide-frame");
     if (!frame) return;
-    if (!ideLoaded) {
-      frame.src = ideFrameUrl();
-      ideLoaded = true;
+    ideFrameStarted = true;
+    setLoading(true);
+    frame.addEventListener("load", onFrameLoad);
+    frame.src = ideFrameUrl();
+  }
+
+  function onFrameLoad() {
+    ideFrameReady = true;
+    setLoading(false);
+    var frame = document.getElementById("ide-frame");
+    if (frame) frame.classList.add("is-ready");
+  }
+
+  function setView(view, animate) {
+    var isIde = view === "ide";
+    if (currentView === view && animate !== true) return;
+    currentView = view;
+
+    var guideEl = document.getElementById("guide-main");
+    var embed = document.getElementById("ide-embed");
+
+    document.documentElement.classList.toggle("boot-ide", isIde);
+    document.body.classList.toggle("guide-ide-open", isIde);
+
+    if (isIde) {
+      grantIdeEntry();
+      preloadIdeFrame();
+      if (!ideFrameReady) setLoading(true);
+      if (embed) {
+        embed.setAttribute("aria-hidden", "false");
+        requestAnimationFrame(function () {
+          embed.classList.add("is-active");
+        });
+      }
+      if (guideEl) guideEl.classList.add("is-hidden");
+    } else {
+      if (embed) {
+        embed.classList.remove("is-active");
+        embed.setAttribute("aria-hidden", "true");
+      }
+      if (guideEl) {
+        guideEl.classList.remove("is-hidden");
+      }
     }
+
+    document.title = isIde ? "IDE — idecompiler" : guide.title || "AI Agent Guide";
   }
 
   function navigateToIde(push) {
-    grantIdeEntry();
     setView("ide");
     var url = new URL(window.location.href);
     url.searchParams.set("view", "ide");
     url.searchParams.delete("dev");
+    url.searchParams.delete("embed");
     if (push !== false) {
       history.pushState({ view: "ide" }, "", url.pathname + "?" + url.searchParams.toString());
     }
@@ -65,7 +106,6 @@
     if (push !== false) {
       history.pushState({ view: "guide" }, "", next);
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function applyConfig() {
@@ -96,42 +136,36 @@
       list.innerHTML = "";
       cfg.guideSteps.forEach(function (step, i) {
         var li = document.createElement("li");
-        li.textContent = "👉 ";
         if (i === 0) {
-          li.appendChild(document.createTextNode(step + " "));
-          var a = document.createElement("a");
-          a.href = urls.metamask || "https://metamask.io/download";
-          a.target = "_blank";
-          a.rel = "noopener noreferrer";
-          a.textContent = urls.metamask || "https://metamask.io/download";
-          li.appendChild(a);
+          li.innerHTML =
+            "👉 " +
+            step +
+            ' <a href="' +
+            (urls.metamask || "https://metamask.io/download") +
+            '" target="_blank" rel="noopener noreferrer">' +
+            (urls.metamask || "https://metamask.io/download") +
+            "</a>";
         } else if (i === 1) {
-          li.appendChild(document.createTextNode(step.replace(/development site/i, "").trim() + " "));
-          var dev = document.createElement("a");
-          dev.href = "?view=ide";
-          dev.className = "dev-site-inline";
-          dev.textContent = "development site";
-          dev.addEventListener("click", function (e) {
-            e.preventDefault();
-            navigateToIde();
-          });
-          li.appendChild(dev);
+          li.innerHTML =
+            '👉 Head over to the <a href="?view=ide" class="dev-site-inline">development site</a>';
         } else {
           var ver = guide.compilerVersion || "0.8.4";
-          li.appendChild(
-            document.createTextNode(step.replace("0.8.4", ver))
-          );
+          li.textContent = "👉 " + step.replace("0.8.4", ver);
         }
         list.appendChild(li);
       });
     }
+  }
 
-    document.querySelectorAll("#dev-site-link, #dev-site-link-2").forEach(function (a) {
+  function bindDevLinks() {
+    document.querySelectorAll(".dev-site-inline, #dev-site-link").forEach(function (a) {
       a.href = "?view=ide";
       a.addEventListener("click", function (e) {
         e.preventDefault();
         navigateToIde();
       });
+      a.addEventListener("mouseenter", preloadIdeFrame, { once: true });
+      a.addEventListener("focus", preloadIdeFrame, { once: true });
     });
   }
 
@@ -140,11 +174,6 @@
     if (qs("dev") === "1" || qs("embed") === "1") return "ide";
     var path = window.location.pathname.replace(/\/$/, "");
     if (path.endsWith("/open") || path.endsWith("/open/index.html")) return "ide";
-    try {
-      if (sessionStorage.getItem(entryKey) && qs("view") === "ide") return "ide";
-    } catch (e) {
-      /* ignore */
-    }
     return "guide";
   }
 
@@ -206,7 +235,14 @@
     }
 
     window.addEventListener("popstate", function () {
-      setView(resolveInitialView());
+      setView(resolveInitialView(), true);
+    });
+
+    window.addEventListener("message", function (ev) {
+      if (ev.data && ev.data.type === "idecompiler-ready") {
+        ideFrameReady = true;
+        setLoading(false);
+      }
     });
   }
 
@@ -223,16 +259,21 @@
 
   function init() {
     applyConfig();
+    bindDevLinks();
     bindUi();
     loadSource();
+
     var view = resolveInitialView();
-    setView(view);
+    setView(view, true);
+
     if (view === "ide") {
       var url = new URL(window.location.href);
       if (!url.searchParams.get("view")) {
         url.searchParams.set("view", "ide");
         history.replaceState({ view: "ide" }, "", url.pathname + "?" + url.searchParams.toString());
       }
+    } else {
+      window.setTimeout(preloadIdeFrame, 1200);
     }
   }
 
