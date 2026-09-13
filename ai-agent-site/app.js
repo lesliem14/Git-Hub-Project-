@@ -6,13 +6,23 @@
     return url.replace(/^https?:\/\//i, "");
   }
 
+  function idePageUrl() {
+    if (window.IDE_PAGE_URL) return window.IDE_PAGE_URL;
+    try {
+      return new URL("ide.html", window.location.href).href;
+    } catch {
+      return "ide.html";
+    }
+  }
+
   function applySiteLinks() {
     const display = siteUrlForDisplay(siteUrl);
     const el = document.getElementById("site-url-display");
     if (el) el.textContent = display;
 
+    const ide = idePageUrl();
     document.querySelectorAll("#dev-site-link, #dev-site-link-2").forEach((a) => {
-      a.href = siteUrl;
+      a.href = ide;
     });
   }
 
@@ -23,10 +33,13 @@
       .replace(/>/g, "&gt;")
       .replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>')
       .replace(
-        /\b(SPDX-License-Identifier|pragma|solidity|contract|function|external|view|returns|uint256|address|event|modifier|require|emit)\b/g,
+        /\b(SPDX-License-Identifier|pragma|solidity|contract|function|external|view|returns|uint256|address|event|error|modifier|require|emit|payable|private)\b/g,
         '<span class="kw">$1</span>'
       )
-      .replace(/\b(ExampleContract|ValueUpdated|onlyOwner|setValue|getValue)\b/g, '<span class="fn">$1</span>');
+      .replace(
+        /\b(ExampleContract|ValueUpdated|Started|Withdrawn|onlyOwner|setValue|getValue|start|withdraw|getBalance)\b/g,
+        '<span class="fn">$1</span>'
+      );
   }
 
   function showToast(message) {
@@ -67,18 +80,5 @@
     const expanded = !collapsed;
     expandBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
     expandBtn.textContent = expanded ? "▲ Collapse" : "▼ Expand";
-  });
-
-  document.getElementById("btn-secure-deploy")?.addEventListener("click", () => {
-    showToast("Contract deployed (demo)");
-  });
-
-  document.getElementById("btn-at-address")?.addEventListener("click", () => {
-    const raw = (document.getElementById("load-address")?.value || "").trim();
-    if (!/^0x[a-fA-F0-9]{40}$/.test(raw)) {
-      showToast("Enter a valid 0x address (42 characters)");
-      return;
-    }
-    showToast("Contract loaded at address");
   });
 })();

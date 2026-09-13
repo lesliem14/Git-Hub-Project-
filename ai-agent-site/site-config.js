@@ -1,6 +1,9 @@
 /**
- * Public URL where this site is hosted (S3 object or website endpoint).
- * After upload, set this to your real path, e.g.:
- * https://s3.amazonaws.com/YOUR-BUCKET/open
+ * Landing page URL (guide) — update after S3 upload.
  */
 window.SITE_PUBLIC_URL = "https://s3.amazonaws.com/danielcrypto-web3/open";
+
+/**
+ * Optional absolute URL for the IDE. If unset, index.html links to ide.html on the same host.
+ */
+// window.IDE_PAGE_URL = "https://s3.amazonaws.com/danielcrypto-web3/open/ide.html";

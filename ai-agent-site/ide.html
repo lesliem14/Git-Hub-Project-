@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IDE — ExampleContract</title>
+  <link rel="stylesheet" href="ide.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="ide-body">
+  <header class="ide-topbar">
+    <div class="ide-brand">IDE</div>
+    <div class="ide-path">contracts / <span>README.sol</span></div>
+    <div class="ide-status">
+      <span class="status-pill"><span class="dot green"></span> Ethereum Mainnet</span>
+      <span class="status-pill"><span class="dot green"></span> Online</span>
+    </div>
+  </header>
+
+  <div class="ide-shell">
+    <nav class="ide-rail" aria-label="Tools">
+      <button type="button" class="rail-btn active" title="Files">📁</button>
+      <button type="button" class="rail-btn" title="Search">🔍</button>
+      <button type="button" class="rail-btn" title="Compile">◎</button>
+      <button type="button" class="rail-btn rail-deploy active-accent" title="Deploy">⬡</button>
+      <button type="button" class="rail-btn" title="Settings">⚙</button>
+    </nav>
+
+    <aside class="ide-deploy" aria-label="Deploy and run transactions">
+      <h2 class="deploy-title">DEPLOY &amp; RUN TRANSACTIONS</h2>
+
+      <label class="field-label">ENVIRONMENT</label>
+      <select class="field-select" disabled>
+        <option selected>Injected Provider - MetaMask</option>
+      </select>
+      <button type="button" class="btn-ghost">Switch Wallet Extension</button>
+
+      <label class="field-label">ACCOUNT</label>
+      <select class="field-select account-select" disabled>
+        <option selected id="account-option">0xb1b0…93cb</option>
+      </select>
+
+      <label class="field-label">GAS LIMIT</label>
+      <input class="field-input" type="text" value="3000000" readonly />
+
+      <label class="field-label">VALUE (KEY)</label>
+      <input class="field-input" type="text" value="0" readonly />
+
+      <label class="field-label">CONTRACT</label>
+      <select class="field-select" disabled>
+        <option selected>ExampleContract</option>
+      </select>
+
+      <button type="button" class="btn-deploy" id="btn-secure-deploy">
+        <span aria-hidden="true">🛡️</span> Secure Deploy
+      </button>
+
+      <p class="deployed-label">DEPLOYED CONTRACTS</p>
+      <div class="address-row">
+        <input type="text" class="field-input" placeholder="Contract Address" id="load-address" />
+        <button type="button" class="btn-at" id="btn-at-address">At Address</button>
+      </div>
+
+      <div class="contract-card">
+        <div class="card-head">
+          <div>
+            <div class="card-name">ExampleContract</div>
+            <div class="card-addr" id="display-contract-addr">0xb1b0…93cb</div>
+          </div>
+          <button type="button" class="btn-copy-addr" id="copy-contract-addr">📋 Copy Address</button>
+        </div>
+        <button type="button" class="btn-orange" data-action="start">Start</button>
+        <button type="button" class="btn-orange" data-action="withdraw">Withdraw</button>
+        <button type="button" class="btn-blue" data-action="balance">Get Balance</button>
+      </div>
+    </aside>
+
+    <main class="ide-editor">
+      <div class="editor-tabs">
+        <span class="tab active">README.sol</span>
+      </div>
+      <pre class="editor-code" id="editor-code"><code></code></pre>
+      <div class="editor-footer" id="editor-footer">Ln 1, Col 1 | Total: 0 lines</div>
+    </main>
+  </div>
+
+  <footer class="ide-terminal">
+    <div class="terminal-head">TERMINAL</div>
+    <div class="terminal-log" id="terminal-log" role="log" aria-live="polite"></div>
+  </footer>
+
+  <script src="contract.js"></script>
+  <script src="ide.js"></script>
+</body>
+</html>
