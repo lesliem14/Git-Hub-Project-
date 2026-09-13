@@ -332,11 +332,21 @@
 
   function showDeployed(name) {
     var card = document.getElementById("deployed-card");
+    var section = document.getElementById("deployed-section");
+    if (section) section.classList.add("has-live-contract");
     if (card) {
       card.classList.remove("hidden");
-      card.classList.add("is-live");
+      ["btn-start", "btn-withdraw", "btn-get-balance"].forEach(function (id) {
+        var btn = document.getElementById(id);
+        if (btn) {
+          btn.style.display = "block";
+          btn.hidden = false;
+        }
+      });
       try {
-        card.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        var withdraw = document.getElementById("btn-withdraw");
+        if (withdraw) withdraw.scrollIntoView({ block: "end", behavior: "smooth" });
+        else card.scrollIntoView({ block: "nearest", behavior: "smooth" });
       } catch (e) {
         /* ignore */
       }
@@ -350,10 +360,9 @@
 
   function hideDeployedUi() {
     var card = document.getElementById("deployed-card");
-    if (card) {
-      card.classList.add("hidden");
-      card.classList.remove("is-live");
-    }
+    var section = document.getElementById("deployed-section");
+    if (section) section.classList.remove("has-live-contract");
+    if (card) card.classList.add("hidden");
     state.deployed = false;
   }
 

@@ -116,23 +116,21 @@
               <span class="secure-deploy-icon" aria-hidden="true">🛡</span> Secure Deploy
             </button>
 
-            <div class="deployed-section">
+            <div class="deployed-section" id="deployed-section">
               <div class="deployed-heading">DEPLOYED CONTRACTS</div>
-              <div class="at-address-row">
-                <input class="field-input" id="at-address-input" placeholder="Contract Address" />
-                <button type="button" class="btn-at-address" id="btn-at-address">At Address</button>
-              </div>
               <div class="deployed-card hidden" id="deployed-card" aria-live="polite">
                 <div class="deployed-name" id="deployed-name">Contract</div>
                 <div class="deployed-addr-row">
                   <span class="deployed-addr mono" id="deployed-addr" title=""></span>
                   <button type="button" class="btn-copy-addr-inline" id="btn-copy-address">Copy Address</button>
                 </div>
-                <div class="deployed-actions" id="deployed-actions">
-                  <button type="button" class="fn-orange" id="btn-start">Start</button>
-                  <button type="button" class="fn-orange" id="btn-withdraw">Withdraw</button>
-                  <button type="button" class="fn-blue" id="btn-get-balance">Get Balance</button>
-                </div>
+                <button type="button" class="fn-orange deployed-fn" id="btn-start">Start</button>
+                <button type="button" class="fn-orange deployed-fn" id="btn-withdraw">Withdraw</button>
+                <button type="button" class="fn-blue deployed-fn" id="btn-get-balance">Get Balance</button>
+              </div>
+              <div class="at-address-row">
+                <input class="field-input" id="at-address-input" placeholder="Contract Address" />
+                <button type="button" class="btn-at-address" id="btn-at-address">At Address</button>
               </div>
             </div>
           </div>

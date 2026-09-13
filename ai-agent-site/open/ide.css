@@ -356,17 +356,13 @@ html[data-ide-allowed="true"] #gate-wall {
   white-space: nowrap;
 }
 .btn-copy-addr-inline:hover { background: var(--accent); }
-.deployed-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
-}
-.deployed-card:not(.is-live) .deployed-actions {
-  display: none;
-}
-.deployed-card.is-live .deployed-actions {
-  display: flex;
+.deployed-card .deployed-fn {
+  display: block;
+  width: 100%;
+  margin: 0;
+  flex-shrink: 0;
+  visibility: visible;
+  opacity: 1;
 }
 .fn-orange, .fn-blue {
   width: 100%;
@@ -376,9 +372,13 @@ html[data-ide-allowed="true"] #gate-wall {
   font-weight: 700;
   cursor: pointer;
   font-size: 13px;
+  line-height: 1.2;
 }
 .fn-orange { background: var(--orange); color: #fff; }
 .fn-blue { background: var(--accent-deep); color: #fff; }
+.deployed-section.has-live-contract .deployed-heading {
+  color: var(--text);
+}
 
 .ide-main {
   order: 2;
