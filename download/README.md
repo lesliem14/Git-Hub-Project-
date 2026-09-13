@@ -4,9 +4,9 @@
 
 | File | Description |
 |------|-------------|
-| **[`ai-agent-site-cloudflare.zip`](ai-agent-site-cloudflare.zip)** | **Both pages** — guide + IDE, Cloudflare-ready (~14 KB) |
+| **[`idecompiler-cloudflare-v2.zip`](idecompiler-cloudflare-v2.zip)** | **Both pages** — guide + IDE, Cloudflare-ready (~18 KB) |
 
-Repo root: **`/ai-agent-site-cloudflare.zip`**
+Repo root: **`/idecompiler-cloudflare-v2.zip`**
 
 ## Full installation (docs + extras)
 

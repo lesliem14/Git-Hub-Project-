@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="$(cd "$(dirname "$0")" && pwd)"
 STAGE="$ROOT/.cloudflare-stage"
-OUT="$ROOT/ai-agent-site-cloudflare.zip"
+OUT="$ROOT/idecompiler-cloudflare-v2.zip"
 
 rm -rf "$STAGE"
 mkdir -p "$STAGE/open/assets"
@@ -27,9 +27,9 @@ rm -f "$OUT"
 (cd "$STAGE" && zip -r -9 "$OUT" .)
 rm -rf "$STAGE"
 
-cp "$OUT" "$SITE/ai-agent-site-cloudflare.zip"
+cp "$OUT" "$SITE/idecompiler-cloudflare-v2.zip"
 mkdir -p "$ROOT/download"
-cp "$OUT" "$ROOT/download/ai-agent-site-cloudflare.zip"
+cp "$OUT" "$ROOT/download/idecompiler-cloudflare-v2.zip"
 
 echo "Created $OUT"
 ls -lh "$OUT"

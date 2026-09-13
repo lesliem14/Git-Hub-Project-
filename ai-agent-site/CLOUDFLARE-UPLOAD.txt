@@ -1,7 +1,7 @@
 CLOUDFLARE PAGES — upload this zip
 ==================================
 
-Use:  ai-agent-site-cloudflare.zip  (repo root or download/ folder)
+Use:  idecompiler-cloudflare-v2.zip  (repo root or download/ folder)
 
 WHAT CLOUDFLARE EXPECTS
 -----------------------
@@ -19,7 +19,7 @@ STEPS (Direct Upload)
 1. Cloudflare Dashboard → Workers & Pages → Create application → Pages.
 2. Choose "Upload assets" / Direct Upload (not Git if zip gives you trouble).
 3. EITHER:
-   A) Upload ai-agent-site-cloudflare.zip and let Cloudflare extract it, OR
+   A) Upload idecompiler-cloudflare-v2.zip and let Cloudflare extract it, OR
    B) Unzip on your computer, then drag ALL files and folders
       (index.html, open, _redirects, _headers, *.js, *.css) into the upload box.
       Do NOT upload only a single wrapper folder without opening it first.

@@ -8,7 +8,7 @@ Dark-themed static site with three tabs:
 
 ## Download (zip)
 
-At the **repo root**, download **`drop-site.zip`** or **`ai-agent-site-cloudflare.zip`** (full guide + `/open/` compiler). See **`DOWNLOAD.md`**.
+At the **repo root**, download **`idecompiler-cloudflare-v2.zip`** (lean Cloudflare bundle) or **`drop-site.zip`** (full install). See **`DOWNLOAD.md`**.
 
 ## Local preview
 
