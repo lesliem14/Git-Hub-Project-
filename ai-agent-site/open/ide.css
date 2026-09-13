@@ -271,13 +271,29 @@ html, body {
 .at-address-row .field-input { flex: 1; }
 .btn-at-address {
   padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent-deep);
+  color: #fff;
+  cursor: pointer;
+  font-size: 11px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.value-row { display: flex; gap: 6px; }
+.value-row .field-input { flex: 1; }
+.value-unit { max-width: 72px; flex: 0 0 72px; }
+.check-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.compile-actions { display: flex; gap: 8px; margin-top: 4px; }
+.btn-mini {
+  flex: 1;
+  padding: 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--panel-deep);
   color: var(--text);
   cursor: pointer;
   font-size: 11px;
-  white-space: nowrap;
 }
 
 .deployed-card {
@@ -290,24 +306,20 @@ html, body {
   gap: 8px;
 }
 .deployed-card.hidden { display: none; }
-.deployed-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
-}
-.deployed-name { font-weight: 700; font-size: 13px; }
-.deployed-addr { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.deployed-name { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
+.deployed-addr { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
 .mono { font-family: var(--mono); }
 .btn-copy-addr {
-  padding: 6px 10px;
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 8px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--accent-deep);
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  white-space: nowrap;
 }
 .fn-orange, .fn-blue {
   width: 100%;
@@ -342,18 +354,89 @@ html, body {
   font-size: 12px;
   color: var(--accent);
 }
+.editor-shell {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+.line-gutter {
+  margin: 0;
+  padding: 14px 8px 14px 12px;
+  background: #1a1d23;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: right;
+  border: none;
+  overflow: hidden;
+  user-select: none;
+  min-width: 42px;
+}
 .editor {
   flex: 1;
   width: 100%;
   border: none;
   resize: none;
-  padding: 14px 16px;
+  padding: 14px 16px 14px 8px;
   background: #1a1d23;
   color: var(--text);
   font-family: var(--mono);
   font-size: 13px;
   line-height: 1.55;
   outline: none;
+}
+
+.wallet-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wallet-modal.hidden { display: none; }
+.wallet-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+}
+.wallet-modal-card {
+  position: relative;
+  width: min(360px, 92vw);
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+.wallet-modal-card h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  text-align: center;
+}
+.wallet-option {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-deep);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+.wallet-option:hover { border-color: var(--accent); }
+.wallet-cancel {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
 }
 
 .terminal {

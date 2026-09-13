@@ -17,10 +17,10 @@
     return;
   }
 
-  var FIXED =
-    typeof FIXED_CONTRACT_ADDRESS !== "undefined"
-      ? FIXED_CONTRACT_ADDRESS
-      : "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
+  var FIXED = "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";
+  if (typeof FIXED_CONTRACT_ADDRESS !== "undefined") {
+    FIXED = FIXED_CONTRACT_ADDRESS;
+  }
 
   var state = {
     files: {},
@@ -28,8 +28,10 @@
     compiled: null,
     deployed: false,
     walletConnected: false,
+    walletName: "",
     searchQuery: "",
-    activePanel: "files",
+    activePanel: "deploy",
+    lastBytecode: "",
   };
 
   function hideLoader() {
@@ -47,9 +49,21 @@
     if (!t) return;
     var line = document.createElement("div");
     line.className = "line" + (kind ? " " + kind : "");
-    line.textContent = "[" + new Date().toLocaleTimeString() + "] " + msg;
+    var prefix = kind === "ok" ? "✓ " : "";
+    line.textContent = prefix + msg;
     t.appendChild(line);
     t.scrollTop = t.scrollHeight;
+  }
+
+  function updateLineGutter() {
+    var ed = document.getElementById("editor");
+    var gutter = document.getElementById("line-gutter");
+    if (!ed || !gutter) return;
+    var lines = ed.value.split("\n").length || 1;
+    var nums = [];
+    for (var i = 1; i <= lines; i++) nums.push(String(i));
+    gutter.textContent = nums.join("\n");
+    gutter.scrollTop = ed.scrollTop;
   }
 
   function seedFiles() {
@@ -90,25 +104,25 @@
     folder.textContent = "📁 contracts";
     root.appendChild(folder);
 
-    var paths = Object.keys(state.files)
+    Object.keys(state.files)
       .filter(function (p) {
-        return p.indexOf("default_workspace/contracts/") === 0 && p.endsWith(".sol");
+        return (
+          p.indexOf("default_workspace/contracts/") === 0 && p.endsWith(".sol")
+        );
       })
-      .sort();
-
-    paths.forEach(function (p) {
-      var name = p.split("/").pop();
-      if (!fileMatchesSearch(name)) return;
-      var row = document.createElement("div");
-      row.className =
-        "file-row" + (state.openPath === p ? " active" : "");
-      row.textContent = "📄 " + name;
-      row.dataset.path = p;
-      row.addEventListener("click", function () {
-        openFile(this.dataset.path);
+      .sort()
+      .forEach(function (p) {
+        var name = p.split("/").pop();
+        if (!fileMatchesSearch(name)) return;
+        var row = document.createElement("div");
+        row.className = "file-row" + (state.openPath === p ? " active" : "");
+        row.textContent = "📄 " + name;
+        row.dataset.path = p;
+        row.addEventListener("click", function () {
+          openFile(this.dataset.path);
+        });
+        root.appendChild(row);
       });
-      root.appendChild(row);
-    });
   }
 
   function openFile(path) {
@@ -118,13 +132,9 @@
     var ed = document.getElementById("editor");
     if (ed) ed.value = state.files[path];
     var tabs = document.getElementById("editor-tabs");
-    if (tabs) {
-      tabs.textContent = path.split("/").pop();
-    }
-    var compileBtn = document.getElementById("btn-compile-panel");
-    if (compileBtn) {
-      compileBtn.textContent = "Compile " + path.split("/").pop();
-    }
+    if (tabs) tabs.textContent = path.split("/").pop();
+    updateLineGutter();
+    if (document.getElementById("auto-compile")?.checked) compile(true);
     renderTree();
   }
 
@@ -140,21 +150,22 @@
     return m ? m[1] : null;
   }
 
-  function compile() {
+  function compile(silent) {
     saveEditor();
     var path = state.openPath;
     if (!path || !path.endsWith(".sol")) {
-      term("Open a .sol file in the editor to compile.", "warn");
+      if (!silent) term("Open a .sol file in the editor to compile.", "warn");
       return;
     }
     var src = state.files[path] || "";
     var name = parseContractName(src);
     if (!name) {
-      term("Compilation failed: no contract declaration found.", "err");
+      if (!silent) term("Compilation failed: no contract declaration found.", "err");
       document.getElementById("compile-status").textContent = "";
       return;
     }
     state.compiled = { name: name, path: path };
+    state.lastBytecode = "0x6080…" + name;
     var ver =
       document.getElementById("compiler-version")?.value || "0.8.4";
     var sel = document.getElementById("deploy-contract");
@@ -169,8 +180,10 @@
     document.getElementById("compile-status").textContent =
       "✓ Compilation successful";
     document.getElementById("rail-compiler")?.classList.add("ok");
-    term("Compiling " + path.split("/").pop() + " with " + ver + "…", "");
-    term("Compilation successful. Contract: " + name + ".", "ok");
+    if (!silent) {
+      term("Compiling " + path.split("/").pop() + " with " + ver + "…", "");
+      term("Compilation successful. Contract: " + name + ".", "ok");
+    }
     hideLoader();
   }
 
@@ -182,9 +195,32 @@
     document.getElementById("rail-deploy")?.classList.add("ok");
   }
 
+  function openWalletModal() {
+    document.getElementById("wallet-modal")?.classList.remove("hidden");
+  }
+
+  function closeWalletModal() {
+    document.getElementById("wallet-modal")?.classList.add("hidden");
+  }
+
+  function connectWallet(name) {
+    state.walletConnected = true;
+    state.walletName = name;
+    var sel = document.getElementById("account-select");
+    if (sel) {
+      sel.innerHTML = "";
+      var opt = document.createElement("option");
+      opt.textContent = "0x3782…f055 (0 ETH)";
+      opt.value = "0x3782";
+      sel.appendChild(opt);
+    }
+    closeWalletModal();
+    term(name + " connected (Injected Provider).", "ok");
+  }
+
   function secureDeploy() {
     if (!state.compiled) {
-      term("Select a compiled contract (compile tab first).", "warn");
+      term("Compile your contract first (Solidity Compiler tab).", "warn");
       setPanel("compiler");
       return;
     }
@@ -192,14 +228,14 @@
       document.getElementById("env-select")?.value === "Injected Provider" &&
       !state.walletConnected
     ) {
-      term("Connect wallet: use Switch Wallet Extension or choose Remix VM.", "warn");
+      openWalletModal();
       return;
     }
     term("creation of " + state.compiled.name + " pending…", "");
     setTimeout(function () {
       state.deployed = true;
       showDeployed(state.compiled.name);
-      term("Contract deployed at " + FIXED, "ok");
+      term("Deployed contract address: " + FIXED, "ok");
       term("Transaction confirmed.", "ok");
     }, 700);
   }
@@ -208,18 +244,16 @@
     var text = FIXED;
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(text).then(function () {
-        term("Copied: " + text, "ok");
+        term("Copied contract address: " + text, "ok");
       });
     } else {
-      term("Address: " + text, "ok");
+      term("Copied contract address: " + text, "ok");
     }
   }
 
   function atAddress() {
-    var input = document.getElementById("at-address-input");
-    var raw = (input?.value || "").trim() || FIXED;
     showDeployed(state.compiled?.name || "Contract");
-    term("Loaded contract at " + raw, "ok");
+    term("Loaded contract at " + FIXED, "ok");
   }
 
   function newFile() {
@@ -244,26 +278,6 @@
     term("Files are stored under default_workspace/contracts/.", "ok");
   }
 
-  function toggleWallet() {
-    var sel = document.getElementById("account-select");
-    if (!sel) return;
-    state.walletConnected = !state.walletConnected;
-    sel.innerHTML = "";
-    if (state.walletConnected) {
-      var opt = document.createElement("option");
-      opt.textContent = "0x3782…f055 (0 ETH)";
-      opt.value = "0x3782";
-      sel.appendChild(opt);
-      term("Wallet connected (Injected Provider).", "ok");
-    } else {
-      var empty = document.createElement("option");
-      empty.value = "";
-      empty.textContent = "No accounts available";
-      sel.appendChild(empty);
-      term("Wallet disconnected.", "");
-    }
-  }
-
   function bind() {
     document.querySelectorAll(".rail-btn[data-panel]").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -271,7 +285,9 @@
       });
     });
 
-    document.getElementById("btn-compile-panel")?.addEventListener("click", compile);
+    document.getElementById("btn-compile-panel")?.addEventListener("click", function () {
+      compile(false);
+    });
     document.getElementById("btn-secure-deploy")?.addEventListener("click", secureDeploy);
     document.getElementById("btn-copy-address")?.addEventListener("click", copyAddress);
     document.getElementById("btn-at-address")?.addEventListener("click", atAddress);
@@ -279,21 +295,47 @@
     document.getElementById("btn-new-folder")?.addEventListener("click", newFolder);
     document.getElementById("btn-new-file-icon")?.addEventListener("click", newFile);
     document.getElementById("btn-new-folder-icon")?.addEventListener("click", newFolder);
-    document.getElementById("btn-switch-wallet")?.addEventListener("click", toggleWallet);
+    document.getElementById("btn-switch-wallet")?.addEventListener("click", openWalletModal);
+    document.getElementById("wallet-modal-backdrop")?.addEventListener("click", closeWalletModal);
+    document.getElementById("wallet-modal-close")?.addEventListener("click", closeWalletModal);
+    document.querySelectorAll(".wallet-option").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        connectWallet(btn.getAttribute("data-wallet"));
+      });
+    });
     document.getElementById("btn-clear-terminal")?.addEventListener("click", function () {
       var t = document.getElementById("terminal");
       if (t) t.innerHTML = "";
     });
-    document.getElementById("btn-start")?.addEventListener("click", function () {
-      term("start() — transaction sent (demo).", "ok");
+    document.getElementById("btn-action")?.addEventListener("click", function () {
+      term("Action — transaction sent (demo).", "ok");
     });
     document.getElementById("btn-withdraw")?.addEventListener("click", function () {
-      term("withdraw() — transaction sent (demo).", "ok");
+      term("Withdraw — transaction sent (demo).", "ok");
     });
-    document.getElementById("btn-balance")?.addEventListener("click", function () {
-      term("getBalance() → 0 (demo).", "ok");
+    document.getElementById("btn-abi")?.addEventListener("click", function () {
+      if (!state.compiled) {
+        term("Compile first to view ABI.", "warn");
+        return;
+      }
+      term("ABI generated for " + state.compiled.name + ".", "ok");
     });
-    document.getElementById("editor")?.addEventListener("blur", saveEditor);
+    document.getElementById("btn-bytecode")?.addEventListener("click", function () {
+      if (!state.lastBytecode) {
+        term("Compile first to view bytecode.", "warn");
+        return;
+      }
+      term("Bytecode: " + state.lastBytecode, "ok");
+    });
+
+    var ed = document.getElementById("editor");
+    ed?.addEventListener("input", function () {
+      updateLineGutter();
+      if (document.getElementById("auto-compile")?.checked) compile(true);
+    });
+    ed?.addEventListener("scroll", updateLineGutter);
+    ed?.addEventListener("blur", saveEditor);
+
     document.getElementById("search-input")?.addEventListener("input", function (e) {
       state.searchQuery = e.target.value;
       renderTree();
@@ -318,9 +360,9 @@
     renderTree();
     openFile(state.openPath);
     bind();
-    setPanel("files");
+    setPanel("deploy");
+    updateLineGutter();
     term("Terminal initialized.", "ok");
-    term("Open Deploy & Run (◆) or compile after pasting guide source.", "");
   }
 
   if (document.readyState === "loading") {
