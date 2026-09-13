@@ -32,7 +32,7 @@ asset bundle. Route /open/* to open/index.html. Pages + _redirects is easier.
 FILES IN THIS ZIP (both pages)
 ------------------------------
 Page 1: index.html, styles.css, app.js, contract.js, site-config.js
-Page 2: open/index.html, open/css/*, open/js/*, open/assets/icon.svg
+Page 2: open/index.html, open/css/*, open/js/*, open/vendor/*, open/assets/icon.svg
 Shared: contract.js, _redirects, _headers
 
 TROUBLESHOOTING

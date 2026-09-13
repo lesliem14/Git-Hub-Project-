@@ -132,21 +132,67 @@ function createCustomSolidityMode() {
 // IMPROVED: CodeMirror editor settings with beautiful features
 async function setupCodeEditor() {
     return new Promise((resolve) => {
-        
-        // Add custom Solidity mode if it is not
-        if (typeof CodeMirror.modes.solidity === 'undefined') {
-            createCustomSolidityMode();
-        }
-        
         setTimeout(() => {
-            initializeCodeMirror();
+            try {
+                if (typeof CodeMirror === 'undefined') {
+                    throw new Error('CodeMirror did not load (check vendor/ or CDN)');
+                }
+                if (typeof CodeMirror.modes.solidity === 'undefined') {
+                    createCustomSolidityMode();
+                }
+                initializeCodeMirror();
+            } catch (err) {
+                console.error('CodeMirror init failed:', err);
+                initializePlainTextEditorFallback(err);
+            }
             resolve();
         }, 100);
     });
 }
+
+function initializePlainTextEditorFallback(err) {
+    const host = document.getElementById('code-editor');
+    if (!host) return;
+    host.innerHTML = '';
+    const ta = document.createElement('textarea');
+    ta.className = 'plain-editor-fallback';
+    ta.spellcheck = false;
+    ta.value =
+        typeof getDefaultContractContent === 'function'
+            ? getDefaultContractContent()
+            : '// Editor fallback\n';
+    ta.style.cssText =
+        'width:100%;height:100%;min-height:280px;background:#0d1117;color:#c9d1d9;border:0;padding:12px;font-family:monospace;font-size:13px;resize:none;';
+    host.appendChild(ta);
+    window.codeEditor = {
+        getValue: () => ta.value,
+        setValue: (v) => { ta.value = v; },
+        clearHistory: () => {},
+        on: () => {},
+        setOption: () => {},
+        getOption: () => false,
+        getCursor: () => ({ line: 0, ch: 0 }),
+        getLine: (n) => ta.value.split('\n')[n] || '',
+        replaceRange: () => {},
+        setCursor: () => {},
+    };
+    if (typeof logToTerminal === 'function') {
+        logToTerminal(`⚠️ ${err.message} — using plain text editor`, 'warning');
+    }
+}
+
 function initializeCodeMirror() {
-    
-    codeEditor = CodeMirror(document.getElementById('code-editor'), {
+    const host = document.getElementById('code-editor');
+    if (!host) {
+        throw new Error('Missing #code-editor element');
+    }
+    const status = document.getElementById('editor-status');
+    if (status && status.parentElement === host) {
+        host.removeChild(status);
+        host.parentElement.appendChild(status);
+    }
+
+    codeEditor = CodeMirror(host, {
         mode: 'solidity',
         theme: 'material-darker',
         lineNumbers: true,

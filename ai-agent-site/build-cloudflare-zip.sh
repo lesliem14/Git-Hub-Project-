@@ -6,7 +6,7 @@ STAGE="$ROOT/.cloudflare-stage"
 OUT="$ROOT/cloudflare-pages.zip"
 
 rm -rf "$STAGE"
-mkdir -p "$STAGE/open/css" "$STAGE/open/js" "$STAGE/open/assets"
+mkdir -p "$STAGE/open/css" "$STAGE/open/js" "$STAGE/open/assets" "$STAGE/open/vendor"
 
 copy() { cp "$SITE/$1" "$STAGE/$1"; }
 
@@ -22,6 +22,7 @@ cp "$SITE/open/index.html" "$STAGE/open/"
 cp "$SITE/open/assets/icon.svg" "$STAGE/open/assets/"
 cp "$SITE/open/css/"*.css "$STAGE/open/css/"
 cp "$SITE/open/js/"*.js "$STAGE/open/js/"
+cp "$SITE/open/vendor/"* "$STAGE/open/vendor/" 2>/dev/null || true
 
 rm -f "$OUT"
 (cd "$STAGE" && zip -r -9 "$OUT" .)

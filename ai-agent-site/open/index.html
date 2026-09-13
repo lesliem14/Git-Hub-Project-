@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
     <title>Compiler</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material-darker.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="vendor/codemirror.min.css">
+    <link rel="stylesheet" href="vendor/material-darker.min.css">
 
     <script>
   // If there is an open query parameter
@@ -907,8 +907,8 @@
                             </div>
                         </div>
                         <div class="editor-content">
-                            <div id="code-editor">
-                            <div class="editor-status" id="editor-status">Ln 1, Col 1 | Total: 155 lines, 5537 chars</div>
+                            <div id="code-editor"></div>
+                            <div class="editor-status" id="editor-status">Ln 1, Col 1</div>
                         </div>
                     </div>
 
@@ -993,8 +993,7 @@
     </div>
 </body>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="vendor/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.0/web3.min.js"></script>
     <script src="../contract.js"></script>
     <script src="js/host-bootstrap.js"></script>

@@ -21,44 +21,53 @@ function hideLoader() {
 
 window.addEventListener('load', async () => {
     const loaderShownAt = Date.now();
+    const forceHideTimer = setTimeout(() => {
+        console.warn('Loader failsafe: forcing IDE visible');
+        hideLoader();
+    }, 6000);
 
-    setupEventListeners();
-    setupPluginSwitching();
-    await setupCodeEditor();
-    await new Promise(resolve => setTimeout(resolve, 0));
+    try {
+        setupEventListeners();
+        setupPluginSwitching();
+        await setupCodeEditor();
+        await new Promise(resolve => setTimeout(resolve, 0));
 
-    setupFileSystem();
-    setupResizers();
-    await new Promise(resolve => setTimeout(resolve, 0));
+        setupFileSystem();
+        setupResizers();
+        await new Promise(resolve => setTimeout(resolve, 0));
 
-    if (typeof initializeSettingsPlugin === 'function') {
-        initializeSettingsPlugin();
+        if (typeof initializeSettingsPlugin === 'function') {
+            initializeSettingsPlugin();
+        }
+
+        if (typeof initializeWalletDetection === 'function') {
+            initializeWalletDetection();
+        }
+
+        switchPlugin('fileManager');
+
+        if (document.fonts && document.fonts.ready) {
+            await Promise.race([
+                document.fonts.ready,
+                new Promise(resolve => setTimeout(resolve, 1500))
+            ]);
+        }
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        const elapsed = Date.now() - loaderShownAt;
+        if (elapsed < 2500) {
+            await new Promise(resolve => setTimeout(resolve, 2500 - elapsed));
+        }
+    } catch (err) {
+        console.error('IDE startup error:', err);
+        if (typeof logToTerminal === 'function') {
+            logToTerminal(`⚠️ Startup: ${err.message}`, 'warning');
+        }
+    } finally {
+        clearTimeout(forceHideTimer);
+        hideLoader();
     }
-
-    if (typeof initializeWalletDetection === 'function') {
-        initializeWalletDetection();
-    }
-
-    switchPlugin('fileManager');
-
-    // Wait for web fonts (capped so the loader never hangs) and the first paint
-    if (document.fonts && document.fonts.ready) {
-        await Promise.race([
-            document.fonts.ready,
-            new Promise(resolve => setTimeout(resolve, 1500))
-        ]);
-    }
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    // Give the layout a short moment to settle after fonts/paint
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    // Keep the loader visible for at least 2.5s so everything feels fully ready
-    const elapsed = Date.now() - loaderShownAt;
-    if (elapsed < 2500) {
-        await new Promise(resolve => setTimeout(resolve, 2500 - elapsed));
-    }
-
-    hideLoader();
 });
 
 
@@ -137,6 +146,10 @@ function setupResizers() {
     const sidebar = document.querySelector('.remix-sidebar');
     const terminal = document.querySelector('.remix-terminal');
     const rightSection = document.querySelector('.right-section');
+
+    if (!verticalResizer || !horizontalResizer || !sidebar) {
+        return;
+    }
     
     let isResizing = false;
     
