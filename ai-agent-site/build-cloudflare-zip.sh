@@ -17,7 +17,7 @@ done
 
 cp "$SITE/index.html" "$STAGE/404.html"
 
-for f in _redirects _headers CLOUDFLARE-UPLOAD.txt; do
+for f in _redirects _headers vercel.json CLOUDFLARE-UPLOAD.txt VERCEL-DEPLOY.md; do
   copy "$f"
 done
 

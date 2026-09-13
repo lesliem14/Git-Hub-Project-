@@ -40,3 +40,7 @@ URLS
 /              → AI Agent Guide (always)
 /open/         → redirects to / (guide)
 Development Site → IDE overlay (or open/embed.html?dev=1&embed=1)
+
+VERCEL
+------
+See VERCEL-DEPLOY.md — use Root Directory ai-agent-site; vercel.json is included in the zip.
