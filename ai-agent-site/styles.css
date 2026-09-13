@@ -178,6 +178,13 @@ a:hover {
   color: #7ee787;
 }
 
+.site-url-display {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: #7ee787;
+  word-break: break-all;
+}
+
 /* Deploy panel (Remix-style) */
 .deploy-panel {
   margin-top: 2.5rem;

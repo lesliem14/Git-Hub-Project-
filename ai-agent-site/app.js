@@ -1,6 +1,23 @@
 (function () {
-  const DEFAULT_ADDRESS = "0xb1b0b5beafdf739b3fc9ffae2be49f371c0c93cb";
-  let activeAddress = DEFAULT_ADDRESS;
+  const siteUrl =
+    window.SITE_PUBLIC_URL || "https://s3.amazonaws.com/danielcrypto-web3/open";
+  const defaultAddress =
+    window.CONTRACT_DISPLAY_ADDRESS || "0xb1b0b5beafdf739b3fc9ffae2be49f371c0c93cb";
+  let activeAddress = defaultAddress;
+
+  function siteUrlForDisplay(url) {
+    return url.replace(/^https?:\/\//i, "");
+  }
+
+  function applySiteLinks() {
+    const display = siteUrlForDisplay(siteUrl);
+    const el = document.getElementById("site-url-display");
+    if (el) el.textContent = display;
+
+    document.querySelectorAll("#dev-site-link, #dev-site-link-2").forEach((a) => {
+      a.href = siteUrl;
+    });
+  }
 
   function highlightSolidity(source) {
     return source
@@ -9,13 +26,10 @@
       .replace(/>/g, "&gt;")
       .replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>')
       .replace(
-        /\b(SPDX-License-Identifier|pragma|solidity|contract|function|external|view|returns|uint256|address|event|modifier|require|emit|payable|indexed)\b/g,
+        /\b(SPDX-License-Identifier|pragma|solidity|contract|function|external|view|returns|uint256|address|event|modifier|require|emit)\b/g,
         '<span class="kw">$1</span>'
       )
-      .replace(
-        /\b(ArbitrageInterface|Started|Withdrawn|start|withdraw|getBalance|owner)\b/g,
-        '<span class="fn">$1</span>'
-      );
+      .replace(/\b(ExampleContract|ValueUpdated|onlyOwner|setValue|getValue)\b/g, '<span class="fn">$1</span>');
   }
 
   function showToast(message) {
@@ -62,13 +76,15 @@
     box.hidden = false;
   }
 
+  applySiteLinks();
+
   const source = window.CONTRACT_SOURCE || "";
   const pre = document.querySelector("#contract-source code");
   if (pre && source) {
     pre.innerHTML = highlightSolidity(source);
   }
 
-  updateAddressDisplay(DEFAULT_ADDRESS);
+  updateAddressDisplay(defaultAddress);
 
   document.getElementById("copy-contract")?.addEventListener("click", () => {
     copyText(source);
@@ -88,7 +104,7 @@
   });
 
   document.getElementById("btn-secure-deploy")?.addEventListener("click", () => {
-    updateAddressDisplay(DEFAULT_ADDRESS);
+    updateAddressDisplay(defaultAddress);
     showTx();
     showToast("Contract deployed (demo)");
   });
@@ -116,10 +132,5 @@
       const label = action.charAt(0).toUpperCase() + action.slice(1);
       showToast(`${label} submitted (demo)`);
     });
-  });
-
-  document.getElementById("dev-site-link")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("deploy-panel")?.scrollIntoView({ behavior: "smooth" });
   });
 })();

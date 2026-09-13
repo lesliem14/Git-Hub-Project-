@@ -1,30 +1,41 @@
 window.CONTRACT_SOURCE = `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/// @title ArbitrageInterface
-contract ArbitrageInterface {
+// This is an example code file, create a new one to get started!
+
+/// @title ExampleContract
+/// @notice This is placeholder code. Create a new file to get started!
+contract ExampleContract {
+    /// @notice A simple stored value to demonstrate state.
+    uint256 public value;
+
+    /// @notice The address that deployed this contract.
     address public owner;
 
-    event Started(address indexed user, uint256 amount);
-    event Withdrawn(address indexed user, uint256 amount);
+    /// @notice Emitted whenever the stored value changes.
+    event ValueUpdated(uint256 oldValue, uint256 newValue);
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the owner");
+        _;
+    }
 
     constructor() {
         owner = msg.sender;
     }
 
-    function start() external payable {
-        emit Started(msg.sender, msg.value);
+    /// @notice Update the stored value.
+    /// @param newValue The new value to store.
+    function setValue(uint256 newValue) external onlyOwner {
+        uint256 oldValue = value;
+        value = newValue;
+        emit ValueUpdated(oldValue, newValue);
     }
 
-    function withdraw() external {
-        require(msg.sender == owner, "Not owner");
-        uint256 bal = address(this).balance;
-        payable(owner).transfer(bal);
-        emit Withdrawn(owner, bal);
-    }
-
-    function getBalance() external view returns (uint256) {
-        return address(this).balance;
+    /// @notice Read the stored value (redundant with the public getter,
+    ///         but here as an example of a view function).
+    function getValue() external view returns (uint256) {
+        return value;
     }
 }
 `;
