@@ -1,20 +1,45 @@
-IDE Compiler — installation zip
-================================
+IDE Compiler — what you need for BOTH webpages
+==============================================
 
-1. Download: idecompiler-install.zip
-   - From the guide: open index.html → "Download install files"
-   - Or: download.html on the same site
-   - Or: GitHub repo root / download/ folder
+YES — one zip has everything:
 
-2. Unzip to a folder on your computer.
+  idecompiler-install.zip
 
-3. Upload ALL files inside the unzip folder to your web host
-   (Cloudflare Pages, Workers static assets, or S3 bucket).
+Unzip it and upload EVERY file and folder inside to your host
+(keep the same folder structure).
 
-4. URLs after deploy:
-   - Guide:  https://YOUR-HOST/
-   - IDE:    https://YOUR-HOST/open/
+REQUIRED FOR PAGE 1 (AI Agent Guide at /)
+-------------------------------------------
+  index.html
+  styles.css
+  app.js
+  contract.js
+  site-config.js
 
-5. Read CLOUDFLARE-DEPLOY.md or WORKERS-DEPLOY.md inside the zip.
+REQUIRED FOR PAGE 2 (IDE at /open/)
+------------------------------------
+  open/index.html
+  open/css/     (all 6 .css files)
+  open/js/      (all 14 .js files)
+  open/assets/icon.svg
+  contract.js   (same file at root — IDE loads ../contract.js)
 
-Do not use idecompiler-site.zip (9 files) if you need the full IDE.
+REQUIRED FOR CLOUDFLARE
+-----------------------
+  _redirects
+
+OPTIONAL
+--------
+  download.html, idecompiler-install.zip, downloads/*.zip
+  Documentation (*.md, INSTALL.txt)
+  ide.html, open.html, ide.css, ide.js (old redirects — not needed if you use /open/)
+
+NOT ENOUGH FOR BOTH PAGES
+-------------------------
+  idecompiler-site.zip (9 files only) — guide + old compiler, NO full /open/ IDE
+
+After upload:
+  Page 1: https://YOUR-HOST/
+  Page 2: https://YOUR-HOST/open/
+
+See FILES-REQUIRED.md for the full checklist.
