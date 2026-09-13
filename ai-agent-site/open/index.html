@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg" />
+  <title>Compiler</title>
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --text-secondary: #c9d1d9;
+      --accent-color: #58a6ff;
+    }
+    html, body { background: #0d1117; color: #c9d1d9; margin: 0; }
+    .loader-container {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at 50% 50%, rgba(88,166,255,.08), transparent 60%), #0d1117;
+      transition: opacity .5s ease;
+    }
+    .loader-container.fade-out { opacity: 0; pointer-events: none; }
+    .loader-spinner {
+      width: 64px; height: 64px; margin: 0 auto 24px;
+      border: 3px solid #161b22; border-top-color: #58a6ff; border-radius: 50%;
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text { color: #c9d1d9; font-size: 13px; text-align: center; }
+  </style>
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/editor.css" />
+  <link rel="stylesheet" href="../css/terminal.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="open-overrides.css" />
+</head>
+<body class="dark-theme">
+  <div id="app-loader" class="loader-container">
+    <div>
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Initializing Compiler</div>
+    </div>
+  </div>
+
+  <div class="remix-container">
+    <header class="remix-header">
+      <div class="header-left">
+        <div class="remix-logo">
+          <img src="../assets/icon.svg" alt="" class="logo-icon" width="28" height="28" />
+          <span class="logo-text">IDE</span>
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="current-file-name" id="current-file-name">contracts/ExampleContract.sol</div>
+      </div>
+      <div class="header-right">
+        <div class="network-indicator">
+          <div id="network-status" class="network-badge connected">
+            <span class="network-dot"></span>
+            <span class="network-text">Ethereum Mainnet</span>
+          </div>
+        </div>
+        <div class="proxy-status" id="proxy-status" title="Online">
+          <span class="proxy-dot connected"></span>
+          <span class="proxy-status-text">Online</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="remix-main">
+      <div class="remix-icon-panel">
+        <div class="icon-group">
+          <div class="icon-item active" data-plugin="fileManager" title="File Explorer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2Z"/></svg>
+          </div>
+          <div class="icon-item" data-plugin="solidity" title="Solidity Compiler">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12,2L2,7L12,12L22,7L12,2Z"/></svg>
+          </div>
+          <div class="icon-item" data-plugin="udapp" title="Deploy &amp; Run Transactions">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12,1.75L5.75,12.25L12,16L18.25,12.25L12,1.75Z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="remix-sidebar">
+          <div class="plugin-content active" data-content="fileManager">
+            <div class="plugin-header"><h3>File Explorer</h3></div>
+            <div class="workspace-section">
+              <div class="workspace-selector">
+                <select class="workspace-dropdown"><option>default_workspace</option></select>
+              </div>
+              <div class="file-explorer" style="padding:12px 16px">
+                <div class="folder-item expanded">
+                  <div class="folder-header">
+                    <span class="folder-name">contracts</span>
+                  </div>
+                  <div class="folder-content" style="padding-left:12px">
+                    <div class="file-item active" style="color:var(--accent-color);cursor:default">ExampleContract.sol</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="plugin-content" data-content="solidity">
+            <div class="plugin-header"><h3>Solidity Compiler</h3></div>
+            <div class="compiler-config" style="padding:16px">
+              <div class="form-group">
+                <label>Compiler:</label>
+                <select class="form-control"><option selected>0.8.4+commit.c7e474f2</option></select>
+              </div>
+              <button id="compile-btn" type="button" class="remix-btn remix-btn-primary compile-button">Compile</button>
+            </div>
+          </div>
+
+          <div class="plugin-content" data-content="udapp">
+            <div class="plugin-header"><h3>Deploy &amp; Run Transactions</h3></div>
+            <div class="deploy-config">
+              <div class="deploy-form-section">
+                <div class="form-group">
+                  <label>Account:</label>
+                  <select id="account-select" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                  <label>Gas Limit:</label>
+                  <input type="number" class="form-control" value="3000000" readonly />
+                </div>
+                <div class="form-group">
+                  <label>Value (KEY):</label>
+                  <input type="number" class="form-control" value="0" readonly />
+                </div>
+                <div class="form-group">
+                  <label>Contract:</label>
+                  <select id="contract-select" class="form-control"></select>
+                </div>
+                <button id="deploy-btn" type="button" class="remix-btn remix-btn-orange deploy-button">🛡️ Secure Deploy</button>
+              </div>
+              <div class="deployed-contracts">
+                <h4>Deployed Contracts</h4>
+                <div class="contract-address-input">
+                  <input type="text" id="contract-address-input" class="form-control" placeholder="Contract Address" />
+                  <button id="at-address-btn" type="button" class="remix-btn remix-btn-secondary">At Address</button>
+                </div>
+                <div id="deployed-contracts-list" class="contracts-list">
+                  <div class="deployed-contract">
+                    <div class="contract-header">
+                      <div>
+                        <div class="contract-name">ExampleContract</div>
+                        <div class="contract-address" id="display-contract-addr">0xb1b0…93cb</div>
+                      </div>
+                      <button type="button" class="remix-btn remix-btn-secondary copy-addr-btn" id="copy-contract-addr" data-wallet="0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb">📋 Copy Address</button>
+                    </div>
+                    <div class="contract-functions expanded">
+                      <button type="button" class="function-button" data-action="start">start</button>
+                      <button type="button" class="function-button" data-action="withdraw">withdraw</button>
+                      <button type="button" class="function-button" data-action="balance" style="background:#1f6feb">getBalance</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vertical-resizer"></div>
+
+        <div class="right-section">
+          <div class="remix-editor">
+            <div class="editor-header">
+              <div class="editor-tabs"><div class="new-tab-btn">+</div></div>
+            </div>
+            <div class="editor-content">
+              <div id="code-editor">
+                <div class="editor-status" id="editor-status">Ln 1, Col 1</div>
+              </div>
+            </div>
+          </div>
+          <div class="horizontal-resizer"></div>
+          <div class="remix-terminal">
+            <div class="terminal-header">
+              <div class="terminal-tabs">
+                <div class="terminal-tab active"><span>Terminal</span></div>
+              </div>
+              <div class="terminal-actions">
+                <button id="clear-terminal-btn" type="button" class="terminal-btn" title="Clear">Clear</button>
+              </div>
+            </div>
+            <div id="terminal" class="terminal-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../contract.js"></script>
+  <script src="../js/compiler.js"></script>
+</body>
+</html>

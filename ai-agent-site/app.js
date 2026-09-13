@@ -1,7 +1,6 @@
 (function () {
   const siteUrl = window.SITE_PUBLIC_URL || "";
-  const ideUrl =
-    window.IDE_PAGE_URL || "https://s3.amazonaws.com/idecompiler/open";
+  const ideUrl = window.IDE_PAGE_URL || "/open/";
   const siteDisplay =
     window.SITE_MASK_DISPLAY || "s3.amazonaws.com/idecompiler/index.html";
   const ideDisplay =
