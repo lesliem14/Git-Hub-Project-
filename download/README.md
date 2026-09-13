@@ -25,6 +25,8 @@ Upload all files to the **same bucket prefix** (e.g. bucket `idecompiler`):
 
 See `idecompiler-site/UPLOAD-S3.txt` inside the zip (copied from project docs).
 
-## Full Cloudflare compiler
+## Full IDE on Cloudflare Workers (`/open`)
 
-For the full idecompiler clone (`/open/` with all JS/CSS), use repo root **`drop-site.zip`** instead (larger bundle).
+For `https://….workers.dev/open` you **must** use repo root **`drop-site.zip`** (includes `open/` folder, left-side Deploy & Run, compiler, file explorer). The 9-file zip is not enough.
+
+See **`ai-agent-site/WORKERS-DEPLOY.md`** in the full bundle.
