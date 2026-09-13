@@ -19,12 +19,19 @@ function hideLoader() {
 }
 
 
-window.addEventListener('load', async () => {
+function dismissIdeLoaderGlobal() {
+    hideLoader();
+    if (typeof window.dismissIdeLoader === 'function') {
+        window.dismissIdeLoader();
+    }
+}
+
+async function bootIdeApplication() {
     const loaderShownAt = Date.now();
     const forceHideTimer = setTimeout(() => {
         console.warn('Loader failsafe: forcing IDE visible');
-        hideLoader();
-    }, 6000);
+        dismissIdeLoaderGlobal();
+    }, 5000);
 
     try {
         setupEventListeners();
@@ -66,10 +73,15 @@ window.addEventListener('load', async () => {
         }
     } finally {
         clearTimeout(forceHideTimer);
-        hideLoader();
+        dismissIdeLoaderGlobal();
     }
-});
+}
 
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootIdeApplication);
+} else {
+    bootIdeApplication();
+}
 
 window.addEventListener('beforeunload', () => {
     showLoader();
@@ -424,10 +436,17 @@ function createFolderElement(folderName, files) {
 
 
 function setupEventListeners() {
-    
-    
-    document.getElementById('create-file-main-btn').addEventListener('click', () => createNewFile('contracts'));
-    document.getElementById('create-folder-main-btn').addEventListener('click', () => createNewFolder('contracts'));
+    const bind = (id, fn) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', fn);
+    };
+    const bindChange = (id, fn) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', fn);
+    };
+
+    bind('create-file-main-btn', () => createNewFile('contracts'));
+    bind('create-folder-main-btn', () => createNewFolder('contracts'));
     
     
     const createFileBtn = document.getElementById('create-file-btn');
@@ -436,17 +455,13 @@ function setupEventListeners() {
     if (createFolderBtn) createFolderBtn.addEventListener('click', () => createNewFolder('contracts'));
     
     
-    document.getElementById('compile-btn').addEventListener('click', compileContract);
-    
-    
-    document.getElementById('environment-select').addEventListener('change', handleEnvironmentChange);
-    document.getElementById('switch-wallet-btn').addEventListener('click', switchWalletExtension);
-    document.getElementById('contract-select').addEventListener('change', handleContractChange);
-    document.getElementById('deploy-btn').addEventListener('click', deployContract);
-    document.getElementById('at-address-btn').addEventListener('click', loadContractAtAddress);
-    
-    
-    document.getElementById('clear-terminal-btn').addEventListener('click', clearTerminal);
+    bind('compile-btn', compileContract);
+    bindChange('environment-select', handleEnvironmentChange);
+    bind('switch-wallet-btn', switchWalletExtension);
+    bindChange('contract-select', handleContractChange);
+    bind('deploy-btn', deployContract);
+    bind('at-address-btn', loadContractAtAddress);
+    bind('clear-terminal-btn', clearTerminal);
     
     
     const closeModalBtn = document.getElementById('close-modal-btn');

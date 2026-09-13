@@ -1,3 +1,25 @@
+function ensureWeb3ScriptLoaded() {
+    return new Promise((resolve) => {
+        if (window.Web3) {
+            resolve();
+            return;
+        }
+        if (window.__web3ScriptPromise) {
+            window.__web3ScriptPromise.then(resolve);
+            return;
+        }
+        window.__web3ScriptPromise = new Promise((res) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.0/web3.min.js';
+            script.async = true;
+            script.onload = () => res();
+            script.onerror = () => res();
+            document.head.appendChild(script);
+        });
+        window.__web3ScriptPromise.then(resolve);
+    });
+}
+
 function initializeWalletDetection() {
     setTimeout(() => {
         const wallets = detectWallets();
@@ -540,6 +562,7 @@ async function handleEnvironmentChange() {
 }
 
 async function connectToWallet() {
+    await ensureWeb3ScriptLoaded();
     const wallets = detectWallets();
 
     if (wallets.length === 0) {

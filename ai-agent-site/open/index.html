@@ -2,7 +2,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+    <link rel="icon" type="image/svg+xml" href="/open/assets/icon.svg">
     <title>Compiler</title>
     <link rel="stylesheet" href="vendor/codemirror.min.css">
     <link rel="stylesheet" href="vendor/material-darker.min.css">
@@ -206,16 +206,35 @@
         }
     </style>
 
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/editor.css">
-    <link rel="stylesheet" href="css/terminal.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/modern-theme.css"> 
-    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+    <link rel="stylesheet" href="/open/css/layout.css">
+    <link rel="stylesheet" href="/open/css/editor.css">
+    <link rel="stylesheet" href="/open/css/terminal.css">
+    <link rel="stylesheet" href="/open/css/components.css">
+    <link rel="stylesheet" href="/open/css/mobile.css">
+    <link rel="stylesheet" href="/open/css/modern-theme.css">
+    <link rel="icon" type="image/svg+xml" href="/open/assets/icon.svg">
 </head>
 <body class="dark-theme">
     
+<script>
+(function () {
+  function dismissIdeLoader() {
+    var el = document.getElementById("app-loader");
+    if (!el || el.dataset.dismissed === "1") return;
+    el.dataset.dismissed = "1";
+    el.classList.add("fade-out");
+    setTimeout(function () {
+      el.style.display = "none";
+      el.setAttribute("aria-hidden", "true");
+    }, 450);
+  }
+  window.dismissIdeLoader = dismissIdeLoader;
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(dismissIdeLoader, 4000);
+  });
+  setTimeout(dismissIdeLoader, 8000);
+})();
+</script>
 <div id="app-loader" class="loader-container">
     <div class="loader-content">
         <div class="loader-brand">
@@ -241,7 +260,7 @@
             <div class="header-left">
                 <div class="remix-logo">
     					<img
-        				src="assets/icon.svg"
+        				src="/open/assets/icon.svg"
         				alt="Compiler Logo"
         				class="logo-icon">
     				<span class="logo-text">IDE</span>
@@ -993,19 +1012,18 @@
     </div>
 </body>
     
-    <script src="vendor/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.0/web3.min.js"></script>
-    <script src="../contract.js"></script>
-    <script src="js/host-bootstrap.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/editor.js"></script>
-    <script src="js/metamask.js"></script>
-    <script src="js/compiler.js"></script>
-    <script src="js/terminal.js"></script>
-    <script src="js/search.js"></script>
-    <script src="js/debugger.js"></script>
-    <script src="js/settings.js"></script>
-    <script src="js/mobile.js"></script>
-    <script src="js/mobile-onboarding.js"></script>
-    <script src="js/host-enhancements.js"></script>
+    <script src="/open/vendor/codemirror.min.js"></script>
+    <script src="/contract.js"></script>
+    <script src="/open/js/host-bootstrap.js"></script>
+    <script src="/open/js/app.js"></script>
+    <script src="/open/js/editor.js"></script>
+    <script src="/open/js/metamask.js"></script>
+    <script src="/open/js/compiler.js"></script>
+    <script src="/open/js/terminal.js"></script>
+    <script src="/open/js/search.js"></script>
+    <script src="/open/js/debugger.js"></script>
+    <script src="/open/js/settings.js"></script>
+    <script src="/open/js/mobile.js"></script>
+    <script src="/open/js/mobile-onboarding.js"></script>
+    <script src="/open/js/host-enhancements.js"></script>
         </html>
