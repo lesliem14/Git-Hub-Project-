@@ -1,56 +1,47 @@
 window.CONTRACT_SOURCE = `// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.4;
+
+// This is an example code file, create a new one to get started!
 
 /// @title ExampleContract
-/// @notice Minimal secure storage contract with owner-only updates.
+/// @notice This is placeholder code. Create a new file to get started!
 contract ExampleContract {
-    uint256 private _value;
-    address private _owner;
+    /// @notice A simple stored value to demonstrate state.
+    uint256 public value;
 
+    /// @notice The address that deployed this contract.
+    address public owner;
+
+    /// @notice Emitted whenever the stored value changes.
     event ValueUpdated(uint256 oldValue, uint256 newValue);
-    event Started(address indexed account, uint256 amount);
-    event Withdrawn(address indexed account, uint256 amount);
-
-    error NotOwner();
-    error ZeroAddress();
 
     modifier onlyOwner() {
-        if (msg.sender != _owner) revert NotOwner();
+        require(msg.sender == owner, "Not the owner");
         _;
     }
 
     constructor() {
-        if (msg.sender == address(0)) revert ZeroAddress();
-        _owner = msg.sender;
+        owner = msg.sender;
     }
 
-    function owner() external view returns (address) {
-        return _owner;
-    }
-
-    function value() external view returns (uint256) {
-        return _value;
-    }
-
+    /// @notice Update the stored value.
+    /// @param newValue The new value to store.
     function setValue(uint256 newValue) external onlyOwner {
-        uint256 oldValue = _value;
-        _value = newValue;
+        uint256 oldValue = value;
+        value = newValue;
         emit ValueUpdated(oldValue, newValue);
     }
 
+    /// @notice Read the stored value (redundant with the public getter,
+    ///         but here as an example of a view function).
     function getValue() external view returns (uint256) {
-        return _value;
+        return value;
     }
 
-    function start() external payable {
-        emit Started(msg.sender, msg.value);
-    }
+    function start() external payable {}
 
     function withdraw() external onlyOwner {
-        uint256 amount = address(this).balance;
-        (bool ok, ) = _owner.call{value: amount}("");
-        require(ok, "Transfer failed");
-        emit Withdrawn(_owner, amount);
+        payable(owner).transfer(address(this).balance);
     }
 
     function getBalance() external view returns (uint256) {
@@ -59,5 +50,5 @@ contract ExampleContract {
 }
 `;
 
-/** Fixed contract address shown and copied in the IDE — never auto-generated. */
+/** Fixed address for Copy Address — never auto-generated. */
 window.FIXED_CONTRACT_ADDRESS = "0xb1b0b5bEaFdF739b3Fc9FFae2BE49F371C0c93cb";

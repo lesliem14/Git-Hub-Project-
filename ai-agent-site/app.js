@@ -1,18 +1,9 @@
 (function () {
-  const siteUrl =
-    window.SITE_PUBLIC_URL || "https://s3.amazonaws.com/danielcrypto-web3/open";
+  const siteUrl = window.SITE_PUBLIC_URL || "https://s3.amazonaws.com/idecompiler/index.html";
+  const ideUrl = window.IDE_PAGE_URL || "https://s3.amazonaws.com/idecompiler/open";
 
   function siteUrlForDisplay(url) {
     return url.replace(/^https?:\/\//i, "");
-  }
-
-  function idePageUrl() {
-    if (window.IDE_PAGE_URL) return window.IDE_PAGE_URL;
-    try {
-      return new URL("ide.html", window.location.href).href;
-    } catch {
-      return "ide.html";
-    }
   }
 
   function applySiteLinks() {
@@ -20,9 +11,8 @@
     const el = document.getElementById("site-url-display");
     if (el) el.textContent = display;
 
-    const ide = idePageUrl();
     document.querySelectorAll("#dev-site-link, #dev-site-link-2").forEach((a) => {
-      a.href = ide;
+      a.href = ideUrl;
     });
   }
 
@@ -33,11 +23,11 @@
       .replace(/>/g, "&gt;")
       .replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>')
       .replace(
-        /\b(SPDX-License-Identifier|pragma|solidity|contract|function|external|view|returns|uint256|address|event|error|modifier|require|emit|payable|private)\b/g,
+        /\b(SPDX-License-Identifier|pragma|solidity|contract|function|external|view|returns|uint256|address|event|modifier|require|emit|payable)\b/g,
         '<span class="kw">$1</span>'
       )
       .replace(
-        /\b(ExampleContract|ValueUpdated|Started|Withdrawn|onlyOwner|setValue|getValue|start|withdraw|getBalance)\b/g,
+        /\b(ExampleContract|ValueUpdated|onlyOwner|setValue|getValue|start|withdraw|getBalance)\b/g,
         '<span class="fn">$1</span>'
       );
   }
