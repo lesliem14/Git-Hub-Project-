@@ -112,7 +112,9 @@
               <option value="">—</option>
             </select>
 
-            <button type="button" class="btn-secure-deploy" id="btn-secure-deploy">Secure Deploy</button>
+            <button type="button" class="btn-secure-deploy" id="btn-secure-deploy">
+              <span class="secure-deploy-icon" aria-hidden="true">🛡</span> Secure Deploy
+            </button>
 
             <div class="deployed-section">
               <div class="deployed-heading">DEPLOYED CONTRACTS</div>
@@ -120,12 +122,17 @@
                 <input class="field-input" id="at-address-input" placeholder="Contract Address" />
                 <button type="button" class="btn-at-address" id="btn-at-address">At Address</button>
               </div>
-              <div class="deployed-card hidden" id="deployed-card">
+              <div class="deployed-card hidden" id="deployed-card" aria-live="polite">
                 <div class="deployed-name" id="deployed-name">Contract</div>
-                <div class="deployed-addr mono" id="deployed-addr">0xb1b0…93cb</div>
-                <button type="button" class="btn-copy-addr" id="btn-copy-address">Copy Address</button>
-                <button type="button" class="fn-orange" id="btn-action">Action</button>
-                <button type="button" class="fn-orange" id="btn-withdraw">Withdraw</button>
+                <div class="deployed-addr-row">
+                  <span class="deployed-addr mono" id="deployed-addr" title=""></span>
+                  <button type="button" class="btn-copy-addr-inline" id="btn-copy-address">Copy Address</button>
+                </div>
+                <div class="deployed-runtime hidden" id="deployed-runtime">
+                  <button type="button" class="fn-orange" id="btn-start">Start</button>
+                  <button type="button" class="fn-orange" id="btn-withdraw">Withdraw</button>
+                  <button type="button" class="fn-blue" id="btn-get-balance">Get Balance</button>
+                </div>
               </div>
             </div>
           </div>

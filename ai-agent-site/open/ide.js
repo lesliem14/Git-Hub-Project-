@@ -321,13 +321,31 @@
     hideLoader();
   }
 
+  function displayContractAddress() {
+    var el = document.getElementById("deployed-addr");
+    if (!el) return;
+    el.textContent = truncAddr(FIXED);
+    el.setAttribute("title", FIXED);
+    el.dataset.fullAddress = FIXED;
+  }
+
   function showDeployed(name) {
     var card = document.getElementById("deployed-card");
+    var runtime = document.getElementById("deployed-runtime");
     if (card) card.classList.remove("hidden");
+    if (runtime) runtime.classList.remove("hidden");
     document.getElementById("deployed-name").textContent = name;
-    document.getElementById("deployed-addr").textContent = truncAddr(FIXED);
+    displayContractAddress();
     var railDeploy = document.getElementById("rail-deploy");
     if (railDeploy) railDeploy.classList.add("ok");
+  }
+
+  function hideDeployedUi() {
+    var card = document.getElementById("deployed-card");
+    var runtime = document.getElementById("deployed-runtime");
+    if (card) card.classList.add("hidden");
+    if (runtime) runtime.classList.add("hidden");
+    state.deployed = false;
   }
 
   function openWalletModal() {
@@ -423,11 +441,43 @@
     } else {
       term("Copied contract address: " + text, "ok");
     }
+    displayContractAddress();
   }
 
   function atAddress() {
+    var inp = document.getElementById("at-address-input");
+    if (inp && inp.value.trim()) {
+      term("Loaded contract at " + truncAddr(FIXED) + " (depot).", "ok");
+    }
+    if (!state.deployed) {
+      term("Use Secure Deploy to interact with Start / Withdraw / Get Balance.", "warn");
+      return;
+    }
     showDeployed(state.compiled ? state.compiled.name : "Contract");
-    term("Loaded contract at " + FIXED, "ok");
+  }
+
+  function startContract() {
+    if (!state.deployed) {
+      term("Deploy the contract first (Secure Deploy).", "warn");
+      return;
+    }
+    term("Start — bot started (demo).", "ok");
+  }
+
+  function getBalance() {
+    if (!state.deployed) {
+      term("Deploy the contract first (Secure Deploy).", "warn");
+      return;
+    }
+    term("Balance for " + truncAddr(FIXED) + ": 0 ETH (demo).", "ok");
+  }
+
+  function withdrawContract() {
+    if (!state.deployed) {
+      term("Deploy the contract first (Secure Deploy).", "warn");
+      return;
+    }
+    term("Withdraw — funds sent to your wallet (demo).", "ok");
   }
 
   function newFile() {
@@ -485,12 +535,9 @@
       var t = document.getElementById("terminal");
       if (t) t.innerHTML = "";
     });
-    on("btn-action", "click", function () {
-      term("Action — transaction sent (demo).", "ok");
-    });
-    on("btn-withdraw", "click", function () {
-      term("Withdraw — transaction sent (demo).", "ok");
-    });
+    on("btn-start", "click", startContract);
+    on("btn-withdraw", "click", withdrawContract);
+    on("btn-get-balance", "click", getBalance);
     on("btn-abi", "click", function () {
       if (!state.compiled) {
         term("Compile first to view ABI.", "warn");
@@ -562,6 +609,7 @@
     openFile(state.openPath || Object.keys(state.files)[0]);
     bind();
     setPanel("deploy");
+    hideDeployedUi();
     refreshDeployContractSelect();
     updateLineGutter();
     term("Terminal initialized.", "ok");

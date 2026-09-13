@@ -277,6 +277,7 @@ html[data-ide-allowed="true"] #gate-wall {
   justify-content: center;
   gap: 8px;
 }
+.secure-deploy-icon { font-size: 16px; line-height: 1; }
 .btn-secure-deploy:hover { background: var(--orange-hover); }
 
 .deployed-section { margin-top: 8px; }
@@ -325,21 +326,42 @@ html[data-ide-allowed="true"] #gate-wall {
   gap: 8px;
 }
 .deployed-card.hidden { display: none; }
-.deployed-name { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
-.deployed-addr { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.deployed-name { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+.deployed-addr-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.deployed-addr {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .mono { font-family: var(--mono); }
-.btn-copy-addr {
-  width: 100%;
-  padding: 10px 12px;
-  margin-bottom: 8px;
+.btn-copy-addr-inline {
+  flex-shrink: 0;
+  padding: 8px 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   background: var(--accent-deep);
   color: #fff;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
 }
+.btn-copy-addr-inline:hover { background: var(--accent); }
+.deployed-runtime {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.deployed-runtime.hidden { display: none; }
 .fn-orange, .fn-blue {
   width: 100%;
   padding: 12px;
