@@ -4,11 +4,11 @@
 
 | File | Use |
 |------|-----|
-| **`cloudflare-pages.zip`** | **~99 KB** — only files needed for page 1 + page 2; `index.html` at zip root (Cloudflare-friendly) |
+| **`ai-agent-cloudflare.zip`** | **~157 KB** — only files needed for page 1 + page 2; `index.html` at zip root (Cloudflare-friendly) |
 
 GitHub raw:
 
-`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/cloudflare-pages.zip`
+`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/ai-agent-cloudflare.zip`
 
 Read **`CLOUDFLARE-UPLOAD.txt`** inside the zip for upload steps.
 

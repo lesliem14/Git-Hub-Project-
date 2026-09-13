@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="$(cd "$(dirname "$0")" && pwd)"
 STAGE="$ROOT/.cloudflare-stage"
-OUT="$ROOT/cloudflare-pages.zip"
+OUT="$ROOT/ai-agent-cloudflare.zip"
 
 rm -rf "$STAGE"
 mkdir -p "$STAGE/open/css" "$STAGE/open/js" "$STAGE/open/assets" "$STAGE/open/vendor"

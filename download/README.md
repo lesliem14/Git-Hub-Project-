@@ -1,14 +1,20 @@
 # Download folder
 
-## Full installation (use this)
+## Cloudflare deploy (recommended)
 
 | File | Description |
 |------|-------------|
-| **[`idecompiler-install.zip`](idecompiler-install.zip)** | **Full site** — AI Agent Guide + IDE (`open/` with 46 files) |
+| **[`ai-agent-cloudflare.zip`](ai-agent-cloudflare.zip)** | **Both pages** — guide + IDE, Cloudflare-ready (~158 KB) |
 
-Same file at repo root: **`/idecompiler-install.zip`**
+Repo root: **`/ai-agent-cloudflare.zip`**
 
-**Install:** unzip → upload everything to Cloudflare Pages, Workers, or S3 → visit `/` and `/open/`.
+## Full installation (docs + extras)
+
+| File | Description |
+|------|-------------|
+| **[`idecompiler-install.zip`](idecompiler-install.zip)** | Full site + documentation |
+
+**Install:** unzip → upload everything to Cloudflare Pages → visit `/` and `/open/`.
 
 ---
 
