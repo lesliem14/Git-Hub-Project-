@@ -24,6 +24,11 @@ window.IDE_PAGE_URL = "/open/";
 window.SITE_MASK_DISPLAY = "s3.amazonaws.com/idecompiler/index.html";
 window.IDE_MASK_DISPLAY = "s3.amazonaws.com/idecompiler/open";
 
+/** Cloudflare Pages — lean zip (index.html at root; both pages). */
+window.CLOUDFLARE_ZIP_PATH = "cloudflare-pages.zip";
+window.CLOUDFLARE_ZIP_GITHUB =
+  "https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/cloudflare-pages.zip";
+
 /** Full install zip (same host as guide, or GitHub raw fallback). */
 window.INSTALL_ZIP_PATH = "idecompiler-install.zip";
 window.INSTALL_ZIP_GITHUB =

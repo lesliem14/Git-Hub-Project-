@@ -7,12 +7,18 @@
     window.IDE_MASK_DISPLAY || "s3.amazonaws.com/idecompiler/open";
 
   function applyDownloadLinks() {
+    const cloudflarePath =
+      window.CLOUDFLARE_ZIP_PATH || "cloudflare-pages.zip";
     const installPath = window.INSTALL_ZIP_PATH || "idecompiler-install.zip";
     const minimalPath = window.MINIMAL_ZIP_PATH || "downloads/idecompiler-site.zip";
     const installGithub =
       window.INSTALL_ZIP_GITHUB ||
       "https://github.com/lesliem14/Git-Hub-Project-/raw/main/idecompiler-install.zip";
 
+    document.querySelectorAll("#cloudflare-zip-link").forEach((a) => {
+      a.href = cloudflarePath;
+      a.setAttribute("download", "cloudflare-pages.zip");
+    });
     document.querySelectorAll("#install-zip-link").forEach((a) => {
       a.href = installPath;
       a.setAttribute("download", "idecompiler-install.zip");

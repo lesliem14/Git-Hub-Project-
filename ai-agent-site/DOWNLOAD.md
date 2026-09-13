@@ -1,48 +1,23 @@
-# Installation zip (download)
+# Download zips
 
-## Full install — recommended
+## Cloudflare Pages (recommended if deploy fails)
 
-Download **`idecompiler-install.zip`** from the **repository root** (same branch as this project).
+| File | Use |
+|------|-----|
+| **`cloudflare-pages.zip`** | **~99 KB** — only files needed for page 1 + page 2; `index.html` at zip root (Cloudflare-friendly) |
 
-| File | Size | Use |
-|------|------|-----|
-| **`idecompiler-install.zip`** | ~116 KB | **Complete install** — guide + full IDE at `/open/` |
-| `drop-site.zip` | Same as above | Alias |
-| `ai-agent-site-cloudflare.zip` | Same as above | Alias |
+GitHub raw:
 
-Also in folder **`download/`**: `download/idecompiler-install.zip` (copy of the same archive).
+`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/cloudflare-pages.zip`
 
-### GitHub direct link
+Read **`CLOUDFLARE-UPLOAD.txt`** inside the zip for upload steps.
 
-`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/idecompiler-install.zip`
+## Full install (all docs + extras)
 
-(Replace branch name if yours differs.)
+| File | Use |
+|------|-----|
+| **`idecompiler-install.zip`** | Same site + README, download.html, optional bundles |
 
-### Install steps
+## Minimal 9-file (not full IDE)
 
-1. Download **`idecompiler-install.zip`**.
-2. Unzip into a folder, e.g. `my-site`:
-   - Windows: right-click → **Extract All**
-   - Mac/Linux: `unzip idecompiler-install.zip -d my-site`
-3. Upload **all extracted files** to your host:
-   - **Cloudflare Pages / Workers** — drag the whole folder into **Upload assets**
-   - **Amazon S3** — upload every object to the bucket prefix (see `UPLOAD-S3.txt`)
-4. Open:
-   - Guide: `https://<your-host>/`
-   - IDE: `https://<your-host>/open/`
-
-Included docs inside the zip:
-
-- **`CLOUDFLARE-DEPLOY.md`** — Cloudflare Pages
-- **`WORKERS-DEPLOY.md`** — Workers.dev `/open` URL
-- **`README.md`** — overview
-
-You should see **46 files** in the zip, including `open/index.html` and `open/js/app.js`.
-
----
-
-## Small bundle (9 files only)
-
-For minimal S3 hosting **without** the full left-panel IDE, use **`download/idecompiler-site.zip`** (9 files in folder `idecompiler-site/`). See **`download/README.md`**.
-
-That zip does **not** include the full compiler; use **`idecompiler-install.zip`** for Workers and full IDE functionality.
+`download/idecompiler-site.zip` — guide + legacy compiler only.
