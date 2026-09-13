@@ -4,6 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IDE — idecompiler</title>
+  <script src="../site-config.js"></script>
+  <script>
+    (function () {
+      var key = window.IDE_ENTRY_SESSION_KEY || "idecompiler_dev_entry";
+      var home = window.GUIDE_HOME_URL || "/";
+      try {
+        if (!sessionStorage.getItem(key)) {
+          location.replace(home);
+        }
+      } catch (e) {
+        location.replace(home);
+      }
+    })();
+  </script>
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="ide.css" />

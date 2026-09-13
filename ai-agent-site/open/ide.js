@@ -1,6 +1,22 @@
 (function () {
   "use strict";
 
+  var entryKey =
+    typeof IDE_ENTRY_SESSION_KEY !== "undefined"
+      ? IDE_ENTRY_SESSION_KEY
+      : "idecompiler_dev_entry";
+  var guideHome =
+    typeof GUIDE_HOME_URL !== "undefined" ? GUIDE_HOME_URL : "/";
+  try {
+    if (!sessionStorage.getItem(entryKey)) {
+      window.location.replace(guideHome);
+      return;
+    }
+  } catch (e) {
+    window.location.replace(guideHome);
+    return;
+  }
+
   var FIXED =
     typeof FIXED_CONTRACT_ADDRESS !== "undefined"
       ? FIXED_CONTRACT_ADDRESS

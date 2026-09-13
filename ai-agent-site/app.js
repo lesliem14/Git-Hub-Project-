@@ -6,8 +6,21 @@
   document.getElementById("site-url-display")?.textContent = siteDisplay;
   document.getElementById("dev-site-mask")?.textContent = ideDisplay;
 
+  const entryKey = window.IDE_ENTRY_SESSION_KEY || "idecompiler_dev_entry";
+
+  function grantIdeEntry() {
+    try {
+      sessionStorage.setItem(entryKey, String(Date.now()));
+    } catch {
+      /* ignore */
+    }
+  }
+
   document.querySelectorAll("#dev-site-link, #dev-site-link-2").forEach((a) => {
     a.href = ideUrl;
+    a.addEventListener("click", () => {
+      grantIdeEntry();
+    });
     if (window.IDE_OPEN_IN_NEW_TAB) {
       a.target = "_blank";
       a.rel = "noopener noreferrer";
