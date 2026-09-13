@@ -1,5 +1,7 @@
-/* ExampleContract source shown in the Guide code panel */
-window.EXAMPLE_CONTRACT_SOURCE = `// This is an example code file, create a new one to get started!
+window.EXAMPLE_CONTRACT_SOURCE = `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
+// This is an example code file, create a new one to get started!
 
 /// @title ExampleContract
 /// @notice This is placeholder code. Create a new file to get started!
