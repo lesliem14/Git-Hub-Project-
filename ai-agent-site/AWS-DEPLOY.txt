@@ -1,0 +1,53 @@
+AMAZON S3 — DEPLOY idecompiler-aws-v7.zip
+============================================
+
+BUNDLE
+------
+idecompiler-aws-v7.zip (build: bash ai-agent-site/build-idecompiler-aws-v7.sh)
+
+UPLOAD LAYOUT
+-------------
+Upload extracted files so keys look like:
+
+  index.html
+  styles.css
+  app.js
+  site-config.js
+  contract-address.js
+  contract-source.txt
+  404.html
+  open/index.html
+  open/embed.html
+  open/ide.js
+  open/ide-gate.js
+  open/ide.css
+  open/assets/icon.svg
+
+CONTENT TYPES (S3 console → object → Properties)
+----------------------------------------------
+  *.html     text/html; charset=utf-8
+  *.css      text/css; charset=utf-8
+  *.js       application/javascript; charset=utf-8
+  *.svg      image/svg+xml
+  *.txt      text/plain; charset=utf-8
+
+PUBLIC ACCESS
+-------------
+• Enable static website hosting (index: index.html, error: 404.html), or
+• Use CloudFront with the bucket as origin (recommended for HTTPS).
+
+URLS (replace YOUR-BUCKET)
+--------------------------
+Guide:  https://s3.amazonaws.com/YOUR-BUCKET/index.html
+        or https://YOUR-BUCKET.s3-website-REGION.amazonaws.com/
+
+IDE:    …/open/embed.html?dev=1&embed=1
+        (from guide: Development Site → Click Here)
+
+MASKED LABELS in the UI (site-config.js) are display-only; the browser bar shows your S3/CloudFront URL.
+
+NOTES
+-----
+• No Cloudflare/Netlify/Vercel config files in this bundle.
+• /open/ → open/index.html redirects to the guide at index.html.
+• Copy Address after deploy uses the fixed depot in contract-address.js.

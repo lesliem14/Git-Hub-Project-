@@ -2,7 +2,7 @@
 window.SITE_PUBLIC_URL = "https://s3.amazonaws.com/idecompiler/index.html";
 
 /**
- * Development Site — hosted compiler on the same Cloudflare Pages project.
+ * Development Site — hosted compiler (e.g. S3 open/ path).
  * Use a full URL only if the guide and IDE are on different hosts.
  */
 window.IDE_PAGE_URL = "/open/";

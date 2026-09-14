@@ -1,23 +1,15 @@
-# Download zips
-
-## Cloudflare Pages (recommended if deploy fails)
+# Download deploy bundle
 
 | File | Use |
 |------|-----|
-| **`idecompiler-cloudflare-v4.zip`** | **~18 KB** — only files needed for page 1 + page 2; `index.html` at zip root (Cloudflare-friendly) |
+| **`idecompiler-aws-v7.zip`** | Guide + IDE for **Amazon S3** (recommended) |
 
-GitHub raw:
+Build locally:
 
-`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/idecompiler-cloudflare-v4.zip`
+```bash
+bash ai-agent-site/build-idecompiler-aws-v7.sh
+```
 
-Read **`CLOUDFLARE-UPLOAD.txt`** inside the zip for upload steps.
+Output: repo root `idecompiler-aws-v7.zip` and `download/idecompiler-aws-v7.zip`.
 
-## Full install (all docs + extras)
-
-| File | Use |
-|------|-----|
-| **`idecompiler-install.zip`** | Same site + README, download.html, optional bundles |
-
-## Minimal 9-file (not full IDE)
-
-`download/idecompiler-site.zip` — guide + legacy compiler only.
+Read **`AWS-DEPLOY.txt`** inside the zip.

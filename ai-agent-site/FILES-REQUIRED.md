@@ -55,7 +55,7 @@ Below is what each file does. Items marked **required** must be present or a pag
 
 | File | Required |
 |------|----------|
-| `_redirects` | **Yes** on Cloudflare Pages/Workers — maps `/` and `/open/` |
+| `AWS-DEPLOY.txt` | Upload help for S3 (included in `idecompiler-aws-v7.zip`) |
 | `contract.js` | **Yes** — shared by guide and IDE |
 
 ---
@@ -69,7 +69,7 @@ You can omit these; they are redirects, docs, or old copies:
 | `ide.html`, `open.html` | Redirect to `open/` ( `_redirects` does the same) |
 | `ide.css`, `ide.js` | Old single-file IDE (not used if you use `/open/`) |
 | `css/` at site root | Duplicate; IDE uses `open/css/` only |
-| `README.md`, `DOWNLOAD.md`, `TWO-PAGES.md`, `INSTALL.txt`, `CLOUDFLARE-DEPLOY.md`, `WORKERS-DEPLOY.md`, `UPLOAD-S3.txt` | Documentation only |
+| `README.md`, `DOWNLOAD.md`, `AWS-S3.md`, `INSTALL.txt`, `UPLOAD-S3.txt` | Documentation only |
 | `build-install-zip.sh` | Build script for maintainers |
 | `idecompiler-install.zip` | Only for letting visitors download the bundle from page 1 |
 

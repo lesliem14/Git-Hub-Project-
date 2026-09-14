@@ -1,14 +1,14 @@
-Upload to bucket "idecompiler" (or your bucket):
+Upload idecompiler-aws-v7.zip contents to your S3 bucket (root or site prefix).
 
-  index.html     →  index.html          (AI Agent Guide — Content-Type: text/html)
-  open.html      →  open                (Compiler — rename key to "open", no .html extension)
-  ide.html       →  ide.html            (optional; same as open)
-  styles.css, ide.css, app.js, ide.js, contract.js, site-config.js  →  same folder as index.html
+Keys (example bucket "danielcrypto-web3"):
+  index.html
+  styles.css, app.js, site-config.js, contract-address.js, contract-source.txt
+  open/embed.html, open/ide.js, open/ide-gate.js, open/ide.css, open/index.html, open/assets/icon.svg
 
-Development Site link points to:
-  https://s3.amazonaws.com/idecompiler/open
+Guide URL:
+  https://s3.amazonaws.com/YOUR-BUCKET/index.html
 
-Guide Site URL:
-  https://s3.amazonaws.com/idecompiler/index.html
+IDE (masked in UI as …/open):
+  https://s3.amazonaws.com/YOUR-BUCKET/open/embed.html?dev=1&embed=1
 
-Edit site-config.js if your bucket name differs.
+See AWS-DEPLOY.txt in the zip for content types and hosting.

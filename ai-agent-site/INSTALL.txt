@@ -24,9 +24,9 @@ REQUIRED FOR PAGE 2 (IDE at /open/)
   open/assets/icon.svg
   contract.js   (same file at root — IDE loads ../contract.js)
 
-REQUIRED FOR CLOUDFLARE
------------------------
-  _redirects
+AWS S3
+------
+  Use idecompiler-aws-v7.zip — see AWS-DEPLOY.txt
 
 OPTIONAL
 --------
