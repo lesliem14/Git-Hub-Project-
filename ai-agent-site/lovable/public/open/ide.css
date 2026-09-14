@@ -576,6 +576,19 @@ html[data-ide-allowed="true"] #gate-wall {
 .muted { color: var(--muted); font-size: 12px; }
 .search-hint { font-size: 11px; color: var(--muted); }
 
+.etherscan-line {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 4px 0 0;
+  word-break: break-all;
+}
+.etherscan-line.hidden { display: none; }
+.etherscan-line a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.etherscan-line a:hover { text-decoration: underline; }
+
 @media (max-width: 900px) {
   .ide-sidepanel { width: 240px; }
 }

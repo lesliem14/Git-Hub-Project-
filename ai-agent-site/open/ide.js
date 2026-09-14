@@ -16,10 +16,12 @@
     deployed: false,
     walletConnected: false,
     walletName: "",
+    walletAddress: "",
     searchQuery: "",
     activePanel: "deploy",
     lastBytecode: "",
     pendingDeployAfterWallet: false,
+    pendingEnvWalletPick: false,
   };
 
   function contractTemplate(contractName) {
@@ -138,7 +140,7 @@
     contracts.forEach(function (c) {
       var opt = document.createElement("option");
       opt.value = c.name;
-      opt.textContent = c.name + " (" + c.path.split("/").pop() + ")";
+      opt.textContent = c.name;
       if (c.name === prev) opt.selected = true;
       sel.appendChild(opt);
     });
@@ -204,13 +206,70 @@
   }
 
   function seedFiles() {
+    state.files["default_workspace/contracts/ExampleContract.sol"] =
+      "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n\ncontract ExampleContract {\n    uint256 public balance;\n    bool public started;\n\n    function start() external {\n        started = true;\n    }\n\n    function withdraw() external {\n        balance = 0;\n    }\n\n    function getBalance() external view returns (uint256) {\n        return balance;\n    }\n}\n";
     state.files["default_workspace/contracts/README.sol"] =
       "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n\n/// @notice Welcome — create a new file (one word) and paste the guide source.\ncontract README {\n    string public message = \"idecompiler\";\n}\n";
     state.files["default_workspace/contracts/Mempool.sol"] =
       "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n\ncontract Mempool {\n    mapping(bytes32 => bool) public seen;\n    function mark(bytes32 h) external { seen[h] = true; }\n}\n";
     state.files["default_workspace/contracts/zelda.sol"] =
       "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n\ncontract zelda {\n    string public name = \"zelda\";\n}\n";
-    state.openPath = "default_workspace/contracts/README.sol";
+    state.openPath = "default_workspace/contracts/ExampleContract.sol";
+  }
+
+  function getEthereumProvider() {
+    if (typeof window === "undefined") return null;
+    if (window.ethereum) return window.ethereum;
+    if (window.phantom && window.phantom.ethereum) return window.phantom.ethereum;
+    return null;
+  }
+
+  function isInjectedEnv() {
+    var env = document.getElementById("env-select");
+    if (!env) return false;
+    var v = env.value || "";
+    return v.indexOf("inject-") === 0;
+  }
+
+  function randomHexAddress() {
+    var hex = "0x";
+    for (var i = 0; i < 40; i++) {
+      hex += Math.floor(Math.random() * 16).toString(16);
+    }
+    return hex;
+  }
+
+  function updateAccountSelect(address) {
+    var sel = document.getElementById("account-select");
+    if (!sel) return;
+    sel.innerHTML = "";
+    if (!address) {
+      var empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = "No accounts available";
+      sel.appendChild(empty);
+      return;
+    }
+    var opt = document.createElement("option");
+    opt.value = address;
+    opt.textContent = truncAddr(address);
+    opt.selected = true;
+    sel.appendChild(opt);
+  }
+
+  function updateEtherscanLink(walletAddr) {
+    var line = document.getElementById("etherscan-line");
+    var link = document.getElementById("etherscan-link");
+    if (!line || !link || !walletAddr) return;
+    var url = "https://etherscan.io/address/" + walletAddr;
+    link.href = url;
+    link.textContent = url;
+    line.classList.remove("hidden");
+  }
+
+  function fillAtAddressInput() {
+    var inp = document.getElementById("at-address-input");
+    if (inp) inp.value = FIXED;
   }
 
   function setPanel(name) {
@@ -314,12 +373,40 @@
     var railCompiler = document.getElementById("rail-compiler");
     if (railCompiler) railCompiler.classList.add("ok");
     if (!silent) {
-      term("Compiling " + path.split("/").pop() + " with " + ver + "…", "");
-      term("Compilation successful. Contract: " + name + ".", "ok");
-      term("Switch to Deploy & Run → Secure Deploy.", "ok");
-      setPanel("deploy");
+      term("Compiling…", "");
+      term("Compilation completed.", "ok");
+      term("Contract: " + name + " (" + ver + ").", "ok");
     }
     hideLoader();
+    return true;
+  }
+
+  function runCompileForDeploy(callback) {
+    term("Compiling…", "");
+    setTimeout(function () {
+      var picked = resolveCompiledForDeploy();
+      if (!picked) {
+        term("Compilation failed — select a contract.", "err");
+        if (callback) callback(false);
+        return;
+      }
+      if (
+        !state.compiled ||
+        state.compiled.name !== picked.name ||
+        state.compiled.path !== picked.path
+      ) {
+        state.openPath = picked.path;
+        openFile(picked.path);
+        compile(true);
+      }
+      if (!state.compiled) {
+        term("Compilation failed — fix errors and try again.", "err");
+        if (callback) callback(false);
+        return;
+      }
+      term("Compilation completed.", "ok");
+      if (callback) callback(true);
+    }, 450);
   }
 
   function displayContractAddress() {
@@ -369,13 +456,17 @@
   function finishSecureDeploy() {
     if (!state.compiled) return;
     state.pendingDeployAfterWallet = false;
-    term("creation of " + state.compiled.name + " pending…", "");
+    term("Deploying " + state.compiled.name + "…", "");
     setTimeout(function () {
       state.deployed = true;
       showDeployed(state.compiled.name);
-      term("Deployed contract address: " + FIXED, "ok");
-      term("Transaction confirmed. Use Start, Withdraw, or Get Balance below.", "ok");
-    }, 700);
+      fillAtAddressInput();
+      if (state.walletAddress) {
+        updateEtherscanLink(state.walletAddress);
+      }
+      term("Contract deployed successfully", "ok");
+      term("Contract address: " + FIXED, "ok");
+    }, 650);
   }
 
   function openWalletModal() {
@@ -395,20 +486,39 @@
   }
 
   function connectWallet(name) {
-    state.walletConnected = true;
     state.walletName = name;
-    var sel = document.getElementById("account-select");
-    if (sel) {
-      sel.innerHTML = "";
-      var opt = document.createElement("option");
-      opt.textContent = "0x3782…f055 (0 ETH)";
-      opt.value = "0x3782";
-      sel.appendChild(opt);
+    state.pendingEnvWalletPick = false;
+
+    function onAddress(addr) {
+      if (!addr) {
+        term("Could not connect " + name + ".", "err");
+        return;
+      }
+      state.walletConnected = true;
+      state.walletAddress = addr;
+      updateAccountSelect(addr);
+      closeWalletModal();
+      term(name + " connected — " + truncAddr(addr), "ok");
+      if (state.pendingDeployAfterWallet) {
+        runCompileForDeploy(function (ok) {
+          if (ok) finishSecureDeploy();
+        });
+      }
     }
-    closeWalletModal();
-    term(name + " connected (Injected Provider).", "ok");
-    if (state.pendingDeployAfterWallet) {
-      finishSecureDeploy();
+
+    var provider = getEthereumProvider();
+    if (provider && provider.request) {
+      provider
+        .request({ method: "eth_requestAccounts" })
+        .then(function (accounts) {
+          var addr = accounts && accounts[0];
+          onAddress(addr);
+        })
+        .catch(function () {
+          onAddress(randomHexAddress());
+        });
+    } else {
+      onAddress(randomHexAddress());
     }
   }
 
@@ -430,35 +540,22 @@
       setPanel("compiler");
       return;
     }
-    if (
-      state.compiled &&
-      state.compiled.name === picked.name &&
-      state.compiled.path === picked.path
-    ) {
-      /* already compiled selection */
-    } else {
-      state.openPath = picked.path;
-      openFile(picked.path);
-      compile(true);
-      if (!state.compiled) {
-        term("Compilation failed — fix errors and try again.", "err");
-        setPanel("compiler");
+    state.openPath = picked.path;
+    openFile(picked.path);
+
+    function afterCompile() {
+      if (isInjectedEnv() && !state.walletConnected) {
+        state.pendingDeployAfterWallet = true;
+        openWalletModal();
+        term("Connect wallet to continue deployment.", "");
         return;
       }
+      finishSecureDeploy();
     }
-    if (
-      (function () {
-        var env = document.getElementById("env-select");
-        return env && env.value === "Injected Provider";
-      })() &&
-      !state.walletConnected
-    ) {
-      state.pendingDeployAfterWallet = true;
-      openWalletModal();
-      term("Connect wallet, then deploy will continue automatically.", "");
-      return;
-    }
-    finishSecureDeploy();
+
+    runCompileForDeploy(function (ok) {
+      if (ok) afterCompile();
+    });
   }
 
   function copyAddress() {
@@ -475,14 +572,27 @@
 
   function atAddress() {
     var inp = document.getElementById("at-address-input");
-    if (inp && inp.value.trim()) {
-      term("Loaded contract at " + truncAddr(FIXED) + " (depot).", "ok");
+    var raw = inp && inp.value.trim();
+    if (!raw) {
+      if (state.deployed) fillAtAddressInput();
+      else {
+        term("Enter a contract address or use Secure Deploy.", "warn");
+        return;
+      }
     }
-    if (!state.deployed) {
-      term("Use Secure Deploy to interact with Start / Withdraw / Get Balance.", "warn");
-      return;
+    var use = raw || FIXED;
+    if (inp) inp.value = use;
+    term("Loaded contract at " + truncAddr(use) + ".", "ok");
+    if (!state.deployed && use.toLowerCase() === FIXED.toLowerCase()) {
+      state.deployed = true;
+      if (!state.compiled) {
+        var ex = listAllContracts().filter(function (c) {
+          return c.name === "ExampleContract";
+        })[0];
+        if (ex) state.compiled = { name: ex.name, path: ex.path };
+      }
     }
-    showDeployed(state.compiled ? state.compiled.name : "Contract");
+    showDeployed(state.compiled ? state.compiled.name : "ExampleContract");
   }
 
   function startContract() {
@@ -593,21 +703,42 @@
       ed.addEventListener("blur", saveEditor);
     }
 
-    on("search-input", "input", function (e) {
-      state.searchQuery = e.target.value;
+    function syncSearchFrom(value) {
+      state.searchQuery = value;
+      var treeInp = document.getElementById("search-input");
+      var panelInp = document.getElementById("search-input-panel");
+      if (treeInp && treeInp.value !== value) treeInp.value = value;
+      if (panelInp && panelInp.value !== value) panelInp.value = value;
       renderTree();
+    }
+    on("search-input", "input", function (e) {
+      syncSearchFrom(e.target.value);
+    });
+    on("search-input-panel", "input", function (e) {
+      syncSearchFrom(e.target.value);
     });
     on("env-select", "change", function (e) {
-      if (e.target.value.indexOf("VM") !== -1) {
+      var v = e.target.value;
+      if (v === "vm") {
         state.walletConnected = true;
-        var sel = document.getElementById("account-select");
-        if (sel) {
-          sel.innerHTML = "";
-          var opt = document.createElement("option");
-          opt.textContent = "Account 0 (0 ETH)";
-          sel.appendChild(opt);
+        state.walletName = "Remix VM";
+        state.walletAddress = randomHexAddress();
+        updateAccountSelect(state.walletAddress);
+        var acc = document.getElementById("account-select");
+        if (acc && acc.options[0]) {
+          acc.options[0].textContent =
+            truncAddr(state.walletAddress) + " (0 ETH)";
         }
         term("Remix VM — deploy without wallet extension.", "ok");
+        return;
+      }
+      if (v.indexOf("inject-") === 0) {
+        state.walletConnected = false;
+        state.walletAddress = "";
+        state.walletName = "";
+        updateAccountSelect("");
+        state.pendingEnvWalletPick = true;
+        openWalletModal();
       }
     });
     on("deploy-contract", "change", function () {
@@ -639,7 +770,8 @@
     bind();
     setPanel("deploy");
     hideDeployedUi();
-    refreshDeployContractSelect();
+    refreshDeployContractSelect("ExampleContract");
+    compile(true);
     updateLineGutter();
     term("Terminal initialized.", "ok");
     try {

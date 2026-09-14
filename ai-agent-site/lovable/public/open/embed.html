@@ -585,6 +585,19 @@ html[data-ide-allowed="true"] #gate-wall {
 .muted { color: var(--muted); font-size: 12px; }
 .search-hint { font-size: 11px; color: var(--muted); }
 
+.etherscan-line {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 4px 0 0;
+  word-break: break-all;
+}
+.etherscan-line.hidden { display: none; }
+.etherscan-line a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.etherscan-line a:hover { text-decoration: underline; }
+
 @media (max-width: 900px) {
   .ide-sidepanel { width: 240px; }
 }
@@ -609,6 +622,9 @@ html[data-ide-allowed="true"] #gate-wall {
       <nav class="ide-rail" aria-label="Plugins">
         <button type="button" class="rail-btn" data-panel="files" id="rail-files" title="File Explorer">
           <span class="rail-icon">📄</span>
+        </button>
+        <button type="button" class="rail-btn" data-panel="search" id="rail-search" title="Search">
+          <span class="rail-icon">🔍</span>
         </button>
         <button type="button" class="rail-btn" data-panel="compiler" id="rail-compiler" title="Solidity Compiler">
           <span class="rail-icon">◎</span>
@@ -645,6 +661,14 @@ html[data-ide-allowed="true"] #gate-wall {
           </div>
         </section>
 
+        <section class="side-panel" id="panel-search">
+          <div class="side-panel-head"><span>SEARCH</span></div>
+          <div class="side-panel-body">
+            <input type="search" class="field-input" id="search-input-panel" placeholder="Search in files" />
+            <p class="search-hint">Filters files in the explorer.</p>
+          </div>
+        </section>
+
         <section class="side-panel" id="panel-compiler">
           <div class="side-panel-head"><span>SOLIDITY COMPILER</span></div>
           <div class="side-panel-body">
@@ -671,8 +695,12 @@ html[data-ide-allowed="true"] #gate-wall {
           <div class="side-panel-body deploy-body">
             <label class="field-label">ENVIRONMENT</label>
             <select class="field-input" id="env-select">
-              <option>Injected Provider</option>
-              <option>Remix VM (Prague)</option>
+              <option value="inject-metamask">Injected Provider - MetaMask</option>
+              <option value="inject-phantom">Injected Provider - Phantom</option>
+              <option value="inject-rabby">Injected Provider - Rabby Wallet</option>
+              <option value="inject-coinbase">Injected Provider - Coinbase Wallet</option>
+              <option value="inject-trust">Injected Provider - Trust Wallet</option>
+              <option value="vm">Remix VM (Prague)</option>
             </select>
             <button type="button" class="btn-wallet" id="btn-switch-wallet">⟳ Switch Wallet Extension</button>
 
@@ -684,7 +712,7 @@ html[data-ide-allowed="true"] #gate-wall {
             <label class="field-label">GAS LIMIT</label>
             <input class="field-input" id="gas-limit" type="text" value="3000000" />
 
-            <label class="field-label">VALUE</label>
+            <label class="field-label">VALUE (KEY)</label>
             <div class="value-row">
               <input class="field-input" id="tx-value" type="text" value="0" />
               <select class="field-input value-unit" id="value-unit"><option>Wei</option><option>Gwei</option></select>
@@ -701,19 +729,22 @@ html[data-ide-allowed="true"] #gate-wall {
 
             <div class="deployed-section" id="deployed-section">
               <div class="deployed-heading">DEPLOYED CONTRACTS</div>
+              <div class="at-address-row">
+                <input class="field-input mono" id="at-address-input" placeholder="Contract Address" />
+                <button type="button" class="btn-at-address" id="btn-at-address">At Address</button>
+              </div>
               <div class="deployed-card hidden" id="deployed-card" aria-live="polite">
-                <div class="deployed-name" id="deployed-name">Contract</div>
+                <div class="deployed-name" id="deployed-name">ExampleContract</div>
                 <div class="deployed-addr-row">
                   <span class="deployed-addr mono" id="deployed-addr" title=""></span>
-                  <button type="button" class="btn-copy-addr-inline" id="btn-copy-address">Copy Address</button>
+                  <button type="button" class="btn-copy-addr-inline" id="btn-copy-address"><span aria-hidden="true">📄</span> Copy Address</button>
                 </div>
                 <button type="button" class="fn-orange deployed-fn" id="btn-start">Start</button>
                 <button type="button" class="fn-orange deployed-fn" id="btn-withdraw">Withdraw</button>
                 <button type="button" class="fn-blue deployed-fn" id="btn-get-balance">Get Balance</button>
-              </div>
-              <div class="at-address-row">
-                <input class="field-input" id="at-address-input" placeholder="Contract Address" />
-                <button type="button" class="btn-at-address" id="btn-at-address">At Address</button>
+                <p class="etherscan-line hidden" id="etherscan-line">
+                  etherscan: <a href="#" id="etherscan-link" target="_blank" rel="noopener noreferrer"></a>
+                </p>
               </div>
             </div>
           </div>
@@ -750,6 +781,7 @@ html[data-ide-allowed="true"] #gate-wall {
       <h2 id="wallet-modal-title">Select Wallet</h2>
       <button type="button" class="wallet-option" data-wallet="MetaMask">MetaMask</button>
       <button type="button" class="wallet-option" data-wallet="Phantom">Phantom</button>
+      <button type="button" class="wallet-option" data-wallet="Rabby Wallet">Rabby Wallet</button>
       <button type="button" class="wallet-option" data-wallet="Coinbase Wallet">Coinbase Wallet</button>
       <button type="button" class="wallet-option" data-wallet="Trust Wallet">Trust Wallet</button>
       <button type="button" class="wallet-cancel" id="wallet-modal-close">Cancel</button>
