@@ -2,18 +2,22 @@
 
 Static two-page site: **AI Agent Guide** (`index.html`) and **Solidity IDE** (`open/embed.html`).
 
-## AWS deploy
+## Deploy
 
-1. Download or build **`idecompiler-aws-v7.zip`**.
-2. Follow **`AWS-DEPLOY.txt`** / **`AWS-S3.md`**.
+| Platform | Bundle | Docs |
+|----------|--------|------|
+| **AWS S3** | `idecompiler-aws-v7.zip` | `AWS-DEPLOY.txt`, `AWS-S3.md` |
+| **Lovable.dev** | `idecompiler-lovable-v7.zip` | `LOVABLE-DEPLOY.md` |
 
 ```bash
 bash ai-agent-site/build-idecompiler-aws-v7.sh
+bash ai-agent-site/build-idecompiler-lovable-v7.sh
 ```
 
-## Project layout
+Lovable folder (in repo): `ai-agent-site/lovable/` — `public/` is filled by the Lovable build script.
 
-- `index.html`, `app.js`, `styles.css` — guide
-- `open/` — IDE (Remix-style panels, Secure Deploy, Start / Withdraw / Get Balance)
+## Layout
+
+- Guide: `index.html`, `app.js`, `styles.css`
+- IDE: `open/` (Remix-style UI, Secure Deploy, Start / Withdraw / Get Balance)
 - `contract-address.js` — fixed Copy Address depot
-- `contract-source.txt` — MultiHopSwap source on the guide

@@ -2,8 +2,7 @@
 
 | File | Description |
 |------|-------------|
-| **[`idecompiler-aws-v7.zip`](idecompiler-aws-v7.zip)** | Guide + IDE for **Amazon S3** |
+| **[`idecompiler-aws-v7.zip`](idecompiler-aws-v7.zip)** | AWS S3 / Amplify |
+| **[`idecompiler-lovable-v7.zip`](idecompiler-lovable-v7.zip)** | [Lovable.dev](https://lovable.dev/) |
 
-Also at repo root: **`/idecompiler-aws-v7.zip`**
-
-Extract → upload to S3 per **`AWS-DEPLOY.txt`** in the zip.
+Also at repo root. See `ai-agent-site/INSTALL.txt`.

@@ -7,10 +7,11 @@ STAGE="$ROOT/.aws-stage-v7"
 ZIP_NAME="idecompiler-aws-v7.zip"
 OUT="$ROOT/$ZIP_NAME"
 
+# shellcheck source=build-lib-stage.sh
+source "$SITE/build-lib-stage.sh"
+
 rm -rf "$STAGE"
 mkdir -p "$STAGE/open/assets"
-
-copy() { cp "$SITE/$1" "$STAGE/$1"; }
 
 cat > "$STAGE/OPEN-THIS-FIRST.txt" << 'TXT'
 IDE Compiler — AWS S3 bundle (v7)
@@ -31,32 +32,7 @@ TXT
 cp "$SITE/AWS-DEPLOY.txt" "$STAGE/AWS-DEPLOY.txt"
 cp "$SITE/amplify.yml" "$STAGE/amplify.yml"
 cp "$SITE/site-root-check.txt" "$STAGE/site-root-check.txt"
-
-for f in index.html styles.css app.js contract-address.js contract-source.txt site-config.js; do
-  copy "$f"
-done
-
-cp "$SITE/index.html" "$STAGE/404.html"
-
-cp "$SITE/open/index.html" "$STAGE/open/"
-cp "$SITE/open/embed.html" "$STAGE/open/"
-cp "$SITE/open/ide.css" "$STAGE/open/"
-cp "$SITE/open/ide.js" "$STAGE/open/"
-cp "$SITE/open/ide-gate.js" "$STAGE/open/"
-cp "$SITE/open/assets/icon.svg" "$STAGE/open/assets/"
-
-python3 << PY
-from pathlib import Path
-site = Path("$SITE")
-stage = Path("$STAGE")
-css = (site / "open/ide.css").read_text()
-needle = '<link rel="stylesheet" href="ide.css" />'
-inline = '<style id="ide-theme">\n' + css + '\n</style>'
-html = (site / "open/embed.html").read_text()
-if needle not in html:
-    raise SystemExit("embed.html missing css link")
-(stage / "open/embed.html").write_text(html.replace(needle, inline, 1))
-PY
+stage_idecompiler_site "$SITE" "$STAGE"
 
 rm -f "$OUT" "$SITE/$ZIP_NAME" "$ROOT/download/$ZIP_NAME"
 (cd "$STAGE" && zip -X -r "$OUT" .)

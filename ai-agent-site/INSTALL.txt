@@ -1,45 +1,30 @@
-IDE Compiler — what you need for BOTH webpages
-==============================================
+IDE Compiler — installation (v7)
+================================
 
-YES — one zip has everything:
+Choose ONE deploy bundle:
 
-  idecompiler-install.zip
+  idecompiler-aws-v7.zip      → Amazon S3 / Amplify / CloudFront
+  idecompiler-lovable-v7.zip  → Lovable.dev (https://lovable.dev/)
 
-Unzip it and upload EVERY file and folder inside to your host
-(keep the same folder structure).
-
-REQUIRED FOR PAGE 1 (AI Agent Guide at /)
--------------------------------------------
-  index.html
-  styles.css
-  app.js
-  contract.js
-  site-config.js
-
-REQUIRED FOR PAGE 2 (IDE at /open/)
-------------------------------------
-  open/index.html
-  open/css/     (all 6 .css files)
-  open/js/      (all 14 .js files)
-  open/assets/icon.svg
-  contract.js   (same file at root — IDE loads ../contract.js)
+Build both:
+  bash ai-agent-site/build-idecompiler-aws-v7.sh
+  bash ai-agent-site/build-idecompiler-lovable-v7.sh
 
 AWS S3
 ------
-  Use idecompiler-aws-v7.zip — see AWS-DEPLOY.txt
+  Extract idecompiler-aws-v7.zip → upload all files to bucket root.
+  See AWS-DEPLOY.txt
 
-OPTIONAL
---------
-  download.html, idecompiler-install.zip, downloads/*.zip
-  Documentation (*.md, INSTALL.txt)
-  ide.html, open.html, ide.css, ide.js (old redirects — not needed if you use /open/)
+LOVABLE.DEV
+-----------
+  Extract idecompiler-lovable-v7.zip → push to GitHub → open in Lovable.
+  npm install && npm run build  →  publish dist/
+  See LOVABLE-INSTALL.txt and LOVABLE-DEPLOY.md
 
-NOT ENOUGH FOR BOTH PAGES
--------------------------
-  idecompiler-site.zip (9 files only) — guide + old compiler, NO full /open/ IDE
+REQUIRED FILES (both bundles)
+-----------------------------
+  index.html, styles.css, app.js, site-config.js, contract-address.js,
+  contract-source.txt, open/embed.html, open/ide.js, open/ide-gate.js, …
 
-After upload:
-  Page 1: https://YOUR-HOST/
-  Page 2: https://YOUR-HOST/open/
-
-See FILES-REQUIRED.md for the full checklist.
+PAGE 1: AI Agent Guide (/)
+PAGE 2: IDE via Development Site or open/embed.html?dev=1&embed=1

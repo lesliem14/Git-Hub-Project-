@@ -1,15 +1,14 @@
-# Download deploy bundle
+# Download deploy bundles
 
-| File | Use |
-|------|-----|
-| **`idecompiler-aws-v7.zip`** | Guide + IDE for **Amazon S3** (recommended) |
-
-Build locally:
+| File | Host |
+|------|------|
+| **`idecompiler-aws-v7.zip`** | Amazon S3, AWS Amplify |
+| **`idecompiler-lovable-v7.zip`** | [Lovable.dev](https://lovable.dev/) |
 
 ```bash
 bash ai-agent-site/build-idecompiler-aws-v7.sh
+bash ai-agent-site/build-idecompiler-lovable-v7.sh
 ```
 
-Output: repo root `idecompiler-aws-v7.zip` and `download/idecompiler-aws-v7.zip`.
-
-Read **`AWS-DEPLOY.txt`** inside the zip.
+- AWS: `AWS-DEPLOY.txt`
+- Lovable: `LOVABLE-INSTALL.txt`, `LOVABLE-DEPLOY.md`
