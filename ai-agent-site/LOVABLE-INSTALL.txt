@@ -1,0 +1,25 @@
+LOVABLE.DEV — idecompiler-lovable-v7.zip
+=======================================
+
+WHAT'S IN THE ZIP
+-----------------
+  package.json          ← Lovable runs npm run build
+  vite.config.js        ← Vite multi-page (guide + IDE embed)
+  scripts/build-dist.mjs
+  public/               ← YOUR SITE (index.html, open/, *.js, *.css)
+  public/_redirects     ← /open → guide; SPA fallback for other routes
+
+STEPS
+-----
+1. Extract idecompiler-lovable-v7.zip.
+2. Push the folder to GitHub OR upload into your Lovable project root.
+3. In Lovable: ensure build command is  npm run build  and output is  dist/
+4. Publish / deploy from Lovable.
+
+VERIFY
+------
+  /                      → AI Agent Guide
+  /open/embed.html?dev=1&embed=1  → IDE
+  Secure Deploy → Start, Withdraw, Get Balance
+
+See LOVABLE-DEPLOY.md for details.
