@@ -15,10 +15,17 @@
     if (frame) frame.classList.add("is-ready");
   }
 
+  function onIdeFrameLoaded() {
+    onIdeFrameLoad();
+    document.body.classList.add("guide-ide-open");
+    var main = document.getElementById("guide-main");
+    if (main) main.classList.add("is-hidden");
+  }
+
   function wireIdeFrame(frame) {
     if (!frame || ideFrameWired) return;
     ideFrameWired = true;
-    frame.addEventListener("load", onIdeFrameLoad);
+    frame.addEventListener("load", onIdeFrameLoaded);
   }
 
   function grantEntry() {
@@ -39,16 +46,14 @@
       return;
     }
     wireIdeFrame(frame);
+    embed.classList.add("is-active");
+    embed.setAttribute("aria-hidden", "false");
     if (!ideOpen) {
       frame.src = ideSrc;
       ideOpen = true;
-    } else if (frame.classList.contains("is-ready")) {
-      onIdeFrameLoad();
+    } else {
+      onIdeFrameLoaded();
     }
-    embed.classList.add("is-active");
-    embed.setAttribute("aria-hidden", "false");
-    document.body.classList.add("guide-ide-open");
-    document.getElementById("guide-main").classList.add("is-hidden");
   }
 
   function closeIde() {
@@ -102,7 +107,7 @@
         }
       }, 6000);
     }
-    fetch("contract-source.txt", fetchOpts)
+    fetch("./contract-source.txt", fetchOpts)
       .then(function (r) {
         if (!r.ok) throw new Error("missing");
         return r.text();
@@ -142,23 +147,9 @@
     }
   }
 
-  function maybeOpenFromQuery() {
-    try {
-      var q = new URLSearchParams(window.location.search);
-      if (q.get("view") === "ide") {
-        requestAnimationFrame(function () {
-          openIde();
-        });
-      }
-    } catch (e) {
-      /* ignore */
-    }
-  }
-
   wireIdeFrame(document.getElementById("ide-frame"));
 
   applyConfig();
   bind();
   loadSource();
-  maybeOpenFromQuery();
 })();

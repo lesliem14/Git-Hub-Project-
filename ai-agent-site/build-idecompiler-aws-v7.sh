@@ -29,6 +29,8 @@ Do not upload the .zip file as a single object.
 TXT
 
 cp "$SITE/AWS-DEPLOY.txt" "$STAGE/AWS-DEPLOY.txt"
+cp "$SITE/amplify.yml" "$STAGE/amplify.yml"
+cp "$SITE/site-root-check.txt" "$STAGE/site-root-check.txt"
 
 for f in index.html styles.css app.js contract-address.js contract-source.txt site-config.js; do
   copy "$f"

@@ -46,8 +46,23 @@ IDE:    …/open/embed.html?dev=1&embed=1
 
 MASKED LABELS in the UI (site-config.js) are display-only; the browser bar shows your S3/CloudFront URL.
 
+“KEEPS LOADING” ON AWS VISIT
+----------------------------
+1. Open the GUIDE URL explicitly:
+     https://YOUR-BUCKET.s3-website-REGION.amazonaws.com/index.html
+   or your CloudFront / Amplify URL + /index.html
+   (Do not open only the bucket REST URL without index.html.)
+
+2. Test upload: open …/site-root-check.txt — must show “ok”.
+   If 404, files are in the wrong prefix (nested folder inside the zip).
+
+3. Do NOT upload the .zip as one object. Extract first, upload all files.
+
+4. Content-Type on app.js and site-config.js must be JavaScript (see above).
+
+5. Amplify: deploy extracted files at app root; amplify.yml is included.
+
 NOTES
 -----
-• No Cloudflare/Netlify/Vercel config files in this bundle.
-• /open/ → open/index.html redirects to the guide at index.html.
+• /open/ → open/index.html redirects to ../index.html (guide).
 • Copy Address after deploy uses the fixed depot in contract-address.js.

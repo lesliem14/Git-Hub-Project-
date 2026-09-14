@@ -226,7 +226,8 @@ a:hover {
   transition: opacity 0.25s ease;
 }
 
-.ide-embed-frame.is-ready {
+.ide-embed-frame.is-ready,
+.ide-embed.is-active .ide-embed-frame {
   opacity: 1;
 }
 

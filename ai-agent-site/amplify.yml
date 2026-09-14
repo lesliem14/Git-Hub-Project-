@@ -1,0 +1,13 @@
+# AWS Amplify Hosting — static site (no build). Upload zip contents as app root.
+version: 1
+frontend:
+  phases:
+    build:
+      commands:
+        - test -f index.html || (echo "Missing index.html at app root" && exit 1)
+  artifacts:
+    baseDirectory: /
+    files:
+      - "**/*"
+  cache:
+    paths: []
