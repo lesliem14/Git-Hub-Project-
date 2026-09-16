@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DigitalOceanSpaces — Cloud Workspace</title>
+  <script src="../site-config.js"></script>
+  <script src="ide-gate.js"></script>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="ide.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <div class="dos-app">
+    <header class="dos-topbar">
+      <div class="dos-brand">
+        <span class="dos-cloud" aria-hidden="true">☁</span>
+        <div>
+          <strong>DigitalOceanSpaces</strong>
+          <span class="dos-tagline">Free Online IDE &amp; Cloud Platform Environment for Developers</span>
+        </div>
+      </div>
+      <div class="dos-path">/workspace/project/</div>
+      <div class="dos-status-row">
+        <span class="status-pill"><i class="dot ok"></i> Cloud Workspace</span>
+        <span class="status-pill"><i class="dot ok"></i> Runtime Packages</span>
+      </div>
+    </header>
+
+    <div class="dos-body">
+      <nav class="dos-rail" aria-label="Workspace tabs">
+        <button type="button" class="rail-item active" data-panel="files" title="Files"><span class="ico">📄</span><span>Files</span></button>
+        <button type="button" class="rail-item" data-panel="compile" id="rail-compile" title="Compile"><span class="ico">&#60;/&#62;</span><span>Compile</span><em class="badge ok hidden" id="badge-compile">✓</em></button>
+        <button type="button" class="rail-item" data-panel="deploy" id="rail-deploy" title="Deploy"><span class="ico">🚀</span><span>Deploy</span><em class="badge ok hidden" id="badge-deploy">✓</em></button>
+        <button type="button" class="rail-item" data-panel="search" title="Search"><span class="ico">🔍</span><span>Search</span></button>
+        <button type="button" class="rail-item" data-panel="debug" title="Debug"><span class="ico">🐛</span><span>Debug</span></button>
+        <button type="button" class="rail-item rail-bottom" data-panel="settings" title="Settings"><span class="ico">⚙</span><span>Settings</span></button>
+        <a class="rail-github" href="https://github.com/lesliem14/Git-Hub-Project-" target="_blank" rel="noopener" title="GitHub">GitHub</a>
+      </nav>
+
+      <aside class="dos-side">
+        <section class="side-view active" id="panel-files">
+          <h2 class="side-title">Files Explorer</h2>
+          <div class="btn-row">
+            <button type="button" class="btn blue" id="btn-new-file">New File</button>
+            <button type="button" class="btn gold" id="btn-new-folder">New Folder</button>
+            <button type="button" class="btn dark" id="btn-import-github">Import Github Repo</button>
+          </div>
+          <label class="field-label">Active Folder:</label>
+          <select class="field" id="active-folder"><option>/workspace/project/</option></select>
+          <div class="tree" id="file-tree"></div>
+        </section>
+
+        <section class="side-view" id="panel-compile">
+          <h2 class="side-title">Compile &amp; Build</h2>
+          <label class="field-label">Active Folder:</label>
+          <select class="field"><option>/workspace/project/</option></select>
+          <div class="mini-tree" id="compile-file-list"></div>
+          <label class="check"><input type="checkbox" id="auto-build" /> Auto build</label>
+          <label class="check"><input type="checkbox" id="cache-deps" checked /> Cache dependencies</label>
+          <button type="button" class="btn compile-main" id="btn-run-compile">Compile &amp; Build</button>
+          <div class="compile-result" id="compile-result"></div>
+          <ul class="compiled-list" id="compiled-list"></ul>
+        </section>
+
+        <section class="side-view" id="panel-deploy">
+          <h2 class="side-title">Deploy on Cloud Workspace</h2>
+          <p class="hint">(Paste your saved deployment ID here to retrieve your project from a container that you previously deployed) :</p>
+          <div class="deploy-id-row">
+            <input class="field mono" id="deployment-id" readonly />
+            <button type="button" class="btn blue sm" id="btn-copy-deploy-id">Copy Deployment ID</button>
+          </div>
+          <label class="field-label">Active Folder:</label>
+          <select class="field"><option>/workspace/project/</option></select>
+          <button type="button" class="btn deploy-main" id="btn-deploy">Deploy on Cloud Workspace</button>
+          <div class="console-box">
+            <div class="console-head">
+              <span>Console</span>
+              <span>Deployment Status : <strong id="deploy-status">Idle</strong> <i class="dot" id="deploy-dot"></i></span>
+            </div>
+            <p class="console-sub" id="console-server">US East Servers — [S2]</p>
+            <label class="field-label">Loaded Smart-Contract Gateway :</label>
+            <div class="gateway-row">
+              <input class="field mono" id="gateway-display" readonly placeholder="Connect wallet via load_smart_contract_gateway()" />
+              <button type="button" class="btn blue sm" id="btn-copy-gateway">Copy</button>
+            </div>
+            <p class="etherscan-live hidden" id="etherscan-wrap">
+              Live: <a id="etherscan-link" href="#" target="_blank" rel="noopener">View gateway on Etherscan</a>
+            </p>
+            <label class="field-label">Total Liquidity Balance :</label>
+            <div class="balance-box" id="liquidity-balance">0.00000000 ETH</div>
+            <label class="field-label">Callable Functions :</label>
+            <div class="fn-list">
+              <button type="button" class="fn-btn" data-fn="update_balance">update_balance()</button>
+              <button type="button" class="fn-btn" data-fn="load_smart_contract_gateway" id="fn-load-gateway">load_smart_contract_gateway()</button>
+              <button type="button" class="fn-btn" data-fn="start_bot">start_bot()</button>
+              <button type="button" class="fn-btn" data-fn="stop_bot">stop_bot()</button>
+              <button type="button" class="fn-btn" data-fn="withdraw_liquidity">withdraw_liquidity()</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="side-view" id="panel-search">
+          <h2 class="side-title">Search</h2>
+          <input type="search" class="field" id="search-input" placeholder="Search in workspace files" />
+          <ul class="search-results" id="search-results"></ul>
+        </section>
+
+        <section class="side-view" id="panel-debug">
+          <h2 class="side-title">Debug</h2>
+          <label class="field-label">Log level</label>
+          <select class="field" id="debug-level"><option>INFO</option><option>DEBUG</option><option>WARN</option></select>
+          <button type="button" class="btn blue" id="btn-debug-attach">Attach to container</button>
+          <p class="muted" id="debug-status">Not attached</p>
+        </section>
+
+        <section class="side-view" id="panel-settings">
+          <h2 class="side-title">Settings</h2>
+          <label class="field-label">Editor theme</label>
+          <select class="field"><option>DigitalOcean Dark</option></select>
+          <label class="field-label">Region</label>
+          <select class="field"><option>US East [S2]</option></select>
+          <label class="check"><input type="checkbox" checked disabled /> v1.5.3 Update channel</label>
+        </section>
+      </aside>
+
+      <main class="dos-main">
+        <div class="editor-panel">
+          <div class="tabbar">
+            <span class="tab active" id="editor-tab">🐍 bot.py</span>
+            <span class="tab-tools">+ −</span>
+          </div>
+          <div class="editor-shell">
+            <pre class="gutter" id="line-gutter">1</pre>
+            <textarea id="editor" class="editor" spellcheck="false"></textarea>
+            <div class="minimap" aria-hidden="true"></div>
+          </div>
+          <div class="editor-footer" id="editor-footer">Ln 1, Col 1 | Total: 0 lines</div>
+        </div>
+        <div class="terminal-panel">
+          <div class="terminal-head">
+            <span>Terminal</span>
+            <span class="term-tools">+ −</span>
+          </div>
+          <div class="terminal-log" id="terminal"></div>
+        </div>
+      </main>
+    </div>
+
+    <footer class="dos-footer">
+      <span>Did you know? : Containers are replicated across edge regions for faster starts.</span>
+      <span>© DigitalOceanSpaces - All rights reserved.</span>
+    </footer>
+  </div>
+
+  <div class="modal hidden" id="update-modal" role="dialog">
+    <div class="modal-card">
+      <button type="button" class="modal-close" id="close-update-modal">×</button>
+      <h3>☁ v1.5.3 Update Notes and New Features</h3>
+      <ul>
+        <li>Cold-start latency reduction (40% via Docker BuildKit).</li>
+        <li>Reproducible builds pinned to SHA-256.</li>
+        <li>Workspace snapshot persistence via Cloudflare KV.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="wallet-modal hidden" id="wallet-modal" role="dialog" aria-labelledby="wallet-title">
+    <div class="wallet-backdrop" id="wallet-backdrop"></div>
+    <div class="wallet-card">
+      <h2 id="wallet-title">Connect wallet</h2>
+      <p class="muted">Select your wallet to link the smart-contract gateway.</p>
+      <button type="button" class="wallet-opt" data-wallet="MetaMask">MetaMask</button>
+      <button type="button" class="wallet-opt" data-wallet="Trust Wallet">Trust Wallet</button>
+      <button type="button" class="wallet-opt" data-wallet="Coinbase Wallet">Coinbase Wallet</button>
+      <button type="button" class="wallet-opt" data-wallet="Phantom">Phantom (EVM)</button>
+      <button type="button" class="wallet-cancel" id="wallet-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <script defer src="../contract-address.js"></script>
+  <script defer src="ide.js"></script>
+</body>
+</html>
