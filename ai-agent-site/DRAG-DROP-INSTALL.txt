@@ -1,0 +1,23 @@
+ETH Arbitrage Trading Bot — drag-and-drop install
+=================================================
+
+FILE: eth-arbitrage-site-install.zip
+
+1. Unzip the entire archive on your computer.
+2. Upload ALL files and folders inside to your static host ROOT
+   (same structure: index.html at the top level, open/ folder beside it).
+3. Open your site URL in a browser.
+
+   Landing page:  https://YOUR-DOMAIN/
+   Cloud IDE:     https://YOUR-DOMAIN/?view=ide
+
+Hosts that work: Cloudflare Pages, AWS S3 static website, Netlify, Vercel static, any CDN.
+
+Included documentation (in this zip):
+  INSTALL.txt, README.md, DOWNLOAD.md, FILES-REQUIRED.md
+  CLOUDFLARE-DEPLOY.md, AWS-S3.md, UPLOAD-S3.txt, WORKERS-DEPLOY.md
+
+Required files are listed in FILES-REQUIRED.md.
+Do not upload only part of the zip — both index.html and open/ are required.
+
+Gateway address (after wallet connect): see contract-address.js

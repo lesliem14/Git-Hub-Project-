@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ETH Arbitrage Trading Bot - Full Guide</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var p = new URLSearchParams(location.search);
+      if (p.get("view") === "ide" || p.get("dev") === "1") {
+        document.documentElement.classList.add("boot-ide");
+      }
+    })();
+  </script>
+</head>
+<body>
+  <main class="page" id="guide-main">
+    <h1 class="title">ETH Arbitrage Trading Bot - Full Guide</h1>
+
+    <p class="line">
+      <span class="accent">Contact:</span>
+      <a href="mailto:leslie.magwaza@gmail.com" id="contact-link">leslie.magwaza@gmail.com</a>
+    </p>
+    <p class="line">
+      <span class="accent">Cloud Workspace (install &amp; run the bot here only):</span>
+      <a href="?view=ide" id="dev-site-link">Open Cloud Workspace</a>
+    </p>
+    <p class="page-hint">All installation and deployment steps happen on <strong id="site-origin-hint">this website</strong> — no external installers.</p>
+
+    <p class="line accent section-source">Smart contract source</p>
+    <div class="code-panel">
+      <div class="code-panel-header">
+        <span class="code-lang">SOLIDITY</span>
+        <button type="button" class="btn-copy" id="copy-contract">Copy</button>
+      </div>
+      <pre class="code-block" id="contract-source"><code>Loading…</code></pre>
+    </div>
+
+    <h2 class="section-title">Full installation guide</h2>
+    <p class="section-note">Follow these steps in order inside the Cloud Workspace on this site.</p>
+    <ul class="guide-list" id="guide-steps"></ul>
+    <p class="guide-outro">That completes setup — the bot runs from your connected wallet and the Loaded Smart-Contract Gateway.</p>
+
+    <h2 class="section-title">Mobile wallets</h2>
+    <p class="mobile-note">On mobile, open your wallet app’s in-app browser (Discover / Browser), paste <strong id="mobile-site-url">this site’s URL</strong>, open the Cloud Workspace, and follow the same steps above.</p>
+  </main>
+
+  <section id="ide-embed" class="ide-embed" hidden aria-label="DigitalOceanSpaces IDE">
+    <div class="ide-embed-bar">
+      <span class="ide-embed-title">DigitalOceanSpaces — <code id="dev-site-mask">Cloud Workspace</code></span>
+      <button type="button" class="ide-embed-close" id="close-ide-embed">← Back to guide</button>
+    </div>
+    <iframe id="ide-frame" class="ide-embed-frame" title="Cloud Workspace IDE" src=""></iframe>
+  </section>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script defer src="site-config.js"></script>
+  <script defer src="contract-address.js"></script>
+  <script defer src="dynamic-app.js"></script>
+</body>
+</html>

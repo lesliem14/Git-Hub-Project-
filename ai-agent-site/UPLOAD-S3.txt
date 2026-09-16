@@ -1,0 +1,14 @@
+Upload to bucket "idecompiler" (or your bucket):
+
+  index.html     →  index.html          (AI Agent Guide — Content-Type: text/html)
+  open.html      →  open                (Compiler — rename key to "open", no .html extension)
+  ide.html       →  ide.html            (optional; same as open)
+  styles.css, ide.css, app.js, ide.js, contract.js, site-config.js  →  same folder as index.html
+
+Development Site link points to:
+  https://s3.amazonaws.com/idecompiler/open
+
+Guide Site URL:
+  https://s3.amazonaws.com/idecompiler/index.html
+
+Edit site-config.js if your bucket name differs.

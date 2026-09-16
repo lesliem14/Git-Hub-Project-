@@ -1,0 +1,27 @@
+ETH Arbitrage Trading Bot — install bundle
+==========================================
+
+Use this zip for drag-and-drop hosting:
+
+  eth-arbitrage-site-install.zip
+
+Steps:
+  1. Unzip on your computer.
+  2. Upload every file and folder to your web host ROOT.
+  3. Visit https://YOUR-DOMAIN/
+
+Page 1 (guide):     /
+Page 2 (IDE):       /?view=ide   or   /open/embed.html?dev=1
+
+REQUIRED — GUIDE
+  index.html, styles.css, dynamic-app.js, site-config.js,
+  contract-address.js, contract-source.txt
+
+REQUIRED — IDE
+  open/embed.html, open/ide.css, open/ide.js, open/ide-gate.js,
+  open/index.html, open/project/bot.py, open/assets/icon.svg
+
+REQUIRED — CLOUDFLARE
+  _redirects
+
+See DRAG-DROP-INSTALL.txt and FILES-REQUIRED.md in this zip.
