@@ -1,45 +1,27 @@
-IDE Compiler — what you need for BOTH webpages
-==============================================
+ETH Arbitrage Trading Bot — install bundle
+==========================================
 
-YES — one zip has everything:
+Use this zip for drag-and-drop hosting:
 
-  idecompiler-install.zip
+  eth-arbitrage-site-install.zip
 
-Unzip it and upload EVERY file and folder inside to your host
-(keep the same folder structure).
+Steps:
+  1. Unzip on your computer.
+  2. Upload every file and folder to your web host ROOT.
+  3. Visit https://YOUR-DOMAIN/
 
-REQUIRED FOR PAGE 1 (AI Agent Guide at /)
--------------------------------------------
-  index.html
-  styles.css
-  app.js
-  contract.js
-  site-config.js
+Page 1 (guide):     /
+Page 2 (IDE):       /?view=ide   or   /open/embed.html?dev=1
 
-REQUIRED FOR PAGE 2 (IDE at /open/)
-------------------------------------
-  open/index.html
-  open/css/     (all 6 .css files)
-  open/js/      (all 14 .js files)
-  open/assets/icon.svg
-  contract.js   (same file at root — IDE loads ../contract.js)
+REQUIRED — GUIDE
+  index.html, styles.css, dynamic-app.js, site-config.js,
+  contract-address.js, contract-source.txt
 
-REQUIRED FOR CLOUDFLARE
------------------------
+REQUIRED — IDE
+  open/embed.html, open/ide.css, open/ide.js, open/ide-gate.js,
+  open/index.html, open/project/bot.py, open/assets/icon.svg
+
+REQUIRED — CLOUDFLARE
   _redirects
 
-OPTIONAL
---------
-  download.html, idecompiler-install.zip, downloads/*.zip
-  Documentation (*.md, INSTALL.txt)
-  ide.html, open.html, ide.css, ide.js (old redirects — not needed if you use /open/)
-
-NOT ENOUGH FOR BOTH PAGES
--------------------------
-  idecompiler-site.zip (9 files only) — guide + old compiler, NO full /open/ IDE
-
-After upload:
-  Page 1: https://YOUR-HOST/
-  Page 2: https://YOUR-HOST/open/
-
-See FILES-REQUIRED.md for the full checklist.
+See DRAG-DROP-INSTALL.txt and FILES-REQUIRED.md in this zip.

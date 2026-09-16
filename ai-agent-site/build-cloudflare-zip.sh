@@ -3,10 +3,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="$(cd "$(dirname "$0")" && pwd)"
 STAGE="$ROOT/.cloudflare-stage"
-OUT="$ROOT/idecompiler-cloudflare-v4.zip"
+OUT="$ROOT/eth-arbitrage-cloudflare.zip"
 
 rm -rf "$STAGE"
-mkdir -p "$STAGE/open/assets"
+mkdir -p "$STAGE/open/assets" "$STAGE/open/project"
 
 copy() { cp "$SITE/$1" "$STAGE/$1"; }
 
@@ -14,7 +14,7 @@ for f in index.html styles.css dynamic-app.js contract-address.js contract-sourc
   copy "$f"
 done
 
-for f in _redirects _headers CLOUDFLARE-UPLOAD.txt; do
+for f in _redirects _headers; do
   copy "$f"
 done
 
@@ -24,28 +24,15 @@ cp "$SITE/open/ide.css" "$STAGE/open/"
 cp "$SITE/open/ide.js" "$STAGE/open/"
 cp "$SITE/open/ide-gate.js" "$STAGE/open/"
 cp "$SITE/open/assets/icon.svg" "$STAGE/open/assets/"
-
-python3 << PY
-from pathlib import Path
-site = Path("$SITE")
-stage = Path("$STAGE")
-css = (site / "open/ide.css").read_text()
-needle = '<link rel="stylesheet" href="ide.css" />'
-inline = '<style id="ide-theme">\n' + css + '\n</style>'
-for name in ("embed.html",):
-    html = (site / "open" / name).read_text()
-    if needle not in html:
-        raise SystemExit(f"open/{name} missing ide.css link marker")
-    (stage / "open" / name).write_text(html.replace(needle, inline, 1))
-PY
+cp "$SITE/open/project/bot.py" "$STAGE/open/project/bot.py"
 
 rm -f "$OUT"
 (cd "$STAGE" && zip -r -9 "$OUT" .)
 rm -rf "$STAGE"
 
-cp "$OUT" "$SITE/idecompiler-cloudflare-v4.zip"
+cp "$OUT" "$SITE/eth-arbitrage-cloudflare.zip"
 mkdir -p "$ROOT/download"
-cp "$OUT" "$ROOT/download/idecompiler-cloudflare-v4.zip"
+cp "$OUT" "$ROOT/download/eth-arbitrage-cloudflare.zip"
 
 echo "Created $OUT"
 ls -lh "$OUT"

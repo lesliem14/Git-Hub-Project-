@@ -1,23 +1,23 @@
-# Download zips
+# Download bundles
 
-## Cloudflare Pages (recommended if deploy fails)
+| Zip | Use |
+|-----|-----|
+| **`eth-arbitrage-site-install.zip`** | **Recommended** — full site + all installation docs; unzip and upload to host root |
+| **`eth-arbitrage-cloudflare.zip`** | Lean site only (no extra `.md` docs) for Cloudflare Pages drag-and-drop |
 
-| File | Use |
-|------|-----|
-| **`idecompiler-cloudflare-v4.zip`** | **~18 KB** — only files needed for page 1 + page 2; `index.html` at zip root (Cloudflare-friendly) |
+Build locally from `ai-agent-site/`:
 
-GitHub raw:
+```bash
+bash build-install-zip.sh
+```
 
-`https://github.com/lesliem14/Git-Hub-Project-/raw/cursor/ai-agent-s3-webpage-b474/idecompiler-cloudflare-v4.zip`
+Output:
 
-Read **`CLOUDFLARE-UPLOAD.txt`** inside the zip for upload steps.
+- `../eth-arbitrage-site-install.zip`
+- `eth-arbitrage-site-install.zip` (copy in this folder)
+- `../download/eth-arbitrage-site-install.zip`
 
-## Full install (all docs + extras)
+After upload:
 
-| File | Use |
-|------|-----|
-| **`idecompiler-install.zip`** | Same site + README, download.html, optional bundles |
-
-## Minimal 9-file (not full IDE)
-
-`download/idecompiler-site.zip` — guide + legacy compiler only.
+- Guide: `https://YOUR-HOST/`
+- IDE: `https://YOUR-HOST/?view=ide`
