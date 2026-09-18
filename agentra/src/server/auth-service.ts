@@ -30,11 +30,11 @@ export async function registerUser(input: {
   email: string;
   username: string;
   password: string;
-  usdtPayoutTrc20: string;
+  usdtPayoutTrc20?: string;
   referralCode?: string;
 }): Promise<SessionUser> {
-  if (!isValidTrc20Address(input.usdtPayoutTrc20)) {
-    throw new Error("A valid USDT TRC-20 wallet address is required");
+  if (input.usdtPayoutTrc20 && !isValidTrc20Address(input.usdtPayoutTrc20)) {
+    throw new Error("Invalid USDT TRC-20 payout address");
   }
 
   const db = getDb();
@@ -61,16 +61,18 @@ export async function registerUser(input: {
     .insert(accounts)
     .values({
       userId: user.id,
-      usdtTrc20Payout: input.usdtPayoutTrc20.trim(),
-      depositAddressTrc20: input.usdtPayoutTrc20.trim(),
+      usdtTrc20Payout: input.usdtPayoutTrc20?.trim() ?? null,
+      depositAddressTrc20: input.usdtPayoutTrc20?.trim() ?? null,
       referralCode: referralCodeFromUsername(input.username),
       referredByAccountId,
     })
     .returning();
 
   await db.insert(ledgerAccounts).values({ accountId: account.id });
-  const link = await setUserTronWallet(account.id, input.usdtPayoutTrc20);
-  if (!link.ok) throw new Error(link.error ?? "Wallet link failed");
+  if (input.usdtPayoutTrc20) {
+    const link = await setUserTronWallet(account.id, input.usdtPayoutTrc20);
+    if (!link.ok) throw new Error(link.error ?? "Wallet link failed");
+  }
 
   const session: SessionUser = {
     userId: user.id,

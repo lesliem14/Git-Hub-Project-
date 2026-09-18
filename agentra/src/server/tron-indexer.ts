@@ -1,8 +1,7 @@
 import { eq } from "drizzle-orm";
-import { accounts, auditLogs, indexerCursors } from "../../drizzle/schema";
+import { auditLogs, indexerCursors, treasuryDepositsObserved } from "../../drizzle/schema";
 import { getDb } from "@/lib/db";
 import { getAgentraTreasuryAddress } from "@/lib/tron-utils";
-import { confirmTrc20Deposit } from "./deposit-service";
 
 const USDT_CONTRACT =
   process.env.TRON_USDT_CONTRACT ?? "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
@@ -16,10 +15,10 @@ interface TronTrc20Transfer {
   token_info?: { symbol?: string; decimals?: string | number };
 }
 
-interface IndexerResult {
+export interface IndexerResult {
   treasury: string;
   scanned: number;
-  confirmed: number;
+  observed: number;
   skipped: number;
   errors: string[];
 }
@@ -56,8 +55,7 @@ function parseUsdtAmount(value: string, decimals: number): number {
 }
 
 /**
- * Watch Agentra treasury for incoming USDT. Match `from` to each user's registered
- * individual TRC-20 wallet — no platform mnemonic or per-user custodial deposit keys.
+ * Index incoming treasury USDT (any sender). Users claim with tx hash on the Fund page.
  */
 export async function runTronDepositIndexer(): Promise<IndexerResult> {
   const db = getDb();
@@ -71,17 +69,10 @@ export async function runTronDepositIndexer(): Promise<IndexerResult> {
   const transfers = await fetchTreasuryIncoming(treasury, minTs);
   let maxTs = minTs;
 
-  const allAccounts = await db.select().from(accounts);
-  const byWallet = new Map(
-    allAccounts
-      .filter((a) => a.usdtTrc20Payout)
-      .map((a) => [a.usdtTrc20Payout!, a.id] as const),
-  );
-
   const result: IndexerResult = {
     treasury,
     scanned: transfers.length,
-    confirmed: 0,
+    observed: 0,
     skipped: 0,
     errors: [],
   };
@@ -97,13 +88,6 @@ export async function runTronDepositIndexer(): Promise<IndexerResult> {
       result.skipped += 1;
       continue;
     }
-
-    const accountId = byWallet.get(tx.from);
-    if (!accountId) {
-      result.skipped += 1;
-      continue;
-    }
-
     const decimals = Number(tx.token_info?.decimals ?? 6);
     const amount = parseUsdtAmount(tx.value, decimals);
     if (amount <= 0) {
@@ -112,17 +96,20 @@ export async function runTronDepositIndexer(): Promise<IndexerResult> {
     }
 
     try {
-      const r = await confirmTrc20Deposit({
-        accountId,
-        txHash: tx.transaction_id,
-        amountUsdt: amount,
-      });
-      if (r.credited > 0) result.confirmed += 1;
-      else result.skipped += 1;
+      await db
+        .insert(treasuryDepositsObserved)
+        .values({
+          txHash: tx.transaction_id,
+          fromAddress: tx.from,
+          amountUsdt: String(amount),
+          blockTimestamp: String(tx.block_timestamp),
+        })
+        .onConflictDoNothing();
+      result.observed += 1;
     } catch (e) {
       result.skipped += 1;
       result.errors.push(
-        `${tx.transaction_id}: ${e instanceof Error ? e.message : "confirm failed"}`,
+        `${tx.transaction_id}: ${e instanceof Error ? e.message : "observe failed"}`,
       );
     }
   }

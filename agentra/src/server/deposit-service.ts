@@ -15,6 +15,9 @@ export async function confirmTrc20Deposit(input: {
     where: eq(trc20Deposits.txHash, input.txHash),
   });
   if (existing) {
+    if (existing.accountId !== input.accountId) {
+      throw new Error("Deposit already claimed by another account");
+    }
     return { purpose: existing.purpose as "license" | "topup", credited: parseFloat(existing.amountUsdt) };
   }
 

@@ -109,6 +109,14 @@ export const settlementLines = pgTable(
   (t) => [uniqueIndex("settlement_cycle_account").on(t.cycleId, t.accountId)],
 );
 
+export const treasuryDepositsObserved = pgTable("treasury_deposits_observed", {
+  txHash: text("tx_hash").primaryKey(),
+  fromAddress: text("from_address"),
+  amountUsdt: numeric("amount_usdt", { precision: 24, scale: 8 }).notNull(),
+  blockTimestamp: numeric("block_timestamp", { precision: 20, scale: 0 }),
+  indexedAt: timestamp("indexed_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export const trc20Deposits = pgTable("trc20_deposits", {
   id: uuid("id").primaryKey().defaultRandom(),
   accountId: uuid("account_id")

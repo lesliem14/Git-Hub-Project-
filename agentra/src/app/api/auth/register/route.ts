@@ -15,15 +15,9 @@ export async function POST(request: Request) {
     referralCode?: string;
   };
 
-  if (
-    !body.email ||
-    !body.username ||
-    !body.password ||
-    body.password.length < 8 ||
-    !body.usdtPayoutTrc20
-  ) {
+  if (!body.email || !body.username || !body.password || body.password.length < 8) {
     return NextResponse.json(
-      { error: "Email, username, password, and your USDT TRC-20 wallet are required" },
+      { error: "Email, username, and password (8+ chars) are required" },
       { status: 400 },
     );
   }

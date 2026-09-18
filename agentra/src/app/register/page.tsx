@@ -78,17 +78,16 @@ function RegisterForm() {
           />
         </label>
         <label className="block text-sm font-medium text-slate-700">
-          Your USDT TRC-20 wallet (TronLink / Trust — you control the keys)
+          USDT TRC-20 payout wallet (optional now)
           <input
-            required
             value={usdtPayout}
             onChange={(e) => setUsdtPayout(e.target.value.trim())}
-            placeholder="T..."
+            placeholder="T... (for 24h settlements)"
             className="mt-1 w-full rounded-lg border border-stone-200 px-3 py-2 font-mono text-sm"
           />
         </label>
         <p className="text-xs text-slate-500 -mt-2">
-          Used for payouts and to identify your deposits when you send USDT to Agentra treasury.
+          Deposits can be sent from any wallet; add payout address before your first settlement.
         </p>
         <label className="block text-sm font-medium text-slate-700">
           Referral code (optional)
