@@ -247,7 +247,8 @@ See in-app `/legal/risk`. No promised returns. Show gross/net/fees transparently
 - ✅ Paper engine uses DEX + gas simulation packages; executor stub for live signing
 - ✅ Stripe webhook stub; rate limits on auth/deposits; referral stats UI
 - ✅ Live EVM signing (link wallet + prepare tx + user sign + on-chain confirm, Sepolia default)
-- ⏳ Hosted Postgres in prod, Tron indexer production, Stripe Checkout UI, mainnet swap calldata
+- ✅ Uniswap V3 live calldata (wrap + exactInputSingle), multi-step approve/swap confirm
+- ⏳ Hosted Postgres in prod, Tron indexer production, Stripe Checkout UI, full arb multi-hop
 
 **Confirmed product decisions:**
 

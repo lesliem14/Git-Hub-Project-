@@ -18,11 +18,16 @@ type UnsignedTx = {
   value: `0x${string}`;
   gas?: string;
   description: string;
+  label?: string;
 };
 
 type PendingLive = {
   opportunityId: string;
   transaction: UnsignedTx;
+  transactions?: UnsignedTx[];
+  step?: number;
+  totalSteps?: number;
+  swapStyle?: string;
   opportunity: { netUsdt?: number; strategy?: string };
 };
 
@@ -50,13 +55,36 @@ export function LiveSignPanel({ onConfirmed }: { onConfirmed?: () => void }) {
       setPending({
         opportunityId: data.opportunityId,
         transaction: data.transaction,
+        transactions: data.transactions,
+        step: data.step ?? 1,
+        totalSteps: data.totalSteps ?? 1,
+        swapStyle: data.swapStyle,
         opportunity: data.opportunity ?? {},
       });
-      setMsg("Review and sign in your wallet");
+      setMsg(
+        data.swapStyle === "uniswap"
+          ? "Multi-step: approve USDC, then swap (needs USDC on wallet)"
+          : data.swapStyle === "wrap"
+            ? "Sign to wrap ETH → WETH (native ETH sent as tx value)"
+            : "Review and sign in your wallet",
+      );
       return;
     }
     setMsg(data.reason ?? data.error ?? "No live opportunity to sign");
   }, [address]);
+
+  const confirmOnServer = async (opportunityId: string, hash: string) => {
+    const confirm = await fetch("/api/v1/executions/confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        opportunityId,
+        txHash: hash,
+        fromAddress: address,
+      }),
+    });
+    return confirm.json();
+  };
 
   const signAndSend = async () => {
     if (!pending || !address) return;
@@ -74,25 +102,32 @@ export function LiveSignPanel({ onConfirmed }: { onConfirmed?: () => void }) {
         gas: tx.gas ? BigInt(tx.gas) : undefined,
       });
       setMsg(`Submitted ${hash.slice(0, 14)}… — confirming on chain`);
-      for (let i = 0; i < 8; i++) {
+
+      for (let i = 0; i < 10; i++) {
         await new Promise((r) => setTimeout(r, 3000));
-        const confirm = await fetch("/api/v1/executions/confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            opportunityId: pending.opportunityId,
-            txHash: hash,
-            fromAddress: address,
-          }),
-        });
-        if (confirm.ok) {
+        const data = await confirmOnServer(pending.opportunityId, hash);
+        if (data.partial && data.transaction) {
+          setPending({
+            ...pending,
+            transaction: data.transaction,
+            step: data.step,
+            totalSteps: data.totalSteps,
+          });
+          setMsg(`Step ${data.step}/${data.totalSteps} complete — sign the next transaction`);
+          return;
+        }
+        if (data.ok && data.completed) {
           setMsg("Live execution confirmed — ledger updated");
           setPending(null);
           onConfirmed?.();
           return;
         }
+        if (data.error && i > 2) {
+          setMsg(data.error);
+          return;
+        }
       }
-      setMsg("Tx sent — confirmation pending; retry confirm from dashboard later");
+      setMsg("Tx sent — confirmation pending; retry later");
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Signing cancelled or failed");
     }
@@ -107,8 +142,9 @@ export function LiveSignPanel({ onConfirmed }: { onConfirmed?: () => void }) {
         Live wallet signing
       </h2>
       <p className="mt-1 text-xs text-slate-600">
-        Non-custodial: you sign in MetaMask/Trust/Phantom EVM. Default test network chain ID{" "}
-        <strong>{targetChain}</strong> (Sepolia). You pay gas; Agentra never holds your keys.
+        Set <code className="rounded bg-white px-1">AGENTRA_LIVE_TX_MODE=swap</code> for Uniswap
+        calldata. Sepolia defaults to <strong>wrap</strong> (ETH→WETH); mainnet-style uses USDC→WETH
+        with approve + swap. Chain ID <strong>{targetChain}</strong>.
       </p>
 
       {!isConnected && (
@@ -117,10 +153,15 @@ export function LiveSignPanel({ onConfirmed }: { onConfirmed?: () => void }) {
 
       {pending ? (
         <div className="mt-4 space-y-3 rounded-xl border border-violet-200 bg-white p-4 text-sm">
+          {pending.totalSteps && pending.totalSteps > 1 && (
+            <p className="text-xs font-semibold text-violet-800">
+              Step {pending.step}/{pending.totalSteps}
+              {pending.transaction.label ? ` · ${pending.transaction.label}` : ""}
+            </p>
+          )}
           <p className="font-medium">{pending.opportunity.strategy ?? "Opportunity"}</p>
           <p className="text-slate-600">
-            Est. net: {formatUsdt(pending.opportunity.netUsdt ?? 0)} USDT (internal ledger credit
-            after on-chain confirm)
+            Est. net (ledger): {formatUsdt(pending.opportunity.netUsdt ?? 0)} USDT after final confirm
           </p>
           <p className="text-xs text-slate-500">{pending.transaction.description}</p>
           <button

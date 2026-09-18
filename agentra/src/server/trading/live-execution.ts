@@ -14,6 +14,7 @@ import { TRADE_LOCK_MS } from "@/lib/constants";
 import { getLiveChainId, getLiveRpcUrl, getLiveTxMode } from "@/lib/live-chain";
 import { requireActiveLicense } from "../licensing-service";
 import { evaluateOpportunity, num } from "./tick-shared";
+import { allowedSwapTargets, buildSwapTransactions } from "./swap-build";
 
 export interface UnsignedLiveTransaction {
   chainId: number;
@@ -23,6 +24,18 @@ export interface UnsignedLiveTransaction {
   gas?: string;
   description: string;
   mode: "probe" | "swap";
+  label?: string;
+}
+
+export interface LivePrepareResult {
+  awaitingSignature: true;
+  opportunityId: string;
+  transaction: UnsignedLiveTransaction;
+  transactions?: UnsignedLiveTransaction[];
+  step?: number;
+  totalSteps?: number;
+  swapStyle?: string;
+  opportunity: object;
 }
 
 function buildProbeTransaction(
@@ -57,10 +70,7 @@ function buildProbeTransaction(
 export async function runLivePrepare(
   accountId: string,
   fromAddress: string,
-): Promise<
-  | { awaitingSignature: true; opportunityId: string; transaction: UnsignedLiveTransaction; opportunity: object }
-  | { awaitingSignature: false; reason: string }
-> {
+): Promise<LivePrepareResult | { awaitingSignature: false; reason: string }> {
   const license = await requireActiveLicense(accountId);
   if (!license.ok) return { awaitingSignature: false, reason: license.reason };
 
@@ -110,14 +120,27 @@ export async function runLivePrepare(
     })
     .returning();
 
+  const maxTrade = num(bot.maxTradeSizeUsdt);
   let transaction = buildProbeTransaction(from, chainId, oppRow.id, opp.netUsdt);
+  let transactions: UnsignedLiveTransaction[] | undefined;
+  let swapStyle: string | undefined;
+
   if (txMode === "swap") {
-    transaction = {
-      ...transaction,
-      mode: "swap",
-      description:
-        "Swap mode falls back to attestation until pool routing is configured (AGENTRA_SWAP_ROUTER). Sign to record live intent.",
-    };
+    const built = buildSwapTransactions({
+      from,
+      maxTradeUsdt: maxTrade,
+      strategy: opp.strategy,
+    });
+    if (built.transactions.length > 0) {
+      transactions = built.transactions;
+      swapStyle = built.style;
+      transaction = built.transactions[0];
+    } else {
+      transaction = {
+        ...buildProbeTransaction(from, chainId, oppRow.id, opp.netUsdt),
+        description: `Swap build failed (${built.error ?? "unknown"}). Falling back to probe attestation.`,
+      };
+    }
   }
 
   await db
@@ -128,6 +151,10 @@ export async function runLivePrepare(
         liveStatus: "pending_signature",
         fromAddress: from,
         transaction,
+        transactions,
+        swapStyle,
+        txMode,
+        signStep: 0,
       },
     })
     .where(eq(opportunities.id, oppRow.id));
@@ -136,8 +163,71 @@ export async function runLivePrepare(
     awaitingSignature: true,
     opportunityId: oppRow.id,
     transaction,
+    transactions,
+    step: 1,
+    totalSteps: transactions?.length ?? 1,
+    swapStyle,
     opportunity: opp,
   };
+}
+
+/** Next unsigned tx after user completed on-chain step (e.g. approve → swap). */
+export async function getLiveSignStep(
+  accountId: string,
+  opportunityId: string,
+): Promise<
+  | { done: false; transaction: UnsignedLiveTransaction; step: number; totalSteps: number }
+  | { done: true; reason: string }
+> {
+  const db = getDb();
+  const row = await db.query.opportunities.findFirst({ where: eq(opportunities.id, opportunityId) });
+  if (!row || row.accountId !== accountId) {
+    return { done: true, reason: "not found" };
+  }
+  const payload = (row.payload ?? {}) as {
+    transactions?: UnsignedLiveTransaction[];
+    signStep?: number;
+    liveStatus?: string;
+  };
+  if (payload.liveStatus === "confirmed") {
+    return { done: true, reason: "already confirmed" };
+  }
+  const txs = payload.transactions;
+  if (!txs?.length) {
+    return { done: true, reason: "single-step only" };
+  }
+  const nextIndex = payload.signStep ?? 0;
+  if (nextIndex >= txs.length) {
+    return { done: true, reason: "awaiting confirm" };
+  }
+  return {
+    done: false,
+    transaction: txs[nextIndex],
+    step: nextIndex + 1,
+    totalSteps: txs.length,
+  };
+}
+
+export async function advanceLiveSignStep(
+  accountId: string,
+  opportunityId: string,
+  txHash: string,
+): Promise<void> {
+  const db = getDb();
+  const row = await db.query.opportunities.findFirst({ where: eq(opportunities.id, opportunityId) });
+  if (!row || row.accountId !== accountId) return;
+  const payload = (row.payload ?? {}) as Record<string, unknown>;
+  const step = (payload.signStep as number | undefined) ?? 0;
+  await db
+    .update(opportunities)
+    .set({
+      payload: {
+        ...payload,
+        signStep: step + 1,
+        stepTxHashes: [...((payload.stepTxHashes as string[] | undefined) ?? []), txHash],
+      },
+    })
+    .where(eq(opportunities.id, opportunityId));
 }
 
 export async function confirmLiveExecution(input: {
@@ -176,6 +266,15 @@ export async function confirmLiveExecution(input: {
   const tx = await client.getTransaction({ hash: input.txHash as `0x${string}` });
   if (tx.from.toLowerCase() !== input.fromAddress.toLowerCase()) {
     return { ok: false, error: "Signer mismatch" };
+  }
+
+  const txMode = (payload.txMode as string | undefined) ?? "probe";
+  if (txMode === "swap") {
+    const allowed = allowedSwapTargets(chainId);
+    const to = tx.to?.toLowerCase();
+    if (!to || !allowed.has(to)) {
+      return { ok: false, error: "Transaction target is not an allowlisted DEX contract" };
+    }
   }
 
   const account = await db.query.accounts.findFirst({ where: eq(accounts.id, input.accountId) });

@@ -11,9 +11,17 @@
 | Env | Default |
 |-----|---------|
 | `AGENTRA_LIVE_CHAIN_ID` | `11155111` (Sepolia) |
-| `AGENTRA_LIVE_TX_MODE` | `probe` (0-value attestation self-call) |
+| `AGENTRA_LIVE_TX_MODE` | `probe` (attestation) or `swap` (Uniswap calldata) |
+| `AGENTRA_LIVE_SWAP_STYLE` | `wrap` (ETH→WETH) or `uniswap` (USDC approve + exactInputSingle) |
+| `AGENTRA_SWAP_ROUTER` | Optional override for SwapRouter02 address |
 
-`probe` mode proves the signing pipeline without swapping tokens. Set `AGENTRA_LIVE_TX_MODE=swap` when router addresses are configured for production arb.
+### Swap mode
+
+- **Sepolia default style `wrap`:** one tx to WETH9 `deposit()` with small ETH value (`AGENTRA_LIVE_MAX_ETH_SWAP`, default 0.002 ETH).
+- **Style `uniswap`:** two txs — ERC-20 `approve` on USDC, then SwapRouter02 `exactInputSingle` (USDC→WETH). Requires USDC balance on the wallet.
+- **Allowlist:** confirm rejects txs whose `to` is not router/WETH/USDC for the configured chain.
+
+`probe` mode remains available for pipeline testing without DEX interaction.
 
 ## User flow
 

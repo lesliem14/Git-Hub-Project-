@@ -25,6 +25,10 @@ export async function POST(request: Request) {
         awaitingSignature: true,
         opportunityId: live.opportunityId,
         transaction: live.transaction,
+        transactions: live.transactions,
+        step: live.step,
+        totalSteps: live.totalSteps,
+        swapStyle: live.swapStyle,
         opportunity: live.opportunity,
       });
     }
