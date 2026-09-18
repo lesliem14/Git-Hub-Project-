@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { isAdminSession } from "@/lib/admin-session";
+import { isDatabaseConfigured } from "@/lib/db";
 import { settlementBatch } from "@/lib/mock-data";
 import { verifySettlementAgainstLedger } from "@/lib/ledger";
+import { verifySettlementLines } from "@/server/settlement-service";
 
 export async function POST(request: Request) {
   if (!(await isAdminSession())) {
@@ -11,6 +13,18 @@ export async function POST(request: Request) {
   const { ids } = (await request.json()) as { ids?: string[] };
   if (!ids?.length) {
     return NextResponse.json({ error: "No lines selected" }, { status: 400 });
+  }
+
+  if (isDatabaseConfigured()) {
+    try {
+      const verifiedIds = await verifySettlementLines(ids);
+      return NextResponse.json({
+        verifiedIds,
+        message: `Verified ${verifiedIds.length} of ${ids.length} lines against PostgreSQL ledger.`,
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   const verifiedIds: string[] = [];
@@ -26,6 +40,6 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     verifiedIds,
-    message: `Verified ${verifiedIds.length} of ${ids.length} lines against ledger rules.`,
+    message: `Verified ${verifiedIds.length} of ${ids.length} lines (mock ledger).`,
   });
 }

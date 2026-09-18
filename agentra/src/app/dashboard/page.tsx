@@ -5,16 +5,10 @@ import { StatCard } from "@/components/StatCard";
 import { TradeLockBanner } from "@/components/TradeLockBanner";
 import { UserSettlementCard } from "@/components/UserSettlementCard";
 import { WalletConnectPanel } from "@/components/WalletConnectPanel";
-import {
-  demoActiveTrade,
-  demoLedger,
-  demoMetrics,
-  demoUser,
-  getUserSettlement,
-  strategies,
-} from "@/lib/mock-data";
+import { strategies } from "@/lib/mock-data";
 import { LICENSE_FEE_USDT, PERFORMANCE_FEE_RATE } from "@/lib/constants";
 import { formatUsdt } from "@/lib/utils";
+import { getDashboardPayload } from "@/server/dashboard-data";
 import {
   Activity,
   ArrowDownRight,
@@ -23,9 +17,9 @@ import {
   Wallet,
 } from "lucide-react";
 
-export default function DashboardPage() {
-  const m = demoMetrics;
-  const settlement = getUserSettlement(demoUser.id);
+export default async function DashboardPage() {
+  const data = await getDashboardPayload();
+  const { user, ledger, metrics: m, activeTrade, settlement, source } = data;
 
   return (
     <div className="space-y-6 pb-4">
@@ -34,13 +28,18 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="text-sm text-slate-600">
-          {demoUser.username} · License {demoUser.licenseActivated ? "active" : "inactive"} (
+          {user.username} · License {user.licenseActivated ? "active" : "inactive"} (
           {formatUsdt(LICENSE_FEE_USDT)} USDT credit, non-withdrawable)
+          {source === "database" && (
+            <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+              Live ledger
+            </span>
+          )}
         </p>
       </header>
 
       <CycleBanner />
-      <TradeLockBanner trade={demoActiveTrade} />
+      {activeTrade && <TradeLockBanner trade={activeTrade} />}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total balance" value={m.portfolioUsdt} suffix="USDT" icon={Wallet} />
@@ -66,7 +65,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      <LedgerOverview ledger={demoLedger} />
+      <LedgerOverview ledger={ledger} />
       {settlement && <UserSettlementCard line={settlement} />}
 
       <WalletConnectPanel />
@@ -82,7 +81,7 @@ export default function DashboardPage() {
           <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-3">
             {[
               ["Capital allocated", formatUsdt(m.capitalAllocatedUsdt) + " USDT"],
-              ["Locked in trade", formatUsdt(demoLedger.lockedInTradeUsdt) + " USDT"],
+              ["Locked in trade", formatUsdt(ledger.lockedInTradeUsdt) + " USDT"],
               ["Opportunities detected", m.opportunitiesDetected.toString()],
               ["Trades executed", m.tradesExecuted.toString()],
               ["Gross P&L", formatUsdt(m.grossPnlUsdt) + " USDT"],

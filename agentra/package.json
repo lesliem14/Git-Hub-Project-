@@ -6,19 +6,27 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:up": "docker compose -f ../docker-compose.yml up -d postgres",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:setup": "npm run db:up && sleep 3 && npm run db:migrate && npm run db:seed"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.103.1",
     "@wagmi/connectors": "^8.2.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
+    "dotenv": "^18.0.0",
+    "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.47.0",
     "next": "15.5.25",
+    "postgres": "^3.4.9",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "recharts": "^3.10.1",
     "tailwind-merge": "^3.7.0",
+    "tronweb": "^6.5.1",
     "viem": "^2.56.8",
     "wagmi": "^3.7.7"
   },
@@ -28,9 +36,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "15.5.25",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }

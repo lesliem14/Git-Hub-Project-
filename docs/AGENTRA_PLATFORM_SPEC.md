@@ -241,7 +241,9 @@ See in-app `/legal/risk`. No promised returns. Show gross/net/fees transparently
 - ✅ User dashboard: ledger, 2h trade lock, personal 24h settlement line, performance fee display
 - ✅ Admin treasury: `/admin/treasury` (login + bulk verify/payout UI)
 - ✅ $100 license, subscription-only referrals, wagmi injected wallet panel, TronLink TRC-20 register
-- ⏳ PostgreSQL ledger, Tron treasury API, Stripe license payment, live trading engine
+- ✅ PostgreSQL schema + services (ledger, settlements, deposits, trade-lock release)
+- ✅ Cron endpoint to close UTC cycle; Tron multi-send adapter (simulated or live key)
+- ⏳ Hosted Postgres in prod, Tron indexer webhook, Stripe, live trading engine
 
 **Confirmed product decisions:**
 
