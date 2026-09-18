@@ -63,7 +63,12 @@ Open **http://localhost:3000**
 2. **Login** at `/login` or use seed: `trader@agentra.local` / `agentra-demo-2024`
 3. Open **Dashboard** — ledger, settlement line, bot controls.
 
-### B. Mock deposit (TRC-20 MVP)
+### B. License (pick one)
+
+- **TRC-20:** Fund → claim `mock_license_100`
+- **Stripe:** set `STRIPE_SECRET_KEY` + webhook to `/api/webhooks/stripe` → Pricing → **Pay with card**
+
+### C. Mock deposit (TRC-20 MVP)
 1. Go to **Fund**.
 2. Claim tx hash: `mock_license_100` (simulates 100 USDT → activates license).
 3. Or `mock_topup_250` for 250 USDT top-up.

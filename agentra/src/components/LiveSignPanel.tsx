@@ -63,10 +63,10 @@ export function LiveSignPanel({ onConfirmed }: { onConfirmed?: () => void }) {
       });
       setMsg(
         data.swapStyle === "uniswap"
-          ? "Multi-step: approve USDC, then swap (needs USDC on wallet)"
+          ? "Simulated OK · Multi-step: approve USDC, then swap"
           : data.swapStyle === "wrap"
-            ? "Sign to wrap ETH → WETH (native ETH sent as tx value)"
-            : "Review and sign in your wallet",
+            ? "Simulated OK · Sign to wrap ETH → WETH"
+            : "Simulated OK · Review and sign in your wallet",
       );
       return;
     }

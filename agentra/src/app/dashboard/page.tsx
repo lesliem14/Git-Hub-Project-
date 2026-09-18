@@ -4,6 +4,7 @@ import { LedgerOverview } from "@/components/LedgerOverview";
 import { StatCard } from "@/components/StatCard";
 import { TradeLockBanner } from "@/components/TradeLockBanner";
 import { UserSettlementCard } from "@/components/UserSettlementCard";
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { ExecutionsTable } from "@/components/ExecutionsTable";
 import { LiveFeedPanel } from "@/components/LiveFeedPanel";
 import { WalletConnectPanel } from "@/components/WalletConnectPanel";
@@ -44,6 +45,7 @@ export default async function DashboardPage() {
         </p>
       </header>
 
+      <OnboardingChecklist />
       <CycleBanner />
       {activeTrade && <TradeLockBanner trade={activeTrade} />}
 

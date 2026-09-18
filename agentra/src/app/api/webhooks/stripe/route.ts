@@ -1,50 +1,65 @@
 import { NextResponse } from "next/server";
 import { getDb, isDatabaseConfigured } from "@/lib/db";
-import { stripeWebhookEvents, accounts, subscriptions } from "../../../../../drizzle/schema";
-import { eq } from "drizzle-orm";
-import { LICENSE_FEE_USDT } from "@/lib/constants";
+import { stripeWebhookEvents } from "../../../../../drizzle/schema";
+import { constructStripeEvent } from "@/server/stripe-service";
+import { activateSoftwareLicense } from "@/server/licensing-activate";
 
-/**
- * Stripe webhook stub — verify signature with STRIPE_WEBHOOK_SECRET in production.
- * MVP primary path: USDT TRC-20 license claim on /fund.
- */
 export async function POST(request: Request) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
   const body = await request.text();
-  let event: { id?: string; type?: string; data?: { object?: Record<string, unknown> } };
-  try {
-    event = JSON.parse(body) as typeof event;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  const sig = request.headers.get("stripe-signature");
+
+  let eventId: string;
+  let eventType: string;
+  let accountId: string | undefined;
+  let customerId: string | undefined;
+
+  if (sig && process.env.STRIPE_WEBHOOK_SECRET) {
+    const event = constructStripeEvent(body, sig);
+    if (!event) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+    }
+    eventId = event.id;
+    eventType = event.type;
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as {
+        metadata?: { accountId?: string };
+        client_reference_id?: string;
+        customer?: string;
+      };
+      accountId = session.metadata?.accountId ?? session.client_reference_id ?? undefined;
+      customerId = typeof session.customer === "string" ? session.customer : undefined;
+    }
+  } else {
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json({ error: "Webhook signature required" }, { status: 401 });
+    }
+    let parsed: { id?: string; type?: string; data?: { object?: Record<string, unknown> } };
+    try {
+      parsed = JSON.parse(body) as typeof parsed;
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
+    eventId = parsed.id ?? `dev_${Date.now()}`;
+    eventType = parsed.type ?? "unknown";
+    if (parsed.type === "checkout.session.completed") {
+      const meta = parsed.data?.object?.metadata as { accountId?: string } | undefined;
+      accountId = meta?.accountId ?? (parsed.data?.object?.client_reference_id as string | undefined);
+    }
   }
 
-  if (secret && request.headers.get("stripe-signature")) {
-    // Production: stripe.webhooks.constructEvent(body, sig, secret)
-  } else if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Webhook signature required" }, { status: 401 });
-  }
-
-  if (!isDatabaseConfigured() || !event.id) {
+  if (!isDatabaseConfigured()) {
     return NextResponse.json({ received: true, mode: "noop" });
   }
 
   const db = getDb();
   await db
     .insert(stripeWebhookEvents)
-    .values({ id: event.id, type: event.type ?? "unknown", payload: event as object })
+    .values({ id: eventId, type: eventType, payload: JSON.parse(body) as object })
     .onConflictDoNothing();
 
-  if (event.type === "checkout.session.completed") {
-    const meta = event.data?.object?.metadata as { accountId?: string } | undefined;
-    const accountId = meta?.accountId;
-    if (accountId) {
-      await db.update(accounts).set({ licenseActivated: true }).where(eq(accounts.id, accountId));
-      await db.insert(subscriptions).values({ accountId, tier: "licensed", status: "active" });
-    }
+  if (eventType === "checkout.session.completed" && accountId) {
+    await activateSoftwareLicense(accountId, "stripe", customerId);
   }
 
-  return NextResponse.json({
-    received: true,
-    note: `License fee reference: ${LICENSE_FEE_USDT} USDT TRC-20 on /fund for MVP`,
-  });
+  return NextResponse.json({ received: true, activated: Boolean(accountId) });
 }

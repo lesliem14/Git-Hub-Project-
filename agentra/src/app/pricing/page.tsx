@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PricingCheckout } from "@/components/PricingCheckout";
 import { LICENSE_FEE_USDT, PERFORMANCE_FEE_RATE } from "@/lib/constants";
 import { formatUsdt } from "@/lib/utils";
 
@@ -25,12 +25,7 @@ export default function PricingPage() {
           <li>· Dashboard, analytics, 24h settlement reporting</li>
           <li>· {formatUsdt(LICENSE_FEE_USDT)} USDT account credit for trading (non-withdrawable)</li>
         </ul>
-        <Link
-          href="/fund"
-          className="mt-8 flex w-full items-center justify-center rounded-xl bg-teal-700 py-3 text-sm font-semibold text-white hover:bg-teal-800"
-        >
-          Activate license
-        </Link>
+        <PricingCheckout />
       </div>
 
       <div className="mx-auto max-w-lg rounded-2xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm text-slate-600">

@@ -15,6 +15,7 @@ import { getLiveChainId, getLiveRpcUrl, getLiveTxMode } from "@/lib/live-chain";
 import { requireActiveLicense } from "../licensing-service";
 import { evaluateOpportunity, num } from "./tick-shared";
 import { allowedSwapTargets, buildSwapTransactions } from "./swap-build";
+import { simulateUnsignedTransaction } from "./tx-simulate";
 
 export interface UnsignedLiveTransaction {
   chainId: number;
@@ -143,6 +144,20 @@ export async function runLivePrepare(
     }
   }
 
+  const sim = await simulateUnsignedTransaction(from, transaction);
+  if (!sim.ok) {
+    return { awaitingSignature: false, reason: sim.error };
+  }
+
+  if (transactions?.length) {
+    for (const t of transactions) {
+      const stepSim = await simulateUnsignedTransaction(from, t);
+      if (!stepSim.ok) {
+        return { awaitingSignature: false, reason: stepSim.error };
+      }
+    }
+  }
+
   await db
     .update(opportunities)
     .set({
@@ -155,6 +170,7 @@ export async function runLivePrepare(
         swapStyle,
         txMode,
         signStep: 0,
+        simulated: true,
       },
     })
     .where(eq(opportunities.id, oppRow.id));
