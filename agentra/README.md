@@ -42,3 +42,18 @@ AGENTRA_ADMIN_TOKEN=long-random-token
 Default dev password: `agentra-admin-dev` · token: `dev-admin-token-change-in-production`
 
 Flow: **Verify ledger** on selected rows → **Pay selected** (mock Tron tx until treasury API is wired).
+
+### Tron deposit indexer (auto-confirm)
+
+```bash
+curl -X POST http://localhost:3000/api/cron/index-tron-deposits \
+  -H "Authorization: Bearer $CRON_SECRET"
+```
+
+Runs TronGrid scan on each user’s assigned `deposit_address_trc20`, credits license ($100) or top-up.
+
+### User auth
+
+- Register: `/register` · Login: `/login`
+- Demo (after seed): `trader@agentra.local` / `agentra-demo-2024`
+- Dashboard requires session when `DATABASE_URL` is set.

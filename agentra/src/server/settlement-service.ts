@@ -10,7 +10,10 @@ import {
   users,
 } from "../../drizzle/schema";
 import { getCurrentCycle } from "@/lib/cycle";
-import { computePerformanceFee, computeSettlementTotal } from "@/lib/ledger";
+import {
+  computePerformanceFeeOnTradingProfit,
+  computeSettlementTotal,
+} from "@/lib/ledger";
 import { LICENSE_FEE_USDT, REFERRAL_TIERS } from "@/lib/constants";
 import type { SettlementLine } from "@/lib/types";
 import { getDb } from "@/lib/db";
@@ -118,7 +121,7 @@ export async function closeSettlementCycle(): Promise<{ cycleId: string; lines: 
       );
     const referralTotal = referralSum.reduce((s, e) => s + num(e.commissionUsdt), 0);
     const tradingNet = pending;
-    const performanceFeeUsdt = computePerformanceFee(tradingNet);
+    const performanceFeeUsdt = computePerformanceFeeOnTradingProfit(tradingNet);
     const totalDueUsdt = computeSettlementTotal({
       userId: row.account.id,
       displayName: row.user.username ?? "user",
@@ -257,6 +260,16 @@ export async function applyReferralCommissionsOnLicense(
       commissionUsdt: String(commission),
       cycleId,
     });
+    const beneficiaryLedger = await db.query.ledgerAccounts.findFirst({
+      where: eq(ledgerAccounts.accountId, currentId),
+    });
+    if (beneficiaryLedger) {
+      const pending = num(beneficiaryLedger.pendingWithdrawableUsdt) + commission;
+      await db
+        .update(ledgerAccounts)
+        .set({ pendingWithdrawableUsdt: String(pending), updatedAt: new Date() })
+        .where(eq(ledgerAccounts.accountId, currentId));
+    }
     const upline: { referredByAccountId: string | null } | undefined =
       await db.query.accounts.findFirst({ where: eq(accounts.id, currentId) });
     currentId = upline?.referredByAccountId ?? null;

@@ -1,27 +1,42 @@
 import { PERFORMANCE_FEE_RATE } from "./constants";
 import type { SettlementLine } from "./types";
 
-/** Recompute total due after ledger verification (both profit + referral payouts). */
+/**
+ * Payout formula:
+ *   total = tradingNet + referralCommissionsFromDownline − performanceFee − platformFees + adjustments
+ *
+ * Performance fee (10% MVP) applies **only** to the user's own positive trading net — not to
+ * referral license commissions earned from their downline.
+ */
 export function computeSettlementTotal(line: Omit<SettlementLine, "totalDueUsdt" | "id">): number {
+  const performanceFee = computePerformanceFeeOnTradingProfit(line.tradingNetUsdt);
   const afterFees =
     line.tradingNetUsdt +
     line.referralCommissionsUsdt -
-    line.performanceFeeUsdt -
+    performanceFee -
     line.platformFeesUsdt +
     line.adjustmentsUsdt;
   return Math.max(0, Math.round(afterFees * 100) / 100);
 }
 
-export function computePerformanceFee(tradingNetUsdt: number): number {
+/** 10% on own trading profit only; zero if no positive trading net. */
+export function computePerformanceFeeOnTradingProfit(tradingNetUsdt: number): number {
   if (tradingNetUsdt <= 0) return 0;
   return Math.round(tradingNetUsdt * PERFORMANCE_FEE_RATE * 100) / 100;
 }
+
+/** @deprecated use computePerformanceFeeOnTradingProfit */
+export const computePerformanceFee = computePerformanceFeeOnTradingProfit;
 
 export function verifySettlementAgainstLedger(
   line: SettlementLine,
   ledgerAvailable: number,
 ): { ok: boolean; message: string } {
-  const expected = computeSettlementTotal(line);
+  const expectedPerf = computePerformanceFeeOnTradingProfit(line.tradingNetUsdt);
+  const expected = computeSettlementTotal({ ...line, performanceFeeUsdt: expectedPerf });
+  if (Math.abs(expectedPerf - line.performanceFeeUsdt) > 0.02) {
+    return { ok: false, message: "Performance fee must apply to trading profit only." };
+  }
   if (Math.abs(expected - line.totalDueUsdt) > 0.02) {
     return { ok: false, message: "Line total does not match ledger formula." };
   }

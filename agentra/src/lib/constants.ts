@@ -18,3 +18,5 @@ export const REFERRAL_TIERS = [
 export const ADMIN_SESSION_COOKIE = "agentra_admin_session";
 
 export const DEMO_ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
+
+export const USER_SESSION_COOKIE = "agentra_user_session";

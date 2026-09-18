@@ -45,10 +45,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
           <div className="flex items-center gap-2">
             <Link
+              href="/login"
+              className="hidden rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 sm:inline-flex"
+            >
+              Sign in
+            </Link>
+            <Link
               href="/dashboard"
               className="hidden rounded-lg bg-teal-700 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-800 sm:inline-flex"
             >
-              Open app
+              Dashboard
             </Link>
             <button
               type="button"

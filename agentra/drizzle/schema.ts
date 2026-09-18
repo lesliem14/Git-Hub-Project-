@@ -22,6 +22,7 @@ export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
   username: text("username").unique(),
+  passwordHash: text("password_hash"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -32,6 +33,8 @@ export const accounts = pgTable("accounts", {
     .references(() => users.id),
   evmAddress: text("evm_address"),
   usdtTrc20Payout: text("usdt_trc20_payout"),
+  /** Unique Agentra-assigned TRC-20 address watched by the deposit indexer */
+  depositAddressTrc20: text("deposit_address_trc20"),
   referralCode: text("referral_code").unique(),
   referredByAccountId: uuid("referred_by_account_id"),
   licenseActivated: boolean("license_activated").default(false).notNull(),
@@ -129,6 +132,18 @@ export const referralEvents = pgTable("referral_events", {
   commissionUsdt: numeric("commission_usdt", { precision: 24, scale: 8 }).notNull(),
   cycleId: text("cycle_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const depositAddressPool = pgTable("deposit_address_pool", {
+  address: text("address").primaryKey(),
+  accountId: uuid("account_id").references(() => accounts.id),
+  assignedAt: timestamp("assigned_at", { withTimezone: true }),
+});
+
+export const indexerCursors = pgTable("indexer_cursors", {
+  address: text("address").primaryKey(),
+  lastSeenMs: numeric("last_seen_ms", { precision: 20, scale: 0 }).default("0").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const auditLogs = pgTable("audit_logs", {

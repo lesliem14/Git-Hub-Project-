@@ -8,6 +8,7 @@ import { WalletConnectPanel } from "@/components/WalletConnectPanel";
 import { strategies } from "@/lib/mock-data";
 import { LICENSE_FEE_USDT, PERFORMANCE_FEE_RATE } from "@/lib/constants";
 import { formatUsdt } from "@/lib/utils";
+import { redirect } from "next/navigation";
 import { getDashboardPayload } from "@/server/dashboard-data";
 import {
   Activity,
@@ -19,6 +20,9 @@ import {
 
 export default async function DashboardPage() {
   const data = await getDashboardPayload();
+  if (data.source === "unauthenticated") {
+    redirect("/login");
+  }
   const { user, ledger, metrics: m, activeTrade, settlement, source } = data;
 
   return (

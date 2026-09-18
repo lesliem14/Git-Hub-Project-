@@ -9,15 +9,14 @@ import {
   settlementBatch,
 } from "@/lib/mock-data";
 import { isDatabaseConfigured, getDb } from "@/lib/db";
+import { getSessionUser } from "./auth-service";
 import { getUserSettlementLine } from "./settlement-service";
 import type { ActiveTradeLock, InternalLedger, SettlementLine, UserProfile } from "@/lib/types";
-import { DEMO_ACCOUNT_ID } from "@/lib/constants";
-
 function num(v: string | null | undefined): number {
   return v ? parseFloat(v) : 0;
 }
 
-export async function getDashboardPayload(accountId: string = DEMO_ACCOUNT_ID) {
+export async function getDashboardPayload(forcedAccountId?: string) {
   if (!isDatabaseConfigured()) {
     return {
       source: "mock" as const,
@@ -30,6 +29,12 @@ export async function getDashboardPayload(accountId: string = DEMO_ACCOUNT_ID) {
   }
 
   try {
+    const session = await getSessionUser();
+    const accountId = forcedAccountId ?? session?.accountId;
+    if (!accountId) {
+      return { source: "unauthenticated" as const };
+    }
+
     const db = getDb();
     const row = await db
       .select({ account: accounts, user: users, ledger: ledgerAccounts })

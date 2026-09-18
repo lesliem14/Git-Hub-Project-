@@ -14,13 +14,17 @@ export function UserSettlementCard({ line }: { line: SettlementLine }) {
       </h2>
       <p className="mt-1 text-sm text-slate-600">
         Cycle <span className="font-mono">{line.cycleId}</span> · paid to your TRC-20 wallet when
-        the UTC window closes (profit withdrawals + referral commissions).
+        the UTC window closes. Referral amounts are license commissions from your downline;
+        the 10% performance fee applies only to your own trading profit (when positive).
       </p>
 
       <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
         <Item label="Trading net (internal ledger)" value={line.tradingNetUsdt} />
         <Item label="Referral (license commissions)" value={line.referralCommissionsUsdt} positive />
-        <Item label="Performance fee (MVP)" value={-line.performanceFeeUsdt} />
+        <Item
+          label="Performance fee (10% on your trading profit only)"
+          value={-line.performanceFeeUsdt}
+        />
         <Item label="Platform fees" value={-line.platformFeesUsdt} />
       </dl>
 
