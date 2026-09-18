@@ -10,7 +10,9 @@
     "db:up": "docker compose -f ../docker-compose.yml up -d postgres",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "db:setup": "npm run db:up && sleep 3 && npm run db:migrate && npm run db:seed"
+    "db:setup": "npm run db:up && sleep 3 && npm run db:migrate && npm run db:seed",
+    "demo": "bash scripts/demo.sh",
+    "demo:smoke": "bash scripts/demo-smoke.sh"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.103.1",

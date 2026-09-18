@@ -1,5 +1,24 @@
 # Agentra MVP — test in 10 minutes
 
+## One command (recommended)
+
+From **`agentra/`** (Docker running):
+
+```bash
+cd agentra
+npm install
+npm run demo
+```
+
+This will: start Postgres → migrate → seed → start `next dev` (if needed) → run API smoke tests → print login URLs.  
+Leave the terminal open to keep the dev server running; **Ctrl+C** stops the server started by the demo.
+
+Smoke only (server + DB already up):
+
+```bash
+npm run demo:smoke
+```
+
 ## 1. Environment
 
 ```bash
