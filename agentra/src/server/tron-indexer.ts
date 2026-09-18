@@ -1,10 +1,13 @@
 import { eq } from "drizzle-orm";
-import { auditLogs, indexerCursors, treasuryDepositsObserved } from "../../drizzle/schema";
+import { auditLogs, indexerCursors, trc20Deposits, treasuryDepositsObserved } from "../../drizzle/schema";
 import { getDb } from "@/lib/db";
-import { getAgentraTreasuryAddress } from "@/lib/tron-utils";
-
-const USDT_CONTRACT =
-  process.env.TRON_USDT_CONTRACT ?? "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+import {
+  getTronHeaders,
+  getTronFullHost,
+  isUsdtTrc20Contract,
+  treasuryAddressForOps,
+  USDT_TRC20_CONTRACT,
+} from "./tron-grid";
 
 interface TronTrc20Transfer {
   transaction_id: string;
@@ -12,7 +15,7 @@ interface TronTrc20Transfer {
   from: string;
   to: string;
   value: string;
-  token_info?: { symbol?: string; decimals?: string | number };
+  token_info?: { symbol?: string; decimals?: string | number; address?: string };
 }
 
 export interface IndexerResult {
@@ -20,32 +23,8 @@ export interface IndexerResult {
   scanned: number;
   observed: number;
   skipped: number;
+  pages: number;
   errors: string[];
-}
-
-async function fetchTreasuryIncoming(
-  treasuryAddress: string,
-  minTimestampMs: number,
-): Promise<TronTrc20Transfer[]> {
-  const host = process.env.TRON_FULL_HOST ?? "https://api.trongrid.io";
-  const apiKey = process.env.TRON_API_KEY;
-  const url = new URL(`/v1/accounts/${treasuryAddress}/transactions/trc20`, host);
-  url.searchParams.set("limit", "100");
-  url.searchParams.set("contract_address", USDT_CONTRACT);
-  url.searchParams.set("only_to", "true");
-  if (minTimestampMs > 0) {
-    url.searchParams.set("min_timestamp", String(minTimestampMs));
-  }
-
-  const headers: Record<string, string> = { Accept: "application/json" };
-  if (apiKey) headers["TRON-PRO-API-KEY"] = apiKey;
-
-  const res = await fetch(url.toString(), { headers, next: { revalidate: 0 } });
-  if (!res.ok) {
-    throw new Error(`TronGrid ${res.status}: ${await res.text()}`);
-  }
-  const json = (await res.json()) as { data?: TronTrc20Transfer[] };
-  return json.data ?? [];
 }
 
 function parseUsdtAmount(value: string, decimals: number): number {
@@ -54,77 +33,126 @@ function parseUsdtAmount(value: string, decimals: number): number {
   return Number(raw / div) + Number(raw % div) / Number(div);
 }
 
+async function fetchTreasuryIncomingPage(
+  treasuryAddress: string,
+  minTimestampMs: number,
+  fingerprint?: string,
+): Promise<{ data: TronTrc20Transfer[]; fingerprint?: string }> {
+  const host = getTronFullHost();
+  const url = new URL(`/v1/accounts/${treasuryAddress}/transactions/trc20`, host);
+  url.searchParams.set("limit", "200");
+  url.searchParams.set("contract_address", USDT_TRC20_CONTRACT);
+  url.searchParams.set("only_to", "true");
+  url.searchParams.set("order_by", "block_timestamp,asc");
+  if (minTimestampMs > 0) {
+    url.searchParams.set("min_timestamp", String(minTimestampMs));
+  }
+  if (fingerprint) url.searchParams.set("fingerprint", fingerprint);
+
+  const res = await fetch(url.toString(), { headers: getTronHeaders(), next: { revalidate: 0 } });
+  if (!res.ok) {
+    throw new Error(`TronGrid ${res.status}: ${await res.text()}`);
+  }
+  const json = (await res.json()) as {
+    data?: TronTrc20Transfer[];
+    meta?: { fingerprint?: string; links?: { next?: string } };
+  };
+  return { data: json.data ?? [], fingerprint: json.meta?.fingerprint };
+}
+
 /**
- * Index incoming treasury USDT (any sender). Users claim with tx hash on the Fund page.
+ * Index incoming treasury USDT (any sender). Users claim with tx hash on Fund.
  */
 export async function runTronDepositIndexer(): Promise<IndexerResult> {
   const db = getDb();
-  const treasury = getAgentraTreasuryAddress();
+  const treasury = treasuryAddressForOps();
+  if (!treasury) {
+    throw new Error("AGENTRA_TREASURY_TRC20 is not configured");
+  }
 
   const cursor = await db.query.indexerCursors.findFirst({
     where: eq(indexerCursors.address, treasury),
   });
   const minTs = cursor ? Number(cursor.lastSeenMs) : 0;
 
-  const transfers = await fetchTreasuryIncoming(treasury, minTs);
-  let maxTs = minTs;
-
   const result: IndexerResult = {
     treasury,
-    scanned: transfers.length,
+    scanned: 0,
     observed: 0,
     skipped: 0,
+    pages: 0,
     errors: [],
   };
 
-  for (const tx of transfers) {
-    if (tx.block_timestamp > maxTs) maxTs = tx.block_timestamp;
-    if (tx.to !== treasury) {
-      result.skipped += 1;
-      continue;
-    }
-    const symbol = tx.token_info?.symbol?.toUpperCase();
-    if (symbol && symbol !== "USDT") {
-      result.skipped += 1;
-      continue;
-    }
-    const decimals = Number(tx.token_info?.decimals ?? 6);
-    const amount = parseUsdtAmount(tx.value, decimals);
-    if (amount <= 0) {
-      result.skipped += 1;
-      continue;
+  let fingerprint: string | undefined;
+  let maxTs = minTs;
+  const maxPages = parseInt(process.env.AGENTRA_TRON_INDEXER_MAX_PAGES ?? "5", 10);
+
+  for (let page = 0; page < maxPages; page++) {
+    const { data, fingerprint: nextFp } = await fetchTreasuryIncomingPage(treasury, minTs, fingerprint);
+    result.pages += 1;
+    result.scanned += data.length;
+    fingerprint = nextFp;
+
+    for (const tx of data) {
+      if (tx.block_timestamp > maxTs) maxTs = tx.block_timestamp;
+      if (tx.to !== treasury) {
+        result.skipped += 1;
+        continue;
+      }
+      const symbol = tx.token_info?.symbol?.toUpperCase();
+      if (symbol && symbol !== "USDT") {
+        result.skipped += 1;
+        continue;
+      }
+      if (tx.token_info?.address && !isUsdtTrc20Contract(tx.token_info.address)) {
+        result.skipped += 1;
+        continue;
+      }
+      const decimals = Number(tx.token_info?.decimals ?? 6);
+      const amount = parseUsdtAmount(tx.value, decimals);
+      if (amount <= 0) {
+        result.skipped += 1;
+        continue;
+      }
+
+      try {
+        const inserted = await db
+          .insert(treasuryDepositsObserved)
+          .values({
+            txHash: tx.transaction_id,
+            fromAddress: tx.from,
+            amountUsdt: String(amount),
+            blockTimestamp: String(tx.block_timestamp),
+          })
+          .onConflictDoNothing()
+          .returning({ txHash: treasuryDepositsObserved.txHash });
+        if (inserted.length) result.observed += 1;
+        else result.skipped += 1;
+      } catch (e) {
+        result.skipped += 1;
+        result.errors.push(
+          `${tx.transaction_id}: ${e instanceof Error ? e.message : "observe failed"}`,
+        );
+      }
     }
 
-    try {
-      await db
-        .insert(treasuryDepositsObserved)
-        .values({
-          txHash: tx.transaction_id,
-          fromAddress: tx.from,
-          amountUsdt: String(amount),
-          blockTimestamp: String(tx.block_timestamp),
-        })
-        .onConflictDoNothing();
-      result.observed += 1;
-    } catch (e) {
-      result.skipped += 1;
-      result.errors.push(
-        `${tx.transaction_id}: ${e instanceof Error ? e.message : "observe failed"}`,
-      );
-    }
+    if (!data.length || !fingerprint) break;
   }
 
-  await db
-    .insert(indexerCursors)
-    .values({
-      address: treasury,
-      lastSeenMs: String(maxTs),
-      updatedAt: new Date(),
-    })
-    .onConflictDoUpdate({
-      target: indexerCursors.address,
-      set: { lastSeenMs: String(maxTs), updatedAt: new Date() },
-    });
+  if (maxTs > minTs) {
+    await db
+      .insert(indexerCursors)
+      .values({
+        address: treasury,
+        lastSeenMs: String(maxTs),
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: indexerCursors.address,
+        set: { lastSeenMs: String(maxTs), updatedAt: new Date() },
+      });
+  }
 
   await db.insert(auditLogs).values({
     action: "tron_deposit_indexer_run",
@@ -132,4 +160,24 @@ export async function runTronDepositIndexer(): Promise<IndexerResult> {
   });
 
   return result;
+}
+
+/** Recent treasury deposits not yet claimed in trc20_deposits */
+export async function listUnclaimedObservedDeposits(limit = 20) {
+  const db = getDb();
+  const claimed = await db.select({ txHash: trc20Deposits.txHash }).from(trc20Deposits);
+  const claimedSet = claimed.map((c) => c.txHash);
+
+  const rows = await db.select().from(treasuryDepositsObserved).limit(200);
+  const filtered = rows
+    .filter((r) => !claimedSet.includes(r.txHash))
+    .sort((a, b) => Number(b.blockTimestamp) - Number(a.blockTimestamp))
+    .slice(0, limit);
+
+  return filtered.map((r) => ({
+    txHash: r.txHash,
+    fromAddress: r.fromAddress,
+    amountUsdt: parseFloat(r.amountUsdt),
+    blockTimestamp: r.blockTimestamp,
+  }));
 }

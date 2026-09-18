@@ -203,6 +203,22 @@ export async function getUserSettlementLine(
 }
 
 export async function markSettlementLinesProcessing(
+  updates: { lineId: string; txHash?: string }[],
+): Promise<void> {
+  const db = getDb();
+  for (const u of updates) {
+    await db
+      .update(settlementLines)
+      .set({
+        status: "processing",
+        payoutTx: u.txHash ?? null,
+        paidAt: null,
+      })
+      .where(eq(settlementLines.id, u.lineId));
+  }
+}
+
+export async function markSettlementLinesPaid(
   updates: { lineId: string; txHash: string }[],
 ): Promise<void> {
   const db = getDb();
@@ -211,11 +227,22 @@ export async function markSettlementLinesProcessing(
     await db
       .update(settlementLines)
       .set({
-        status: "processing",
+        status: "paid",
         payoutTx: u.txHash,
         paidAt: now,
       })
       .where(eq(settlementLines.id, u.lineId));
+  }
+}
+
+export async function markSettlementLinesFailed(lineIds: string[]): Promise<void> {
+  if (!lineIds.length) return;
+  const db = getDb();
+  for (const id of lineIds) {
+    await db
+      .update(settlementLines)
+      .set({ status: "failed", paidAt: null })
+      .where(eq(settlementLines.id, id));
   }
 }
 

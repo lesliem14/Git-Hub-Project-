@@ -74,7 +74,7 @@ Open **http://localhost:3000**
 3. Or `mock_topup_250` for 250 USDT top-up.
 4. Refresh dashboard — balance updates.
 
-### C. Live wallet signing (Sepolia)
+### D. Live wallet signing (Sepolia)
 
 1. Connect MetaMask (or injected wallet) on Dashboard.
 2. **Switch to live testnet** → **Link wallet for live signing** (sign message).
@@ -83,7 +83,7 @@ Open **http://localhost:3000**
 
 See `docs/LIVE_SIGNING.md`.
 
-### D. Paper trading bot
+### E. Paper trading bot
 1. Dashboard → **Start** bot (paper mode).
 2. Click **Run cycle now** (or cron below).
 3. See trade lock, executions, pending settlement change.
@@ -93,11 +93,11 @@ curl -X POST http://localhost:3000/api/cron/run-engine \
   -H "Authorization: Bearer dev-cron-secret"
 ```
 
-### E. Admin treasury
+### F. Admin treasury
 1. `/admin/login` — password `agentra-admin-dev`
 2. `/admin/treasury` — verify + pay selected (simulated Tron).
 
-### F. Health
+### G. Health
 
 ```bash
 curl http://localhost:3000/api/health
@@ -110,7 +110,8 @@ curl http://localhost:3000/api/health
 | USDT TRC-20 deposits | Mock verify when `AGENTRA_MOCK_TRON=true` |
 | Paper MEV bot | Simulated opportunities + ledger |
 | Live EVM trades | Not enabled (wallet sign post-MVP) |
-| Tron payouts | Simulated in admin unless `TRON_TREASURY_PRIVATE_KEY` set |
+| Tron payouts | Simulated unless `TRON_TREASURY_PRIVATE_KEY` + `AGENTRA_MOCK_TRON=false` |
+| Tron production | See [docs/TRON_PRODUCTION.md](./docs/TRON_PRODUCTION.md) |
 
 ## 6. API smoke script
 

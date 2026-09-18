@@ -1,9 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Copy, Check, AlertTriangle, RefreshCw } from "lucide-react";
 import { LICENSE_FEE_USDT } from "@/lib/constants";
 import { formatUsdt } from "@/lib/utils";
+
+interface ObservedDeposit {
+  txHash: string;
+  fromAddress: string | null;
+  amountUsdt: number;
+  blockTimestamp: string | null;
+}
 
 export default function FundPage() {
   const [copied, setCopied] = useState(false);
@@ -14,19 +21,42 @@ export default function FundPage() {
   const [claimMsg, setClaimMsg] = useState<string | null>(null);
   const [claimErr, setClaimErr] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
+  const [observed, setObserved] = useState<ObservedDeposit[]>([]);
+  const [minConfirmations, setMinConfirmations] = useState(19);
+  const [mockTron, setMockTron] = useState(true);
+  const [refreshingObserved, setRefreshingObserved] = useState(false);
+
+  const loadObserved = useCallback(async () => {
+    setRefreshingObserved(true);
+    const res = await fetch("/api/deposits/observed");
+    setRefreshingObserved(false);
+    if (!res.ok) return;
+    const data = (await res.json()) as {
+      deposits?: ObservedDeposit[];
+      tron?: { minConfirmations?: number; mock?: boolean };
+    };
+    setObserved(data.deposits ?? []);
+    if (data.tron?.minConfirmations) setMinConfirmations(data.tron.minConfirmations);
+    if (typeof data.tron?.mock === "boolean") setMockTron(data.tron.mock);
+  }, []);
 
   useEffect(() => {
     Promise.all([
       fetch("/api/auth/me").then((r) => (r.ok ? r.json() : null)),
       fetch("/api/config/treasury").then((r) => (r.ok ? r.json() : null)),
+      fetch("/api/config/tron").then((r) => (r.ok ? r.json() : null)),
     ])
-      .then(([me, cfg]) => {
+      .then(([me, cfg, tronCfg]) => {
         setUserWallet(me?.userTrc20Wallet ?? me?.usdtPayoutTrc20 ?? null);
         setTreasury(cfg?.treasuryTrc20 ?? null);
+        if (tronCfg?.minConfirmations) setMinConfirmations(tronCfg.minConfirmations);
+        if (typeof tronCfg?.mockTron === "boolean") setMockTron(tronCfg.mockTron);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+
+    void loadObserved();
+  }, [loadObserved]);
 
   const copyTreasury = async () => {
     if (!treasury) return;
@@ -35,25 +65,32 @@ export default function FundPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const claimDeposit = async () => {
+  const claimDeposit = async (hash?: string) => {
+    const h = (hash ?? txHash).trim();
+    if (!h) return;
     setClaiming(true);
     setClaimMsg(null);
     setClaimErr(null);
     const res = await fetch("/api/deposits/claim", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ txHash: txHash.trim() }),
+      body: JSON.stringify({ txHash: h }),
     });
     const data = await res.json();
     setClaiming(false);
     if (!res.ok) {
-      setClaimErr(data.error ?? "Claim failed");
+      const conf =
+        data.confirmations != null && data.requiredConfirmations != null
+          ? ` (${data.confirmations}/${data.requiredConfirmations} confirmations)`
+          : "";
+      setClaimErr(`${data.error ?? "Claim failed"}${conf}`);
       return;
     }
     setClaimMsg(
       `Credited ${formatUsdt(data.creditedUsdt)} USDT (${data.purpose === "license" ? "license activated" : "top-up"}).`,
     );
     setTxHash("");
+    void loadObserved();
   };
 
   return (
@@ -102,8 +139,8 @@ export default function FundPage() {
         <div className="border-t border-stone-100 pt-4">
           <p className="text-sm font-semibold text-slate-900">Claim deposit</p>
           <p className="mt-1 text-xs text-slate-500">
-            After sending, paste the Tron transaction ID (hash). First claim links the deposit to
-            your logged-in account.
+            After sending, paste the Tron transaction ID (hash). Production requires{" "}
+            <strong>{minConfirmations}</strong> block confirmations before credit.
           </p>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <input
@@ -115,7 +152,7 @@ export default function FundPage() {
             <button
               type="button"
               disabled={claiming || !txHash.trim()}
-              onClick={claimDeposit}
+              onClick={() => claimDeposit()}
               className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
             >
               {claiming ? "Verifying…" : "Claim"}
@@ -125,15 +162,66 @@ export default function FundPage() {
           {claimErr && <p className="mt-2 text-sm text-rose-600">{claimErr}</p>}
         </div>
 
+        {mockTron && (
+          <p className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            Dev mode: use mock hashes such as{" "}
+            <code className="font-mono">mock_license_100</code> or{" "}
+            <code className="font-mono">mock_topup_250</code>.
+          </p>
+        )}
+
         <p className="text-xs text-slate-500">
           License: {formatUsdt(LICENSE_FEE_USDT)} USDT non-withdrawable when first deposit ≥
           {formatUsdt(LICENSE_FEE_USDT)}.
         </p>
         <p className="flex items-center gap-2 text-xs text-slate-500">
           <RefreshCw className="h-3.5 w-3.5" />
-          Background indexer logs treasury activity; you still claim with tx hash.
+          Cron indexer logs treasury activity; you still claim with tx hash.
         </p>
       </div>
+
+      {observed.length > 0 && (
+        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-slate-900">Recent unclaimed deposits</p>
+            <button
+              type="button"
+              disabled={refreshingObserved}
+              onClick={() => loadObserved()}
+              className="text-xs font-medium text-teal-700 underline disabled:opacity-50"
+            >
+              Refresh
+            </button>
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Indexed incoming USDT to treasury (first claimer links to their account).
+          </p>
+          <ul className="mt-3 divide-y divide-stone-100">
+            {observed.map((d) => (
+              <li key={d.txHash} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center">
+                <div className="min-w-0 flex-1">
+                  <p className="font-mono text-xs text-slate-800 break-all">{d.txHash}</p>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    {formatUsdt(d.amountUsdt)} USDT
+                    {d.fromAddress ? ` · from ${d.fromAddress.slice(0, 8)}…` : ""}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  disabled={claiming}
+                  onClick={() => {
+                    setTxHash(d.txHash);
+                    void claimDeposit(d.txHash);
+                  }}
+                  className="shrink-0 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-800"
+                >
+                  Claim
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
         <AlertTriangle className="h-5 w-5 shrink-0" />

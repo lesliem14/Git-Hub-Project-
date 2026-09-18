@@ -2,7 +2,10 @@ import { eq } from "drizzle-orm";
 import { trc20Deposits } from "../../drizzle/schema";
 import { getDb } from "@/lib/db";
 import { confirmTrc20Deposit } from "./deposit-service";
-import { verifyTreasuryUsdtDeposit } from "./tron-deposit-verify";
+import {
+  getDepositVerificationDetail,
+  verifyTreasuryUsdtDeposit,
+} from "./tron-deposit-verify";
 
 export async function claimDepositByTxHash(
   accountId: string,
@@ -12,6 +15,8 @@ export async function claimDepositByTxHash(
   purpose?: "license" | "topup";
   credited?: number;
   error?: string;
+  confirmations?: number;
+  requiredConfirmations?: number;
 }> {
   const normalized = txHash.trim();
   if (!normalized) return { ok: false, error: "Transaction hash required" };
@@ -33,10 +38,14 @@ export async function claimDepositByTxHash(
 
   const verified = await verifyTreasuryUsdtDeposit(normalized);
   if (!verified) {
+    const detail = await getDepositVerificationDetail(normalized);
     return {
       ok: false,
       error:
+        detail.error ??
         "Could not verify USDT TRC-20 transfer to Agentra treasury. Check the hash and wait for confirmations.",
+      confirmations: detail.confirmations,
+      requiredConfirmations: detail.required,
     };
   }
 
@@ -46,5 +55,11 @@ export async function claimDepositByTxHash(
     amountUsdt: verified.amountUsdt,
   });
 
-  return { ok: true, purpose: result.purpose, credited: result.credited };
+  return {
+    ok: true,
+    purpose: result.purpose,
+    credited: result.credited,
+    confirmations: verified.confirmations,
+    requiredConfirmations: verified.confirmations,
+  };
 }

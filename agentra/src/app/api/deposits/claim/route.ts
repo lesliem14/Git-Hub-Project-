@@ -26,7 +26,14 @@ export async function POST(request: Request) {
 
   const result = await claimDepositByTxHash(session.accountId, body.txHash);
   if (!result.ok) {
-    return NextResponse.json({ error: result.error }, { status: 400 });
+    return NextResponse.json(
+      {
+        error: result.error,
+        confirmations: result.confirmations,
+        requiredConfirmations: result.requiredConfirmations,
+      },
+      { status: 400 },
+    );
   }
 
   return NextResponse.json({

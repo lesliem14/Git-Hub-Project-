@@ -5,6 +5,8 @@ import { settlementBatch } from "@/lib/mock-data";
 import type { SettlementLine } from "@/lib/types";
 import {
   listSettlementLines,
+  markSettlementLinesFailed,
+  markSettlementLinesPaid,
   markSettlementLinesProcessing,
 } from "@/server/settlement-service";
 import { mapLinesToPayoutItems, sendUsdtTrc20Batch } from "@/server/tron-treasury";
@@ -32,12 +34,15 @@ export async function POST(request: Request) {
         );
       }
 
+      await markSettlementLinesProcessing(lines.map((l) => ({ lineId: l.id })));
+
       const batch = await sendUsdtTrc20Batch(mapLinesToPayoutItems(lines));
-      await markSettlementLinesProcessing(
-        batch.transfers
-          .filter((t) => t.success)
-          .map((t) => ({ lineId: t.lineId, txHash: t.txHash })),
-      );
+
+      const paid = batch.transfers.filter((t) => t.success);
+      const failed = batch.transfers.filter((t) => !t.success);
+
+      await markSettlementLinesPaid(paid.map((t) => ({ lineId: t.lineId, txHash: t.txHash })));
+      await markSettlementLinesFailed(failed.map((t) => t.lineId));
 
       const updated = await listSettlementLines();
       return NextResponse.json({
@@ -60,7 +65,7 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    line.status = "processing";
+    line.status = "paid";
     line.paidAt = now;
     line.txHash = `mock_tron_${line.id.slice(-6)}`;
   }
