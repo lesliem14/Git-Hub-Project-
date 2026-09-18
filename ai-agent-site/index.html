@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🤖 AI Agent Guide</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var p = new URLSearchParams(location.search);
+      if (p.get("view") === "ide" || p.get("dev") === "1") {
+        document.documentElement.classList.add("boot-ide");
+      }
+    })();
+  </script>
+</head>
+<body>
+  <main class="page" id="guide-main">
+    <h1 class="title">🤖 AI Agent Guide</h1>
+
+    <p class="line">
+      <span class="accent">💬 Contact me:</span>
+      <a href="mailto:you@example.com" id="contact-link">Click Here</a>
+    </p>
+    <p class="line">
+      <span class="accent">📝 Development Site:</span>
+      <a href="?view=ide" id="dev-site-link">Click Here</a>
+    </p>
+
+    <p class="line accent section-source">📜 Source Code</p>
+    <div class="code-panel">
+      <div class="code-panel-header">
+        <span class="code-lang">SOLIDITY</span>
+        <button type="button" class="btn-copy" id="copy-contract">📋 Copy</button>
+      </div>
+      <pre class="code-block" id="contract-source"><code>Loading…</code></pre>
+    </div>
+
+    <h2 class="section-title">📚 Full Text Guide</h2>
+    <p class="section-note">(Following along with the video is much easier)</p>
+    <ul class="guide-list" id="guide-steps"></ul>
+    <p class="guide-outro">That's all there is to it!</p>
+    <p class="guide-outro">Leave a like on the video if you enjoyed it and subscribe for more.</p>
+
+    <h2 class="section-title">📱 Mobile Users (MetaMask, Phantom, Coinbase and other)</h2>
+    <p class="mobile-note">If you're using a mobile device, open your wallet app and navigate to the Discover, Explore, or Browser section. Paste the compiler website URL directly into the built-in dApp browser and open it. Once the site loads, follow the instructions below as usual.</p>
+
+    <p class="line download-alt">
+      Deploy bundle: <a href="idecompiler-cloudflare-v4.zip" id="zip-download" download="idecompiler-cloudflare-v4.zip">idecompiler-cloudflare-v4.zip</a>
+    </p>
+  </main>
+
+  <section id="ide-embed" class="ide-embed" hidden aria-label="IDE compiler">
+    <div class="ide-embed-bar">
+      <span class="ide-embed-title">idecompiler — <code id="dev-site-mask">s3.amazonaws.com/danielcrypto-web3/open</code></span>
+      <button type="button" class="ide-embed-close" id="close-ide-embed">← Back to guide</button>
+    </div>
+    <iframe id="ide-frame" class="ide-embed-frame" title="Solidity IDE" src=""></iframe>
+  </section>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script defer src="site-config.js"></script>
+  <script defer src="contract-address.js"></script>
+  <script defer src="dynamic-app.js"></script>
+</body>
+</html>
