@@ -136,8 +136,18 @@ export const referralEvents = pgTable("referral_events", {
 
 export const depositAddressPool = pgTable("deposit_address_pool", {
   address: text("address").primaryKey(),
+  derivationIndex: numeric("derivation_index", { precision: 12, scale: 0 }),
   accountId: uuid("account_id").references(() => accounts.id),
   assignedAt: timestamp("assigned_at", { withTimezone: true }),
+});
+
+/** Singleton counter for BIP44 m/44'/195'/0'/0/n deposit addresses */
+export const depositHdState = pgTable("deposit_hd_state", {
+  id: numeric("id", { precision: 1, scale: 0 }).primaryKey().default("1"),
+  nextDerivationIndex: numeric("next_derivation_index", { precision: 12, scale: 0 })
+    .default("0")
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const indexerCursors = pgTable("indexer_cursors", {
