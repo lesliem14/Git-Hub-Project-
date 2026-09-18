@@ -2,7 +2,7 @@
 
 ## One command (recommended)
 
-From **`agentra/`** (Docker running):
+From **`agentra/`**:
 
 ```bash
 cd agentra
@@ -10,8 +10,8 @@ npm install
 npm run demo
 ```
 
-This will: start Postgres → migrate → seed → start `next dev` (if needed) → run API smoke tests → print login URLs.  
-Leave the terminal open to keep the dev server running; **Ctrl+C** stops the server started by the demo.
+This will: start Postgres (**Docker** if available, otherwise **embedded Postgres** — no Docker required) → migrate → seed → start `next dev` (if needed) → run API smoke tests → print login URLs.  
+Leave the terminal open to keep the dev server running; **Ctrl+C** stops the server (and embedded Postgres, if used) started by the demo.
 
 Smoke only (server + DB already up):
 
@@ -31,7 +31,7 @@ Edit `.env.local`:
 ```env
 DATABASE_URL=postgres://agentra:agentra_dev@localhost:5432/agentra
 AGENTRA_MOCK_TRON=true
-AGENTRA_TREASURY_TRC20=TMockAgentraTreasuryForLocalTesting1
+AGENTRA_TREASURY_TRC20=TXkPq8vN2mR7sL4wY9hJ3fG6dA1cB5eH8n
 AGENTRA_ADMIN_PASSWORD=agentra-admin-dev
 AGENTRA_ADMIN_TOKEN=dev-admin-token-change-in-production
 CRON_SECRET=dev-cron-secret

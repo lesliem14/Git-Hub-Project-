@@ -9,7 +9,7 @@ curl -sf "$BASE/api/health"
 echo
 
 echo "== Treasury config =="
-curl -sf "$BASE/api/config/treasury"
+curl -sf "$BASE/api/config/treasury" || { echo "treasury config failed (check AGENTRA_TREASURY_TRC20)"; exit 1; }
 echo
 
 echo "== Login (seed user) =="
@@ -22,11 +22,11 @@ echo "== Me =="
 curl -sf -b "$COOKIE" "$BASE/api/v1/me" | head -c 500
 echo
 
-echo "== Mock top-up claim (unique hash) =="
-HASH="mock_topup_$(date +%s)"
+echo "== Mock top-up claim =="
+HASH="mock_topup_50_$(date +%s)"
 curl -sf -b "$COOKIE" -X POST "$BASE/api/deposits/claim" \
   -H "Content-Type: application/json" \
-  -d "{\"txHash\":\"$HASH\"}" || echo "(claim skipped)"
+  -d "{\"txHash\":\"$HASH\"}" || echo "(claim skipped — use mock_topup_50)"
 echo
 
 echo "== Bot start + tick =="

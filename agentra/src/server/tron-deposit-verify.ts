@@ -32,9 +32,13 @@ export async function verifyTreasuryUsdtDeposit(
 ): Promise<VerifiedTreasuryDeposit | null> {
   if (process.env.AGENTRA_MOCK_TRON === "true" && txHash.startsWith("mock_")) {
     const treasury =
-      process.env.AGENTRA_TREASURY_TRC20?.trim() ?? "TMockAgentraTreasuryForLocalTesting1";
-    const amountMatch = txHash.match(/_(\d+(?:\.\d+)?)$/);
-    const amountUsdt = amountMatch ? parseFloat(amountMatch[1]) : 100;
+      process.env.AGENTRA_TREASURY_TRC20?.trim() ?? "TXkPq8vN2mR7sL4wY9hJ3fG6dA1cB5eH8n";
+    let amountUsdt = 100;
+    const licenseMatch = txHash.match(/^mock_license_(\d+(?:\.\d+)?)/);
+    const topupMatch = txHash.match(/^mock_topup_(\d{1,4}(?:\.\d+)?)/);
+    if (licenseMatch) amountUsdt = parseFloat(licenseMatch[1]);
+    else if (topupMatch) amountUsdt = parseFloat(topupMatch[1]);
+    else if (txHash.startsWith("mock_topup")) amountUsdt = 250;
     return {
       txHash,
       fromAddress: "TMockSenderWalletForTestingOnly123456",

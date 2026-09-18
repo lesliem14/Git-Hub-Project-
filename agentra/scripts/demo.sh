@@ -11,7 +11,9 @@ BASE="${AGENTRA_BASE_URL:-http://localhost:${PORT}}"
 COOKIE_FILE="${TMPDIR:-/tmp}/agentra-demo-cookies-$$.txt"
 DEV_LOG="${TMPDIR:-/tmp}/agentra-demo-dev.log"
 STARTED_DEV=0
+STARTED_EMBED=0
 DEV_PID=""
+EMBED_PID=""
 
 cleanup() {
   if [ "$STARTED_DEV" = "1" ] && [ -n "$DEV_PID" ] && kill -0 "$DEV_PID" 2>/dev/null; then
@@ -19,6 +21,11 @@ cleanup() {
     echo "Stopping dev server (PID $DEV_PID)…"
     kill "$DEV_PID" 2>/dev/null || true
     wait "$DEV_PID" 2>/dev/null || true
+  fi
+  if [ "${AGENTRA_DEMO_KEEP_PG:-}" != "1" ] && [ "$STARTED_EMBED" = "1" ] && [ -n "$EMBED_PID" ] && kill -0 "$EMBED_PID" 2>/dev/null; then
+    echo "Stopping embedded Postgres (PID $EMBED_PID)…"
+    kill "$EMBED_PID" 2>/dev/null || true
+    wait "$EMBED_PID" 2>/dev/null || true
   fi
   rm -f "$COOKIE_FILE" 2>/dev/null || true
 }
@@ -30,22 +37,11 @@ echo "App: $APP"
 echo "Repo: $ROOT"
 echo ""
 
-if ! command -v docker >/dev/null 2>&1; then
-  echo "ERROR: Docker is required. Install Docker and run again, or follow TESTING.md manually."
-  exit 1
-fi
-
-if ! docker info >/dev/null 2>&1; then
-  echo "ERROR: Docker daemon is not running. Start Docker Desktop (or the docker service) and retry."
-  exit 1
-fi
-
 if [ ! -f .env.local ]; then
   echo "Creating .env.local from .env.example…"
   cp .env.example .env.local
 fi
 
-# Dev defaults for mock TRC-20 MVP
 ensure_env() {
   local key="$1" val="$2"
   if ! grep -q "^${key}=" .env.local 2>/dev/null; then
@@ -53,39 +49,111 @@ ensure_env() {
   fi
 }
 ensure_env "AGENTRA_MOCK_TRON" "true"
-ensure_env "AGENTRA_TREASURY_TRC20" "TMockAgentraTreasuryForLocalTesting1"
+ensure_env "AGENTRA_TREASURY_TRC20" "TXkPq8vN2mR7sL4wY9hJ3fG6dA1cB5eH8n"
 ensure_env "AGENTRA_ADMIN_PASSWORD" "agentra-admin-dev"
 ensure_env "AGENTRA_ADMIN_TOKEN" "dev-admin-token-change-in-production"
 ensure_env "CRON_SECRET" "dev-cron-secret"
 ensure_env "AGENTRA_SESSION_SECRET" "dev-session-secret"
 ensure_env "DATABASE_URL" "postgres://agentra:agentra_dev@localhost:5432/agentra"
 
+# Ensure treasury address is valid Tron base58 (34 chars) for /fund UI
+if grep -q '^AGENTRA_TREASURY_TRC20=TMock' .env.local 2>/dev/null; then
+  sed -i 's|^AGENTRA_TREASURY_TRC20=.*|AGENTRA_TREASURY_TRC20=TXkPq8vN2mR7sL4wY9hJ3fG6dA1cB5eH8n|' .env.local
+fi
+
 set -a
 # shellcheck disable=SC1091
 source .env.local
 set +a
+export AGENTRA_TREASURY_TRC20="${AGENTRA_TREASURY_TRC20:-TXkPq8vN2mR7sL4wY9hJ3fG6dA1cB5eH8n}"
 
-echo "== Starting PostgreSQL (docker compose) =="
-docker compose -f "$ROOT/docker-compose.yml" up -d postgres
-
-echo "== Waiting for Postgres =="
-ready=0
-for _ in $(seq 1 45); do
-  if docker compose -f "$ROOT/docker-compose.yml" exec -T postgres pg_isready -U agentra -d agentra >/dev/null 2>&1; then
-    ready=1
-    break
+start_docker_postgres() {
+  echo "== Starting PostgreSQL (Docker) =="
+  docker compose -f "$ROOT/docker-compose.yml" up -d postgres
+  echo "== Waiting for Postgres =="
+  local ready=0
+  for _ in $(seq 1 45); do
+    if docker compose -f "$ROOT/docker-compose.yml" exec -T postgres pg_isready -U agentra -d agentra >/dev/null 2>&1; then
+      ready=1
+      break
+    fi
+    sleep 1
+  done
+  if [ "$ready" != "1" ]; then
+    echo "ERROR: Docker Postgres did not become ready."
+    return 1
   fi
-  sleep 1
-done
-if [ "$ready" != "1" ]; then
-  echo "ERROR: Postgres did not become ready in time."
-  exit 1
+  export DATABASE_URL="${DATABASE_URL:-postgres://agentra:agentra_dev@localhost:5432/agentra}"
+  echo "Postgres is ready (Docker)."
+}
+
+_embedded_pg_wait() {
+  local ready=0
+  for _ in $(seq 1 120); do
+    if [ -f .agentra-pg.url ]; then
+      ready=1
+      break
+    fi
+    if ! kill -0 "$EMBED_PID" 2>/dev/null; then
+      return 1
+    fi
+    sleep 1
+  done
+  [ "$ready" = "1" ]
+}
+
+_embedded_pg_launch() {
+  rm -f .agentra-pg.pid
+  if [ -f .agentra-pg-data/postmaster.pid ]; then
+    old_pg="$(head -1 .agentra-pg-data/postmaster.pid 2>/dev/null || true)"
+    if [ -n "$old_pg" ] && kill -0 "$old_pg" 2>/dev/null; then
+      kill "$old_pg" 2>/dev/null || true
+      sleep 1
+    fi
+    rm -f .agentra-pg-data/postmaster.pid
+  fi
+  npx tsx scripts/embedded-db.ts >>"${TMPDIR:-/tmp}/agentra-embedded-pg.log" 2>&1 &
+  EMBED_PID=$!
+  STARTED_EMBED=1
+}
+
+start_embedded_postgres() {
+  echo "== Starting PostgreSQL (embedded, no Docker) =="
+  if [ -f .agentra-pg.url ] && [ -f .agentra-pg.pid ] && kill -0 "$(cat .agentra-pg.pid)" 2>/dev/null; then
+    DATABASE_URL="$(cat .agentra-pg.url)"
+    export DATABASE_URL
+    echo "Reusing embedded Postgres (PID $(cat .agentra-pg.pid))."
+    return 0
+  fi
+
+  _embedded_pg_launch
+  if ! _embedded_pg_wait; then
+    echo "Embedded Postgres failed — resetting data directory and retrying once…"
+    kill "$EMBED_PID" 2>/dev/null || true
+    rm -rf .agentra-pg-data .agentra-pg.url .agentra-pg.pid
+    STARTED_EMBED=0
+    _embedded_pg_launch
+    if ! _embedded_pg_wait; then
+      echo "ERROR: embedded Postgres exited. Log:"
+      tail -40 "${TMPDIR:-/tmp}/agentra-embedded-pg.log" || true
+      return 1
+    fi
+  fi
+  DATABASE_URL="$(cat .agentra-pg.url)"
+  export DATABASE_URL
+  echo "Postgres is ready (embedded on ${DATABASE_URL##*@})."
+}
+
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+  start_docker_postgres
+else
+  echo "Docker not available — using embedded PostgreSQL (first run may download binaries)."
+  start_embedded_postgres
 fi
-echo "Postgres is ready."
 
 echo "== Migrate + seed =="
-npm run db:migrate
-npm run db:seed
+DATABASE_URL="$DATABASE_URL" npm run db:migrate
+DATABASE_URL="$DATABASE_URL" npm run db:seed
 
 health_ok() {
   curl -sf "$BASE/api/health" 2>/dev/null | grep -q '"database":"ok"' && \
@@ -93,10 +161,10 @@ health_ok() {
 }
 
 if health_ok; then
-  echo "== Dev server already running at $BASE =="
+  echo "== Dev server already healthy at $BASE =="
 else
   echo "== Starting dev server on port $PORT =="
-  PORT="$PORT" npm run dev >>"$DEV_LOG" 2>&1 &
+  DATABASE_URL="$DATABASE_URL" AGENTRA_TREASURY_TRC20="$AGENTRA_TREASURY_TRC20" PORT="$PORT" npm run dev >>"$DEV_LOG" 2>&1 &
   DEV_PID=$!
   STARTED_DEV=1
   echo "Log: $DEV_LOG"

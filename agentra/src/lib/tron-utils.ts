@@ -8,6 +8,10 @@ export function getAgentraTreasuryAddress(): string {
     throw new Error("AGENTRA_TREASURY_TRC20 is not configured");
   }
   if (!isValidTrc20Address(addr)) {
+    if (process.env.AGENTRA_MOCK_TRON === "true") {
+      console.warn("[agentra] AGENTRA_TREASURY_TRC20 failed validation; using as mock treasury");
+      return addr;
+    }
     throw new Error("AGENTRA_TREASURY_TRC20 is invalid");
   }
   return addr;

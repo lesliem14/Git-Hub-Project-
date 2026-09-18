@@ -32,6 +32,12 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# embedded postgres (npm run demo without Docker)
+.agentra-pg-data/
+.agentra-pg.pid
+.agentra-pg.url
 
 # vercel
 .vercel
