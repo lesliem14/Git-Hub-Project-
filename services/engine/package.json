@@ -1,0 +1,17 @@
+{
+  "name": "@agentra/engine-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/worker.ts",
+    "dev": "tsx watch src/worker.ts"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.13",
+    "typescript": "^5"
+  }
+}

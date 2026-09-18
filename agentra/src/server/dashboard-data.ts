@@ -11,6 +11,8 @@ import {
 import { isDatabaseConfigured, getDb } from "@/lib/db";
 import { getSessionUser } from "./auth-service";
 import { getUserSettlementLine } from "./settlement-service";
+import { getAccountAnalytics } from "./analytics-service";
+import { getCurrentCycle } from "@/lib/cycle";
 import type { ActiveTradeLock, InternalLedger, SettlementLine, UserProfile } from "@/lib/types";
 function num(v: string | null | undefined): number {
   return v ? parseFloat(v) : 0;
@@ -92,6 +94,8 @@ export async function getDashboardPayload(forcedAccountId?: string) {
     }
 
     const settlement: SettlementLine | null = await getUserSettlementLine(accountId);
+    const cycle = getCurrentCycle();
+    const analytics = await getAccountAnalytics(accountId, new Date(cycle.startsAt));
 
     return {
       source: "database" as const,
@@ -99,6 +103,7 @@ export async function getDashboardPayload(forcedAccountId?: string) {
       ledger: ledgerView,
       metrics: {
         ...demoMetrics,
+        ...analytics,
         portfolioUsdt:
           ledgerView.availableUsdt + ledgerView.licenseCreditUsdt + ledgerView.lockedInTradeUsdt,
         capitalAllocatedUsdt: ledgerView.availableUsdt + ledgerView.licenseCreditUsdt,

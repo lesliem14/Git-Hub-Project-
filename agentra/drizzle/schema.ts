@@ -18,6 +18,9 @@ export const settlementStatusEnum = pgEnum("settlement_status", [
   "failed",
 ]);
 
+export const botModeEnum = pgEnum("bot_mode", ["paper", "live"]);
+export const botStatusEnum = pgEnum("bot_status", ["running", "stopped", "paused"]);
+
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
@@ -162,6 +165,62 @@ export const indexerCursors = pgTable("indexer_cursors", {
   address: text("address").primaryKey(),
   lastSeenMs: numeric("last_seen_ms", { precision: 20, scale: 0 }).default("0").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const botConfigs = pgTable("bot_configs", {
+  accountId: uuid("account_id")
+    .primaryKey()
+    .references(() => accounts.id),
+  mode: botModeEnum("mode").default("paper").notNull(),
+  status: botStatusEnum("status").default("stopped").notNull(),
+  riskLevel: text("risk_level").default("balanced").notNull(),
+  maxCapitalUsdt: numeric("max_capital_usdt", { precision: 24, scale: 8 }).default("1000"),
+  maxTradeSizeUsdt: numeric("max_trade_size_usdt", { precision: 24, scale: 8 }).default("100"),
+  maxDailyLossUsdt: numeric("max_daily_loss_usdt", { precision: 24, scale: 8 }).default("50"),
+  minExpectedProfitUsdt: numeric("min_expected_profit_usdt", { precision: 24, scale: 8 }).default(
+    "5",
+  ),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const subscriptions = pgTable("subscriptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  accountId: uuid("account_id")
+    .notNull()
+    .references(() => accounts.id),
+  tier: text("tier").default("licensed").notNull(),
+  status: text("status").default("active").notNull(),
+  stripeCustomerId: text("stripe_customer_id"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const opportunities = pgTable("opportunities", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  accountId: uuid("account_id").references(() => accounts.id),
+  chainId: numeric("chain_id", { precision: 6, scale: 0 }).default("1").notNull(),
+  strategy: text("strategy").notNull(),
+  expectedGrossUsdt: numeric("expected_gross_usdt", { precision: 24, scale: 8 }),
+  expectedNetUsdt: numeric("expected_net_usdt", { precision: 24, scale: 8 }),
+  executeScore: numeric("execute_score", { precision: 5, scale: 4 }),
+  payload: jsonb("payload").default({}).notNull(),
+  detectedAt: timestamp("detected_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const executions = pgTable("executions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  accountId: uuid("account_id")
+    .notNull()
+    .references(() => accounts.id),
+  opportunityId: uuid("opportunity_id").references(() => opportunities.id),
+  mode: botModeEnum("mode").notNull(),
+  strategy: text("strategy").notNull(),
+  grossUsdt: numeric("gross_usdt", { precision: 24, scale: 8 }),
+  gasUsdt: numeric("gas_usdt", { precision: 24, scale: 8 }),
+  feesUsdt: numeric("fees_usdt", { precision: 24, scale: 8 }),
+  netUsdt: numeric("net_usdt", { precision: 24, scale: 8 }),
+  status: text("status").notNull(),
+  txHash: text("tx_hash"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const auditLogs = pgTable("audit_logs", {

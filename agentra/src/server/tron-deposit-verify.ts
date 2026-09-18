@@ -30,6 +30,19 @@ async function trongridHeaders(): Promise<Record<string, string>> {
 export async function verifyTreasuryUsdtDeposit(
   txHash: string,
 ): Promise<VerifiedTreasuryDeposit | null> {
+  if (process.env.AGENTRA_MOCK_TRON === "true" && txHash.startsWith("mock_")) {
+    const treasury =
+      process.env.AGENTRA_TREASURY_TRC20?.trim() ?? "TMockAgentraTreasuryForLocalTesting1";
+    const amountMatch = txHash.match(/_(\d+(?:\.\d+)?)$/);
+    const amountUsdt = amountMatch ? parseFloat(amountMatch[1]) : 100;
+    return {
+      txHash,
+      fromAddress: "TMockSenderWalletForTestingOnly123456",
+      toAddress: treasury,
+      amountUsdt,
+    };
+  }
+
   const treasury = getAgentraTreasuryAddress();
   const host = process.env.TRON_FULL_HOST ?? "https://api.trongrid.io";
   const headers = await trongridHeaders();

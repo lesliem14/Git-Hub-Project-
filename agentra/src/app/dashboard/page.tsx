@@ -4,6 +4,7 @@ import { LedgerOverview } from "@/components/LedgerOverview";
 import { StatCard } from "@/components/StatCard";
 import { TradeLockBanner } from "@/components/TradeLockBanner";
 import { UserSettlementCard } from "@/components/UserSettlementCard";
+import { LiveFeedPanel } from "@/components/LiveFeedPanel";
 import { WalletConnectPanel } from "@/components/WalletConnectPanel";
 import { strategies } from "@/lib/mock-data";
 import { LICENSE_FEE_USDT, PERFORMANCE_FEE_RATE } from "@/lib/constants";
@@ -74,6 +75,24 @@ export default async function DashboardPage() {
 
       <WalletConnectPanel />
       <BotControls />
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        <LiveFeedPanel />
+        <div className="rounded-2xl border border-dashed border-teal-200 bg-teal-50/40 p-4 text-sm text-teal-900">
+          <p className="font-semibold">Quick test (MVP)</p>
+          <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-teal-800">
+            <li>
+              Fund → claim <code className="rounded bg-white px-1">mock_license_100</code>
+            </li>
+            <li>Start bot → Run cycle now</li>
+            <li>
+              Cron:{" "}
+              <code className="rounded bg-white px-1">POST /api/cron/run-engine</code> with Bearer{" "}
+              CRON_SECRET
+            </li>
+          </ol>
+        </div>
+      </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
         <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm lg:col-span-2">
