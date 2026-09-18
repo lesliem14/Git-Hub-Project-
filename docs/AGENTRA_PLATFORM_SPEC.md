@@ -246,7 +246,8 @@ See in-app `/legal/risk`. No promised returns. Show gross/net/fees transparently
 - ✅ API v1 (me, bot start/stop, opportunities, executions, analytics, SSE stream, API keys)
 - ✅ Paper engine uses DEX + gas simulation packages; executor stub for live signing
 - ✅ Stripe webhook stub; rate limits on auth/deposits; referral stats UI
-- ⏳ Hosted Postgres in prod, Tron indexer production, Stripe Checkout UI, live EVM signing
+- ✅ Live EVM signing (link wallet + prepare tx + user sign + on-chain confirm, Sepolia default)
+- ⏳ Hosted Postgres in prod, Tron indexer production, Stripe Checkout UI, mainnet swap calldata
 
 **Confirmed product decisions:**
 

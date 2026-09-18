@@ -9,48 +9,10 @@ import {
 } from "../../../drizzle/schema";
 import { getDb } from "@/lib/db";
 import { TRADE_LOCK_MS } from "@/lib/constants";
-import { scoreOpportunity } from "./risk-engine";
-import { simulateCrossDexArbitrage } from "@agentra/dex-adapters";
-import { estimateSwapGas } from "@agentra/chain-adapters";
 import { requireActiveLicense } from "../licensing-service";
+import { evaluateOpportunity, num, randomOpportunity } from "./tick-shared";
 
-export interface SyntheticOpportunity {
-  strategy: string;
-  grossUsdt: number;
-  gasUsdt: number;
-  feesUsdt: number;
-  netUsdt: number;
-  poolDepthUsdt: number;
-}
-
-async function randomOpportunity(): Promise<SyntheticOpportunity> {
-  const tradeIn = Math.round((Math.random() * 500 + 50) * 100) / 100;
-  const poolDepthUsdt = Math.round(Math.random() * 500000 + 50000);
-  const sim = simulateCrossDexArbitrage({
-    tokenIn: "USDT",
-    tokenOut: "WETH",
-    amountInUsdt: tradeIn,
-    poolLiquidityUsdt: poolDepthUsdt,
-  });
-  const gasEst = await estimateSwapGas(1, "multi-hop");
-  const gross = Math.round(sim.grossUsdt * 100) / 100;
-  const gas = Math.round(gasEst.costUsdt * 100) / 100;
-  const fees = Math.round(sim.feesUsdt * 100) / 100;
-  const net = Math.round((gross - gas - fees) * 100) / 100;
-  const strategies = ["DEX Arbitrage", "Cross-DEX", "Liquidation"] as const;
-  return {
-    strategy: strategies[Math.floor(Math.random() * strategies.length)],
-    grossUsdt: gross,
-    gasUsdt: gas,
-    feesUsdt: fees,
-    netUsdt: net,
-    poolDepthUsdt,
-  };
-}
-
-function num(v: string | null | undefined): number {
-  return v ? parseFloat(v) : 0;
-}
+export { randomOpportunity };
 
 export async function runPaperTick(accountId: string): Promise<{ executed: boolean; reason: string }> {
   const license = await requireActiveLicense(accountId);
@@ -62,18 +24,10 @@ export async function runPaperTick(accountId: string): Promise<{ executed: boole
     return { executed: false, reason: "bot not running" };
   }
   if (bot.mode !== "paper") {
-    return { executed: false, reason: "live mode requires wallet signing (not enabled in MVP demo)" };
+    return { executed: false, reason: "use live tick with connected wallet for live mode" };
   }
 
-  const opp = await randomOpportunity();
-  const minProfit = num(bot.minExpectedProfitUsdt);
-  const maxTrade = num(bot.maxTradeSizeUsdt);
-  const score = scoreOpportunity({
-    netUsdt: opp.netUsdt,
-    minExpectedProfitUsdt: minProfit,
-    poolDepthUsdt: opp.poolDepthUsdt,
-    maxTradeSizeUsdt: maxTrade,
-  });
+  const { opp, score, shouldExecute, reason } = await evaluateOpportunity(bot);
 
   const [oppRow] = await db
     .insert(opportunities)
@@ -87,11 +41,11 @@ export async function runPaperTick(accountId: string): Promise<{ executed: boole
     })
     .returning();
 
-  if (!score.shouldExecute || opp.netUsdt <= minProfit) {
-    return { executed: false, reason: score.reason };
+  if (!shouldExecute) {
+    return { executed: false, reason };
   }
 
-  const tradeSize = Math.min(maxTrade, opp.grossUsdt * 10);
+  const tradeSize = Math.min(num(bot.maxTradeSizeUsdt), opp.grossUsdt * 10);
   const now = new Date();
   const releases = new Date(now.getTime() + TRADE_LOCK_MS);
 
@@ -151,7 +105,7 @@ export async function runEngineForAllAccounts(): Promise<{ accounts: number; exe
   const running = await db.select().from(botConfigs);
   let executed = 0;
   for (const b of running) {
-    if (b.status !== "running") continue;
+    if (b.status !== "running" || b.mode !== "paper") continue;
     const r = await runPaperTick(b.accountId);
     if (r.executed) executed += 1;
   }

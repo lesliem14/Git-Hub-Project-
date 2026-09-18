@@ -11,6 +11,8 @@ const endpoints = [
   ["GET", "/api/v1/settlements/current", "24h settlement line"],
   ["GET", "/api/v1/stream", "SSE — bot status + live feed"],
   ["POST", "/api/deposits/claim", "Claim USDT TRC-20 deposit by tx hash"],
+  ["POST", "/api/v1/account/evm-wallet", "Link EVM wallet (sign message)"],
+  ["POST", "/api/v1/executions/confirm", "Confirm live signed tx on chain"],
 ];
 
 export default function DocsPage() {

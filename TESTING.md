@@ -69,7 +69,16 @@ Open **http://localhost:3000**
 3. Or `mock_topup_250` for 250 USDT top-up.
 4. Refresh dashboard — balance updates.
 
-### C. Paper trading bot
+### C. Live wallet signing (Sepolia)
+
+1. Connect MetaMask (or injected wallet) on Dashboard.
+2. **Switch to live testnet** → **Link wallet for live signing** (sign message).
+3. Bot → **live** → **Start** → **Prepare live opportunity** → approve tx (needs Sepolia ETH).
+4. Execution appears with real `txHash` after confirm.
+
+See `docs/LIVE_SIGNING.md`.
+
+### D. Paper trading bot
 1. Dashboard → **Start** bot (paper mode).
 2. Click **Run cycle now** (or cron below).
 3. See trade lock, executions, pending settlement change.
@@ -79,11 +88,11 @@ curl -X POST http://localhost:3000/api/cron/run-engine \
   -H "Authorization: Bearer dev-cron-secret"
 ```
 
-### D. Admin treasury
+### E. Admin treasury
 1. `/admin/login` — password `agentra-admin-dev`
 2. `/admin/treasury` — verify + pay selected (simulated Tron).
 
-### E. Health
+### F. Health
 
 ```bash
 curl http://localhost:3000/api/health

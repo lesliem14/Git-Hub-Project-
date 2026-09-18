@@ -1,6 +1,8 @@
 "use client";
 
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
+import { useLinkEvmWallet } from "@/hooks/useLinkEvmWallet";
+import { DEFAULT_LIVE_CHAIN_ID } from "@/lib/wagmi-config";
 import { formatUsdt, truncateAddress } from "@/lib/utils";
 import { demoUser } from "@/lib/mock-data";
 import { useCallback, useEffect, useState } from "react";
@@ -29,6 +31,8 @@ export function WalletConnectPanel() {
   const { address, isConnected, connector } = useAccount();
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
+  const { switchChainAsync } = useSwitchChain();
+  const { link, status: linkStatus } = useLinkEvmWallet();
   const [trc20, setTrc20] = useState(demoUser.usdtPayoutWallet);
   const [tronLinked, setTronLinked] = useState(false);
 
@@ -97,14 +101,33 @@ export function WalletConnectPanel() {
           )}
         </p>
         {isConnected && (
-          <button
-            type="button"
-            onClick={() => disconnect()}
-            className="text-xs font-semibold text-rose-700 underline"
-          >
-            Disconnect EVM wallet
-          </button>
+          <div className="flex flex-wrap gap-3 pt-1">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await switchChainAsync({ chainId: DEFAULT_LIVE_CHAIN_ID });
+                } catch {
+                  /* user rejected */
+                }
+              }}
+              className="text-xs font-semibold text-teal-800 underline"
+            >
+              Switch to live testnet ({DEFAULT_LIVE_CHAIN_ID})
+            </button>
+            <button type="button" onClick={() => link()} className="text-xs font-semibold text-violet-800 underline">
+              Link wallet for live signing
+            </button>
+            <button
+              type="button"
+              onClick={() => disconnect()}
+              className="text-xs font-semibold text-rose-700 underline"
+            >
+              Disconnect EVM
+            </button>
+          </div>
         )}
+        {linkStatus && <p className="text-xs text-slate-600">{linkStatus}</p>}
       </div>
 
       <label className="mt-3 block text-xs text-slate-500">
