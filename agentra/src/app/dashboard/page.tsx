@@ -4,6 +4,7 @@ import { LedgerOverview } from "@/components/LedgerOverview";
 import { StatCard } from "@/components/StatCard";
 import { TradeLockBanner } from "@/components/TradeLockBanner";
 import { UserSettlementCard } from "@/components/UserSettlementCard";
+import { ExecutionsTable } from "@/components/ExecutionsTable";
 import { LiveFeedPanel } from "@/components/LiveFeedPanel";
 import { WalletConnectPanel } from "@/components/WalletConnectPanel";
 import { strategies } from "@/lib/mock-data";
@@ -93,6 +94,8 @@ export default async function DashboardPage() {
           </ol>
         </div>
       </div>
+
+      <ExecutionsTable />
 
       <div className="grid gap-3 lg:grid-cols-3">
         <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm lg:col-span-2">

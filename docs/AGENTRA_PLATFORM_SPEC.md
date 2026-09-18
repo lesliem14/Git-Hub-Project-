@@ -243,7 +243,10 @@ See in-app `/legal/risk`. No promised returns. Show gross/net/fees transparently
 - ✅ $100 license, subscription-only referrals, wagmi injected wallet panel, TronLink TRC-20 register
 - ✅ PostgreSQL schema + services (ledger, settlements, deposits, trade-lock release)
 - ✅ Cron endpoint to close UTC cycle; Tron multi-send adapter (simulated or live key)
-- ⏳ Hosted Postgres in prod, Tron indexer webhook, Stripe, live trading engine
+- ✅ API v1 (me, bot start/stop, opportunities, executions, analytics, SSE stream, API keys)
+- ✅ Paper engine uses DEX + gas simulation packages; executor stub for live signing
+- ✅ Stripe webhook stub; rate limits on auth/deposits; referral stats UI
+- ⏳ Hosted Postgres in prod, Tron indexer production, Stripe Checkout UI, live EVM signing
 
 **Confirmed product decisions:**
 

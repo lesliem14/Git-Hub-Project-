@@ -19,7 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@agentra/shared-types": ["../packages/shared-types/src/index.ts"],
+      "@agentra/dex-adapters": ["../packages/dex-adapters/src/index.ts"],
+      "@agentra/chain-adapters": ["../packages/chain-adapters/src/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

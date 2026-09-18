@@ -230,3 +230,24 @@ export const auditLogs = pgTable("audit_logs", {
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const apiKeys = pgTable("api_keys", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  accountId: uuid("account_id")
+    .notNull()
+    .references(() => accounts.id),
+  name: text("name").notNull(),
+  keyPrefix: text("key_prefix").notNull(),
+  keyHash: text("key_hash").notNull().unique(),
+  scopes: text("scopes").array().default(["read", "trade"]).notNull(),
+  lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
+});
+
+export const stripeWebhookEvents = pgTable("stripe_webhook_events", {
+  id: text("id").primaryKey(),
+  type: text("type").notNull(),
+  payload: jsonb("payload").notNull(),
+  processedAt: timestamp("processed_at", { withTimezone: true }).defaultNow().notNull(),
+});

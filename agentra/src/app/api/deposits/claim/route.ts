@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { isDatabaseConfigured } from "@/lib/db";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { getSessionUser } from "@/server/auth-service";
 import { claimDepositByTxHash } from "@/server/deposit-claim";
 
 /** Claim a treasury deposit by tx hash (sender can be any USDT TRC-20 wallet). */
 export async function POST(request: Request) {
+  const rl = rateLimit(`claim:${clientIp(request)}`, 30, 60_000);
+  if (!rl.ok) {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+  }
   if (!isDatabaseConfigured()) {
     return NextResponse.json({ error: "Database required" }, { status: 503 });
   }

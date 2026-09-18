@@ -1,9 +1,8 @@
+import { ReferralDashboard } from "@/components/ReferralDashboard";
 import { REFERRAL_TIERS, LICENSE_FEE_USDT } from "@/lib/constants";
 import { formatUsdt } from "@/lib/utils";
 
 export default function ReferralPage() {
-  const referralLink = "https://app.agentra.network/r/AGT-demo8K2";
-
   return (
     <div className="space-y-6 pb-4">
       <header className="max-w-2xl">
@@ -16,10 +15,7 @@ export default function ReferralPage() {
         </p>
       </header>
 
-      <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-        <p className="text-xs font-semibold uppercase text-slate-500">Your link</p>
-        <p className="mt-2 break-all font-mono text-sm text-teal-800">{referralLink}</p>
-      </div>
+      <ReferralDashboard />
 
       <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">

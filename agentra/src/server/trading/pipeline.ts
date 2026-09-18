@@ -10,6 +10,9 @@ import {
 import { getDb } from "@/lib/db";
 import { TRADE_LOCK_MS } from "@/lib/constants";
 import { scoreOpportunity } from "./risk-engine";
+import { simulateCrossDexArbitrage } from "@agentra/dex-adapters";
+import { estimateSwapGas } from "@agentra/chain-adapters";
+import { requireActiveLicense } from "../licensing-service";
 
 export interface SyntheticOpportunity {
   strategy: string;
@@ -20,18 +23,28 @@ export interface SyntheticOpportunity {
   poolDepthUsdt: number;
 }
 
-function randomOpportunity(): SyntheticOpportunity {
-  const gross = Math.round((Math.random() * 40 + 5) * 100) / 100;
-  const gas = Math.round((Math.random() * 8 + 1) * 100) / 100;
-  const fees = Math.round(gross * 0.003 * 100) / 100;
+async function randomOpportunity(): Promise<SyntheticOpportunity> {
+  const tradeIn = Math.round((Math.random() * 500 + 50) * 100) / 100;
+  const poolDepthUsdt = Math.round(Math.random() * 500000 + 50000);
+  const sim = simulateCrossDexArbitrage({
+    tokenIn: "USDT",
+    tokenOut: "WETH",
+    amountInUsdt: tradeIn,
+    poolLiquidityUsdt: poolDepthUsdt,
+  });
+  const gasEst = await estimateSwapGas(1, "multi-hop");
+  const gross = Math.round(sim.grossUsdt * 100) / 100;
+  const gas = Math.round(gasEst.costUsdt * 100) / 100;
+  const fees = Math.round(sim.feesUsdt * 100) / 100;
   const net = Math.round((gross - gas - fees) * 100) / 100;
+  const strategies = ["DEX Arbitrage", "Cross-DEX", "Liquidation"] as const;
   return {
-    strategy: ["DEX Arbitrage", "Cross-DEX", "Liquidation"][Math.floor(Math.random() * 3)],
+    strategy: strategies[Math.floor(Math.random() * strategies.length)],
     grossUsdt: gross,
     gasUsdt: gas,
     feesUsdt: fees,
     netUsdt: net,
-    poolDepthUsdt: Math.round(Math.random() * 500000 + 50000),
+    poolDepthUsdt,
   };
 }
 
@@ -40,6 +53,9 @@ function num(v: string | null | undefined): number {
 }
 
 export async function runPaperTick(accountId: string): Promise<{ executed: boolean; reason: string }> {
+  const license = await requireActiveLicense(accountId);
+  if (!license.ok) return { executed: false, reason: license.reason };
+
   const db = getDb();
   const bot = await db.query.botConfigs.findFirst({ where: eq(botConfigs.accountId, accountId) });
   if (!bot || bot.status !== "running") {
@@ -49,7 +65,7 @@ export async function runPaperTick(accountId: string): Promise<{ executed: boole
     return { executed: false, reason: "live mode requires wallet signing (not enabled in MVP demo)" };
   }
 
-  const opp = randomOpportunity();
+  const opp = await randomOpportunity();
   const minProfit = num(bot.minExpectedProfitUsdt);
   const maxTrade = num(bot.maxTradeSizeUsdt);
   const score = scoreOpportunity({

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ApiKeysPanel } from "@/components/ApiKeysPanel";
 import { isValidTrc20Address } from "@/lib/tron-utils";
 
 export default function SettingsPage() {
@@ -13,7 +14,8 @@ export default function SettingsPage() {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.usdtPayoutTrc20) setWallet(d.usdtPayoutTrc20);
-        if (d?.user?.username) setReferral(`AGT-${d.user.username}`);
+        if (d?.referralCode) setReferral(d.referralCode);
+        else if (d?.user?.username) setReferral(`AGT-${d.user.username}`);
       });
   }, []);
 
@@ -41,8 +43,9 @@ export default function SettingsPage() {
         </label>
         <button type="button" onClick={save} className="rounded-xl bg-teal-700 px-4 py-2 text-sm font-semibold text-white">Save</button>
         {msg && <p className="text-sm text-slate-600">{msg}</p>}
-        <p className="text-xs text-slate-500">Referral code prefix: {referral || "—"} (full code in Referrals page)</p>
+        <p className="text-xs text-slate-500">Referral code: {referral || "—"}</p>
       </div>
+      <ApiKeysPanel />
     </div>
   );
 }

@@ -16,11 +16,28 @@ export function LiveFeedPanel() {
       const data = (await res.json()) as { events: LiveProfitEvent[] };
       if (!cancelled) setEvents(data.events ?? []);
     };
-    load();
-    const t = setInterval(load, 8000);
+
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource("/api/v1/stream");
+      es.addEventListener("tick", (ev) => {
+        const payload = JSON.parse((ev as MessageEvent).data) as {
+          events?: LiveProfitEvent[];
+        };
+        if (!cancelled && payload.events?.length) setEvents(payload.events);
+      });
+    } catch {
+      load();
+      const t = setInterval(load, 8000);
+      return () => {
+        cancelled = true;
+        clearInterval(t);
+      };
+    }
+
     return () => {
       cancelled = true;
-      clearInterval(t);
+      es?.close();
     };
   }, []);
 
@@ -30,7 +47,7 @@ export function LiveFeedPanel() {
         <Radio className="h-5 w-5 text-teal-700" />
         Live pipeline
       </h2>
-      <p className="mt-1 text-xs text-slate-500">Recent detections & paper fills (polls every 8s)</p>
+      <p className="mt-1 text-xs text-slate-500">Recent detections & paper fills (SSE live stream)</p>
       <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto">
         {events.length === 0 && (
           <li className="text-sm text-slate-500">Start the bot and run a cycle to populate feed.</li>

@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
-import { opportunities } from "../../../../../drizzle/schema";
+import { executions } from "../../../../../drizzle/schema";
 import { getDb, isDatabaseConfigured } from "@/lib/db";
 import { getAuthContext } from "@/server/auth-context";
 
 export async function GET(request: Request) {
   const auth = await getAuthContext(request);
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!isDatabaseConfigured()) {
-    return NextResponse.json({ items: [], source: "mock" });
-  }
+  if (!isDatabaseConfigured()) return NextResponse.json({ items: [] });
 
   const { searchParams } = new URL(request.url);
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "25", 10)));
@@ -17,9 +15,9 @@ export async function GET(request: Request) {
   const db = getDb();
   const items = await db
     .select()
-    .from(opportunities)
-    .where(eq(opportunities.accountId, auth.accountId))
-    .orderBy(desc(opportunities.detectedAt))
+    .from(executions)
+    .where(eq(executions.accountId, auth.accountId))
+    .orderBy(desc(executions.createdAt))
     .limit(limit);
 
   return NextResponse.json({ items, source: "database" });

@@ -54,6 +54,8 @@ cd agentra && npm install && npm run dev
 
 Open **http://localhost:3000**
 
+**API docs:** `/docs` · **Referral link:** `/r/YOUR_CODE` · **SSE:** `/api/v1/stream` (when logged in)
+
 ## 4. Test flows
 
 ### A. Auth + dashboard
