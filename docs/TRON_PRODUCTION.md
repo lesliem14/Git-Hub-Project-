@@ -61,4 +61,4 @@ With `AGENTRA_MOCK_TRON=true`, use mock claim hashes (`mock_license_100`, `mock_
 cd agentra && npm run demo
 ```
 
-See also: [TRON_USER_WALLETS.md](./TRON_USER_WALLETS.md), [TESTING.md](../TESTING.md).
+See also: [DEPLOYMENT.md](./DEPLOYMENT.md), [TRON_USER_WALLETS.md](./TRON_USER_WALLETS.md), [TESTING.md](../TESTING.md).

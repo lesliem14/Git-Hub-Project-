@@ -41,18 +41,24 @@ AGENTRA_ADMIN_TOKEN=long-random-token
 
 Default dev password: `agentra-admin-dev` · token: `dev-admin-token-change-in-production`
 
-Flow: **Verify ledger** on selected rows → **Pay selected** (mock Tron tx until treasury API is wired).
+Flow: **Verify ledger** on selected rows → **Pay selected** (simulated USDT batch unless `TRON_TREASURY_PRIVATE_KEY` + production Tron).
 
-### Tron deposit indexer (auto-confirm)
+### Tron deposits & indexer
+
+Users send USDT TRC-20 to **`AGENTRA_TREASURY_TRC20`**, then **claim by tx hash** on `/fund` (any sender wallet). The indexer observes treasury inflows for the Fund UI and audit.
 
 ```bash
 curl -X POST http://localhost:3000/api/cron/index-tron-deposits \
   -H "Authorization: Bearer $CRON_SECRET"
 ```
 
-Scans **`AGENTRA_TREASURY_TRC20`** for incoming USDT; matches sender to each user’s **own** registered TRC-20 wallet.
+Docs: `docs/TRON_USER_WALLETS.md`, `docs/TRON_PRODUCTION.md`, `docs/DEPLOYMENT.md`.
 
-See `docs/TRON_USER_WALLETS.md`.
+### One-command demo
+
+```bash
+npm run demo
+```
 
 ### User auth
 

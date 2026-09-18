@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import { isDatabaseConfigured } from "@/lib/db";
 import { runTronDepositIndexer } from "@/server/tron-indexer";
+import { assertCronAuth } from "../_shared";
 
-export async function POST(request: Request) {
-  const auth = request.headers.get("authorization");
-  const secret = process.env.CRON_SECRET ?? "dev-cron-secret";
-  if (auth !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+async function handleIndexTronDeposits(request: Request) {
+  const denied = assertCronAuth(request);
+  if (denied) return denied;
 
   if (!isDatabaseConfigured()) {
     return NextResponse.json({ error: "DATABASE_URL not configured" }, { status: 503 });
@@ -15,4 +13,12 @@ export async function POST(request: Request) {
 
   const result = await runTronDepositIndexer();
   return NextResponse.json({ ok: true, ...result });
+}
+
+export async function POST(request: Request) {
+  return handleIndexTronDeposits(request);
+}
+
+export async function GET(request: Request) {
+  return handleIndexTronDeposits(request);
 }

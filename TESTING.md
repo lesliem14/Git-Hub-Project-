@@ -112,6 +112,7 @@ curl http://localhost:3000/api/health
 | Live EVM trades | Not enabled (wallet sign post-MVP) |
 | Tron payouts | Simulated unless `TRON_TREASURY_PRIVATE_KEY` + `AGENTRA_MOCK_TRON=false` |
 | Tron production | See [docs/TRON_PRODUCTION.md](./docs/TRON_PRODUCTION.md) |
+| Deploy | See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) |
 
 ## 6. API smoke script
 

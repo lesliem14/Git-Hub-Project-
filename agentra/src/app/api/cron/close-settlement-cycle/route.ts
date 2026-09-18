@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import { isDatabaseConfigured } from "@/lib/db";
 import { closeSettlementCycle } from "@/server/settlement-service";
+import { assertCronAuth } from "../_shared";
 
-export async function POST(request: Request) {
-  const auth = request.headers.get("authorization");
-  const secret = process.env.CRON_SECRET ?? "dev-cron-secret";
-  if (auth !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+async function handleCloseSettlementCycle(request: Request) {
+  const denied = assertCronAuth(request);
+  if (denied) return denied;
 
   if (!isDatabaseConfigured()) {
     return NextResponse.json(
@@ -22,4 +20,12 @@ export async function POST(request: Request) {
     ...result,
     adminNotify: "Treasury review required at /admin/treasury",
   });
+}
+
+export async function POST(request: Request) {
+  return handleCloseSettlementCycle(request);
+}
+
+export async function GET(request: Request) {
+  return handleCloseSettlementCycle(request);
 }
