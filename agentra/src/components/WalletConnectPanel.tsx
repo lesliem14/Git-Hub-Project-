@@ -57,8 +57,9 @@ export function WalletConnectPanel() {
         Wallets
       </h2>
       <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-        Live trades sign from your <strong>EVM wallet</strong>. USDT <strong>TRC-20</strong> is used
-        for deposits and 24h payouts. We never store seed phrases or private keys.
+        Live trades sign from your <strong>EVM wallet</strong>. Your <strong>own</strong> USDT
+        TRC-20 wallet receives payouts; fund by sending from that wallet to Agentra treasury. No
+        platform mnemonic — you keep custody.
       </p>
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

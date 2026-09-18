@@ -33,7 +33,7 @@ export const accounts = pgTable("accounts", {
     .references(() => users.id),
   evmAddress: text("evm_address"),
   usdtTrc20Payout: text("usdt_trc20_payout"),
-  /** Unique Agentra-assigned TRC-20 address watched by the deposit indexer */
+  /** @deprecated Mirror of user-owned wallet; same as usdtTrc20Payout */
   depositAddressTrc20: text("deposit_address_trc20"),
   referralCode: text("referral_code").unique(),
   referredByAccountId: uuid("referred_by_account_id"),

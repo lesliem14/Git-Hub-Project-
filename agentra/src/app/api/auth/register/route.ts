@@ -15,8 +15,17 @@ export async function POST(request: Request) {
     referralCode?: string;
   };
 
-  if (!body.email || !body.username || !body.password || body.password.length < 8) {
-    return NextResponse.json({ error: "Invalid registration data" }, { status: 400 });
+  if (
+    !body.email ||
+    !body.username ||
+    !body.password ||
+    body.password.length < 8 ||
+    !body.usdtPayoutTrc20
+  ) {
+    return NextResponse.json(
+      { error: "Email, username, password, and your USDT TRC-20 wallet are required" },
+      { status: 400 },
+    );
   }
 
   try {

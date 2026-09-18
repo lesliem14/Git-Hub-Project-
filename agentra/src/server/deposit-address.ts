@@ -1,38 +1,33 @@
-import { eq, isNull } from "drizzle-orm";
-import { accounts, depositAddressPool } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
+import { accounts } from "../../drizzle/schema";
 import { getDb } from "@/lib/db";
-import { isTronHdConfigured, mintNextPoolDepositAddress } from "./tron-hd-wallet";
+import { isValidTrc20Address } from "@/lib/tron-utils";
 
-export async function assignDepositAddress(accountId: string): Promise<string | null> {
-  const db = getDb();
-  const acct = await db.query.accounts.findFirst({ where: eq(accounts.id, accountId) });
-  if (!acct) return null;
-  if (acct.depositAddressTrc20) return acct.depositAddressTrc20;
-
-  let free = await db.query.depositAddressPool.findFirst({
-    where: isNull(depositAddressPool.accountId),
-  });
-
-  if (!free && isTronHdConfigured()) {
-    const minted = await mintNextPoolDepositAddress();
-    if (minted) {
-      free = await db.query.depositAddressPool.findFirst({
-        where: eq(depositAddressPool.address, minted.address),
-      });
-    }
+/** User-owned TRC-20 wallet (payout + deposit identity). Platform does not hold user keys. */
+export async function setUserTronWallet(
+  accountId: string,
+  trc20Address: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const normalized = trc20Address.trim();
+  if (!isValidTrc20Address(normalized)) {
+    return { ok: false, error: "Invalid USDT TRC-20 address" };
   }
 
-  if (!free) return null;
+  const db = getDb();
+  const taken = await db.query.accounts.findFirst({
+    where: eq(accounts.usdtTrc20Payout, normalized),
+  });
+  if (taken && taken.id !== accountId) {
+    return { ok: false, error: "This wallet is already linked to another account" };
+  }
 
-  const now = new Date();
-  await db
-    .update(depositAddressPool)
-    .set({ accountId, assignedAt: now })
-    .where(eq(depositAddressPool.address, free.address));
   await db
     .update(accounts)
-    .set({ depositAddressTrc20: free.address })
+    .set({
+      usdtTrc20Payout: normalized,
+      depositAddressTrc20: normalized,
+    })
     .where(eq(accounts.id, accountId));
 
-  return free.address;
+  return { ok: true };
 }

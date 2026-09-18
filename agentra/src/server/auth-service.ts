@@ -3,7 +3,8 @@ import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { accounts, ledgerAccounts, users } from "../../drizzle/schema";
 import { getDb } from "@/lib/db";
-import { assignDepositAddress } from "./deposit-address";
+import { setUserTronWallet } from "./deposit-address";
+import { isValidTrc20Address } from "@/lib/tron-utils";
 import { USER_SESSION_COOKIE } from "@/lib/constants";
 import { createHash, timingSafeEqual } from "crypto";
 
@@ -29,9 +30,13 @@ export async function registerUser(input: {
   email: string;
   username: string;
   password: string;
-  usdtPayoutTrc20?: string;
+  usdtPayoutTrc20: string;
   referralCode?: string;
 }): Promise<SessionUser> {
+  if (!isValidTrc20Address(input.usdtPayoutTrc20)) {
+    throw new Error("A valid USDT TRC-20 wallet address is required");
+  }
+
   const db = getDb();
   const hash = await bcrypt.hash(input.password, 12);
 
@@ -56,14 +61,16 @@ export async function registerUser(input: {
     .insert(accounts)
     .values({
       userId: user.id,
-      usdtTrc20Payout: input.usdtPayoutTrc20 ?? null,
+      usdtTrc20Payout: input.usdtPayoutTrc20.trim(),
+      depositAddressTrc20: input.usdtPayoutTrc20.trim(),
       referralCode: referralCodeFromUsername(input.username),
       referredByAccountId,
     })
     .returning();
 
   await db.insert(ledgerAccounts).values({ accountId: account.id });
-  await assignDepositAddress(account.id);
+  const link = await setUserTronWallet(account.id, input.usdtPayoutTrc20);
+  if (!link.ok) throw new Error(link.error ?? "Wallet link failed");
 
   const session: SessionUser = {
     userId: user.id,
@@ -133,7 +140,7 @@ export async function getAccountProfile(accountId: string) {
     where: eq(accounts.id, accountId),
   });
   return {
-    depositAddressTrc20: account?.depositAddressTrc20 ?? null,
+    userTrc20Wallet: account?.usdtTrc20Payout ?? null,
     usdtPayoutTrc20: account?.usdtTrc20Payout ?? null,
     licenseActivated: account?.licenseActivated ?? false,
     referralCode: account?.referralCode ?? null,

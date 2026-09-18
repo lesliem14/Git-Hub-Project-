@@ -10,17 +10,12 @@
     "db:up": "docker compose -f ../docker-compose.yml up -d postgres",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "db:setup": "npm run db:up && sleep 3 && npm run db:migrate && npm run db:seed",
-    "tron:verify-hd": "tsx scripts/verify-tron-hd.ts",
-    "tron:mint-deposits": "tsx scripts/generate-deposit-addresses.ts"
+    "db:setup": "npm run db:up && sleep 3 && npm run db:migrate && npm run db:seed"
   },
   "dependencies": {
-    "@bitcoinerlab/secp256k1": "^2.0.0",
     "@tanstack/react-query": "^5.103.1",
     "@wagmi/connectors": "^8.2.0",
     "bcryptjs": "^3.0.3",
-    "bip32": "^5.0.1",
-    "bip39": "^3.1.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "dotenv": "^18.0.0",

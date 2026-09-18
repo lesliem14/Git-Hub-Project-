@@ -44,7 +44,7 @@ function RegisterForm() {
     <div className="mx-auto max-w-md rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
       <h1 className="text-xl font-bold text-slate-900">Create your Agentra account</h1>
       <p className="mt-1 text-sm text-slate-600">
-        You receive a unique TRC-20 deposit address. USDT deposits auto-confirm via our indexer.
+        Link your own TRC-20 wallet. Fund by sending USDT from that wallet to our treasury address.
       </p>
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <label className="block text-sm font-medium text-slate-700">
@@ -78,14 +78,18 @@ function RegisterForm() {
           />
         </label>
         <label className="block text-sm font-medium text-slate-700">
-          USDT TRC-20 payout wallet (optional now)
+          Your USDT TRC-20 wallet (TronLink / Trust — you control the keys)
           <input
+            required
             value={usdtPayout}
             onChange={(e) => setUsdtPayout(e.target.value.trim())}
             placeholder="T..."
             className="mt-1 w-full rounded-lg border border-stone-200 px-3 py-2 font-mono text-sm"
           />
         </label>
+        <p className="text-xs text-slate-500 -mt-2">
+          Used for payouts and to identify your deposits when you send USDT to Agentra treasury.
+        </p>
         <label className="block text-sm font-medium text-slate-700">
           Referral code (optional)
           <input

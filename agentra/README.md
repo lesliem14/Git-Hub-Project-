@@ -50,19 +50,9 @@ curl -X POST http://localhost:3000/api/cron/index-tron-deposits \
   -H "Authorization: Bearer $CRON_SECRET"
 ```
 
-Runs TronGrid scan on each user’s assigned `deposit_address_trc20`, credits license ($100) or top-up.
+Scans **`AGENTRA_TREASURY_TRC20`** for incoming USDT; matches sender to each user’s **own** registered TRC-20 wallet.
 
-### Tron HD deposit generator
-
-Set `TRON_DEPOSIT_MNEMONIC` (12/24 words) in `.env.local` **on the server only**.  
-New registrations auto-mint addresses at `m/44'/195'/0'/0/n`.
-
-```bash
-npm run tron:verify-hd          # sanity-check derivation
-npm run tron:mint-deposits -- 20  # optional pool warm-up
-```
-
-Use `TRON_DEPOSIT_INDEX_START=1` if index `0` is reserved for treasury cold wallet.
+See `docs/TRON_USER_WALLETS.md`.
 
 ### User auth
 
