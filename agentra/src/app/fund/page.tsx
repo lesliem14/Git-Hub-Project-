@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { Copy, Check, AlertTriangle } from "lucide-react";
+import { LICENSE_FEE_USDT } from "@/lib/constants";
 import { demoUser } from "@/lib/mock-data";
-import { truncateAddress } from "@/lib/utils";
+import { formatUsdt, truncateAddress } from "@/lib/utils";
 
 export default function FundPage() {
   const [copied, setCopied] = useState(false);
@@ -20,9 +21,11 @@ export default function FundPage() {
       <header>
         <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Fund your account</h1>
         <p className="mt-2 text-sm text-slate-600 sm:text-base">
-          Agentra accepts <strong>USDT on TRON (TRC-20)</strong> for subscription credits and
-          optional capital tracking. Trading capital for live EVM strategies remains in your
-          connected wallet—we never ask for seed phrases or private keys.
+          Send <strong>USDT TRC-20</strong> to activate your{" "}
+          <strong>{formatUsdt(LICENSE_FEE_USDT)} USDT one-time license</strong> (non-withdrawable
+          trading credit). Additional deposits increase withdrawable ledger balance after trades
+          complete. Live EVM strategies sign from MetaMask, Trust, Phantom, or Keplr—we never ask
+          for seed phrases.
         </p>
       </header>
 

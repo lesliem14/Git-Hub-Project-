@@ -1,11 +1,15 @@
 import type {
+  ActiveTradeLock,
   BotConfig,
   DashboardMetrics,
+  InternalLedger,
   LiveProfitEvent,
   SettlementLine,
   StrategyInfo,
   UserProfile,
 } from "./types";
+import { LICENSE_FEE_USDT } from "./constants";
+import { computePerformanceFee, computeSettlementTotal } from "./ledger";
 import { getCurrentCycle } from "./cycle";
 import { blurUsername } from "./utils";
 
@@ -15,7 +19,28 @@ export const demoUser: UserProfile = {
   email: "trader@example.com",
   walletAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
   usdtPayoutWallet: "TXkPq8vN2mR7sL4wY9hJ3fG6dA1cB5eH8n",
-  subscriptionTier: "pro",
+  licenseActivated: true,
+  subscriptionTier: "licensed",
+};
+
+export const demoLedger: InternalLedger = {
+  availableUsdt: 372.45,
+  licenseCreditUsdt: LICENSE_FEE_USDT,
+  lockedInTradeUsdt: 183.0,
+  evmWalletUsdtEstimate: 1240.0,
+  pendingWithdrawableUsdt: 48.53,
+  pendingPerformanceFeeUsdt: 4.22,
+};
+
+const tradeStarted = new Date(Date.now() - 45 * 60 * 1000);
+
+export const demoActiveTrade: ActiveTradeLock = {
+  id: "trade_open_1",
+  amountUsdt: 183,
+  startedAt: tradeStarted.toISOString(),
+  releasesAt: new Date(tradeStarted.getTime() + 2 * 60 * 60 * 1000).toISOString(),
+  strategy: "DEX Arbitrage",
+  status: "open",
 };
 
 export const demoBot: BotConfig = {
@@ -29,8 +54,8 @@ export const demoBot: BotConfig = {
 };
 
 export const demoMetrics: DashboardMetrics = {
-  portfolioUsdt: 4820.45,
-  capitalAllocatedUsdt: 4200,
+  portfolioUsdt: demoLedger.availableUsdt + demoLedger.licenseCreditUsdt + demoLedger.lockedInTradeUsdt,
+  capitalAllocatedUsdt: demoLedger.licenseCreditUsdt + demoLedger.availableUsdt,
   opportunitiesDetected: 847,
   tradesExecuted: 62,
   grossPnlUsdt: 186.32,
@@ -42,7 +67,7 @@ export const demoMetrics: DashboardMetrics = {
   avgOpportunitySizeUsdt: 74.5,
   roiPercent: 3.17,
   maxDrawdownPercent: 1.2,
-  riskExposureUsdt: 890,
+  riskExposureUsdt: demoLedger.lockedInTradeUsdt,
 };
 
 export const strategies: StrategyInfo[] = [
@@ -51,14 +76,14 @@ export const strategies: StrategyInfo[] = [
     name: "DEX Arbitrage",
     description: "Same-chain price gaps across supported pools.",
     enabled: true,
-    tierRequired: "basic",
+    tierRequired: "licensed",
   },
   {
     id: "cross-dex",
     name: "Cross-DEX Discrepancy",
     description: "Route comparison across Uniswap, Sushi, and peers.",
     enabled: true,
-    tierRequired: "basic",
+    tierRequired: "licensed",
   },
   {
     id: "liquidation",
@@ -78,78 +103,95 @@ export const strategies: StrategyInfo[] = [
 
 const cycle = getCurrentCycle();
 
+function buildLine(
+  partial: Omit<SettlementLine, "performanceFeeUsdt" | "totalDueUsdt" | "cycleId" | "cycleEndsAt"> & {
+    tradingNetUsdt: number;
+  },
+): SettlementLine {
+  const performanceFeeUsdt = computePerformanceFee(partial.tradingNetUsdt);
+  const base = {
+    ...partial,
+    cycleId: cycle.cycleId,
+    cycleEndsAt: cycle.endsAt,
+    performanceFeeUsdt,
+    ledgerVerified: false,
+  };
+  const totalDueUsdt = computeSettlementTotal(base);
+  return { ...base, totalDueUsdt };
+}
+
 export const settlementBatch: SettlementLine[] = [
-  {
+  buildLine({
+    id: "stl_demo",
+    userId: demoUser.id,
+    displayName: demoUser.username,
+    usdtWalletTrc20: demoUser.usdtPayoutWallet,
+    tradingNetUsdt: 42.18,
+    referralCommissionsUsdt: 15.0,
+    platformFeesUsdt: 0,
+    adjustmentsUsdt: 0,
+    status: "pending",
+  }),
+  buildLine({
     id: "stl_001",
     userId: "u1",
     displayName: "maria_k",
     usdtWalletTrc20: "TXkPq8vN2mR7sL4wY9hJ3fG6dA1cB5eH8n",
-    cycleId: cycle.cycleId,
-    cycleEndsAt: cycle.endsAt,
     tradingNetUsdt: 42.18,
     referralCommissionsUsdt: 6.35,
     platformFeesUsdt: 0,
     adjustmentsUsdt: 0,
-    totalDueUsdt: 48.53,
     status: "pending",
-  },
-  {
+  }),
+  buildLine({
     id: "stl_002",
     userId: "u2",
     displayName: "alex_r",
     usdtWalletTrc20: "TY7mN3pQ9wR2xK5vL8hJ1fD4cA6bE0gH9s",
-    cycleId: cycle.cycleId,
-    cycleEndsAt: cycle.endsAt,
     tradingNetUsdt: 128.9,
     referralCommissionsUsdt: 19.2,
     platformFeesUsdt: 29.0,
     adjustmentsUsdt: -2.5,
-    totalDueUsdt: 116.6,
     status: "pending",
-  },
-  {
+  }),
+  buildLine({
     id: "stl_003",
     userId: "u3",
     displayName: "sam_w",
     usdtWalletTrc20: "TZ3nM8qP1wR6xK2vL5hJ9fD0cA4bE7gH3s",
-    cycleId: cycle.cycleId,
-    cycleEndsAt: cycle.endsAt,
     tradingNetUsdt: 8.04,
     referralCommissionsUsdt: 0,
     platformFeesUsdt: 0,
     adjustmentsUsdt: 0,
-    totalDueUsdt: 8.04,
     status: "pending",
-  },
-  {
+  }),
+  buildLine({
     id: "stl_004",
     userId: "u4",
     displayName: "priya_n",
     usdtWalletTrc20: "TA9mK4pQ2wR8xL1vN6hJ5fD3cB0eG2hH7s",
-    cycleId: cycle.cycleId,
-    cycleEndsAt: cycle.endsAt,
     tradingNetUsdt: 301.55,
     referralCommissionsUsdt: 45.22,
     platformFeesUsdt: 79.0,
     adjustmentsUsdt: 0,
-    totalDueUsdt: 267.77,
     status: "processing",
-  },
-  {
+  }),
+  buildLine({
     id: "stl_005",
     userId: "u5",
     displayName: "jon_d",
     usdtWalletTrc20: "TB2mL7pQ5wR3xM9vO1hJ8fD6cC5eG4hH1s",
-    cycleId: cycle.cycleId,
-    cycleEndsAt: cycle.endsAt,
     tradingNetUsdt: 0,
     referralCommissionsUsdt: 12.8,
     platformFeesUsdt: 0,
     adjustmentsUsdt: 0,
-    totalDueUsdt: 12.8,
     status: "pending",
-  },
+  }),
 ];
+
+export function getUserSettlement(userId: string): SettlementLine | undefined {
+  return settlementBatch.find((l) => l.userId === userId);
+}
 
 const names = [
   "nova",
@@ -188,6 +230,7 @@ export function settlementTotals(lines: SettlementLine[]) {
       acc.totalDue += line.totalDueUsdt;
       acc.tradingNet += line.tradingNetUsdt;
       acc.referrals += line.referralCommissionsUsdt;
+      acc.performanceFees += line.performanceFeeUsdt;
       acc.fees += line.platformFeesUsdt;
       acc.wallets += 1;
       if (line.status === "pending") acc.pending += line.totalDueUsdt;
@@ -197,6 +240,7 @@ export function settlementTotals(lines: SettlementLine[]) {
       totalDue: 0,
       tradingNet: 0,
       referrals: 0,
+      performanceFees: 0,
       fees: 0,
       wallets: 0,
       pending: 0,

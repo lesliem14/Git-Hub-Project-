@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.103.1",
+    "@wagmi/connectors": "^8.2.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.47.0",
@@ -16,7 +18,9 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "recharts": "^3.10.1",
-    "tailwind-merge": "^3.7.0"
+    "tailwind-merge": "^3.7.0",
+    "viem": "^2.56.8",
+    "wagmi": "^3.7.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

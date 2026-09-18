@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 const nav = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/settlements", label: "24h Settlements" },
+  { href: "/dashboard#settlement", label: "My 24h payout" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/fund", label: "Fund" },
   { href: "/referral", label: "Referrals" },

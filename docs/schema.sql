@@ -110,12 +110,32 @@ CREATE TABLE settlement_lines (
   account_id UUID NOT NULL REFERENCES accounts(id),
   trading_net_usdt NUMERIC(24, 8) NOT NULL DEFAULT 0,
   referral_commissions_usdt NUMERIC(24, 8) NOT NULL DEFAULT 0,
+  performance_fee_usdt NUMERIC(24, 8) NOT NULL DEFAULT 0,
   platform_fees_usdt NUMERIC(24, 8) NOT NULL DEFAULT 0,
   adjustments_usdt NUMERIC(24, 8) NOT NULL DEFAULT 0,
   total_due_usdt NUMERIC(24, 8) NOT NULL,
+  ledger_verified BOOLEAN NOT NULL DEFAULT false,
   status settlement_status NOT NULL DEFAULT 'pending',
   payout_tx TEXT,
   UNIQUE (cycle_id, account_id)
+);
+
+CREATE TABLE ledger_accounts (
+  account_id UUID PRIMARY KEY REFERENCES accounts(id),
+  available_usdt NUMERIC(24, 8) NOT NULL DEFAULT 0,
+  license_credit_usdt NUMERIC(24, 8) NOT NULL DEFAULT 100,
+  locked_in_trade_usdt NUMERIC(24, 8) NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE trade_locks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  account_id UUID NOT NULL REFERENCES accounts(id),
+  amount_usdt NUMERIC(24, 8) NOT NULL,
+  started_at TIMESTAMPTZ NOT NULL,
+  releases_at TIMESTAMPTZ NOT NULL,
+  strategy TEXT,
+  status TEXT NOT NULL DEFAULT 'open'
 );
 
 CREATE TABLE audit_logs (

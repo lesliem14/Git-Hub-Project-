@@ -238,12 +238,18 @@ See in-app `/legal/risk`. No promised returns. Show gross/net/fees transparently
 
 ## MVP implementation status (this repo)
 
-- ✅ Next.js dashboard, bot controls (UI), 24h settlements page, live profit ticker, fund/referral/pricing pages, how-it-works with educational diagrams.
-- ⏳ Backend services, wallet connect (wagmi), Stripe, PostgreSQL, live engine.
+- ✅ User dashboard: ledger, 2h trade lock, personal 24h settlement line, performance fee display
+- ✅ Admin treasury: `/admin/treasury` (login + bulk verify/payout UI)
+- ✅ $100 license, subscription-only referrals, wagmi injected wallet panel, TronLink TRC-20 register
+- ⏳ PostgreSQL ledger, Tron treasury API, Stripe license payment, live trading engine
 
-**Questions for product owner:**
+**Confirmed product decisions:**
 
-1. Are 24h USDT payouts **user profit withdrawals** (custodial ledger) or **referral-only** while trading stays on-chain?
-2. Should settlements be **admin-only** or visible per-user (masked batch)?
-3. Preferred wallet stack: MetaMask + WalletConnect only, or also TronLink for TRC-20?
-4. Is performance-based pricing planned in v1 or post-legal review?
+| Topic | Decision |
+|-------|----------|
+| 24h USDT payouts | Trading profit (ledger) **and** referral license commissions |
+| Settlements UI | User line on dashboard; full batch **admin-only** |
+| Capital | EVM wallet + internal ledger; **2h lock** during open trade |
+| Wallets | MetaMask, Trust, Phantom, Keplr (EVM inject); TRC-20 payouts via TronLink/registered address |
+| Referrals | 15/10/5% on **$100 license fee** only |
+| Performance fee | **10%** on positive trading net (MVP) |
