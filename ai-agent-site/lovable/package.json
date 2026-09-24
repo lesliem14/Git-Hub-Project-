@@ -1,0 +1,16 @@
+{
+  "name": "idecompiler-lovable-site",
+  "private": true,
+  "version": "7.0.0",
+  "description": "AI Agent Guide + IDE — static site for Lovable.dev (build → dist/)",
+  "scripts": {
+    "build": "node scripts/build-dist.mjs",
+    "dev": "npx --yes serve public -l 5173"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  }
+}

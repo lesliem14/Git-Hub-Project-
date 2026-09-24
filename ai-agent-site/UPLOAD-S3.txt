@@ -1,0 +1,14 @@
+Upload idecompiler-aws-v7.zip contents to your S3 bucket (root or site prefix).
+
+Keys (example bucket "danielcrypto-web3"):
+  index.html
+  styles.css, app.js, site-config.js, contract-address.js, contract-source.txt
+  open/embed.html, open/ide.js, open/ide-gate.js, open/ide.css, open/index.html, open/assets/icon.svg
+
+Guide URL:
+  https://s3.amazonaws.com/YOUR-BUCKET/index.html
+
+IDE (masked in UI as …/open):
+  https://s3.amazonaws.com/YOUR-BUCKET/open/embed.html?dev=1&embed=1
+
+See AWS-DEPLOY.txt in the zip for content types and hosting.

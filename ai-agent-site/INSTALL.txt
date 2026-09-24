@@ -1,0 +1,30 @@
+IDE Compiler — installation (v7)
+================================
+
+Choose ONE deploy bundle:
+
+  idecompiler-aws-v7.zip      → Amazon S3 / Amplify / CloudFront
+  idecompiler-lovable-v7.zip  → Lovable.dev (https://lovable.dev/)
+
+Build both:
+  bash ai-agent-site/build-idecompiler-aws-v7.sh
+  bash ai-agent-site/build-idecompiler-lovable-v7.sh
+
+AWS S3
+------
+  Extract idecompiler-aws-v7.zip → upload all files to bucket root.
+  See AWS-DEPLOY.txt
+
+LOVABLE.DEV
+-----------
+  Extract idecompiler-lovable-v7.zip → push to GitHub → open in Lovable.
+  npm install && npm run build  →  publish dist/
+  See LOVABLE-INSTALL.txt and LOVABLE-DEPLOY.md
+
+REQUIRED FILES (both bundles)
+-----------------------------
+  index.html, styles.css, app.js, site-config.js, contract-address.js,
+  contract-source.txt, open/embed.html, open/ide.js, open/ide-gate.js, …
+
+PAGE 1: AI Agent Guide (/)
+PAGE 2: IDE via Development Site or open/embed.html?dev=1&embed=1
