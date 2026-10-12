@@ -104,6 +104,14 @@ See [TESTING.md](../TESTING.md).
 - Restrict admin routes; use strong `AGENTRA_ADMIN_TOKEN`.
 - Tron hot wallet: minimal balance, monitor payouts.
 
+## 8. Social Complaints Sweep (Python worker)
+
+The **Clientèle Social Complaints Sweep** lives in `/workspace/sentiment-sweep`. It is a separate hourly batch worker (Meta + Hello Peter → Excel queue), not part of the Agentra Next.js deploy.
+
+**Enterprise default:** Kubernetes CronJob (typically **AKS** + Key Vault + Azure Files for the Excel share). See [sentiment-sweep/deploy/kubernetes/README.md](../sentiment-sweep/deploy/kubernetes/README.md).
+
+Overview: [sentiment-sweep/deploy/README.md](../sentiment-sweep/deploy/README.md), [sentiment-sweep/README.md](../sentiment-sweep/README.md).
+
 ## Related docs
 
 - [TRON_PRODUCTION.md](./TRON_PRODUCTION.md)

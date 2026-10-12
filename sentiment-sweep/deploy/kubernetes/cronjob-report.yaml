@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sentiment-sweep-weekly-report
+  namespace: sentiment-sweep
+  labels:
+    app.kubernetes.io/name: sentiment-sweep
+    app.kubernetes.io/component: cron
+spec:
+  schedule: "0 7 * * 1"
+  timeZone: "Africa/Johannesburg"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
+          containers:
+            - name: report
+              image: YOUR_REGISTRY/sentiment-sweep:latest
+              command: ["python", "main.py", "report"]
+              envFrom:
+                - secretRef:
+                    name: sentiment-sweep-env
+              volumeMounts:
+                - name: data
+                  mountPath: /app/data
+                - name: output
+                  mountPath: /app/output
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: sentiment-sweep-data
+            - name: output
+              persistentVolumeClaim:
+                claimName: sentiment-sweep-output

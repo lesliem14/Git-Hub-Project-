@@ -1,0 +1,24 @@
+# Persistent storage for SQLite and Excel output (POPIA: restrict PV access via RBAC + network policy).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sentiment-sweep-data
+  namespace: sentiment-sweep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sentiment-sweep-output
+  namespace: sentiment-sweep
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
