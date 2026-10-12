@@ -1,0 +1,12 @@
+services:
+  sentiment-sweep:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+    environment:
+      DATABASE_PATH: /app/data/sweep.db
+      EXCEL_OUTPUT_DIR: /app/output

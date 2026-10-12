@@ -1,0 +1,14 @@
+[Unit]
+Description=Clientèle Social Complaints Sweep
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/sentiment-sweep
+EnvironmentFile=/opt/sentiment-sweep/.env
+ExecStart=/opt/sentiment-sweep/.venv/bin/python main.py sweep
+User=sweep
+Group=sweep
+
+[Install]
+WantedBy=multi-user.target
