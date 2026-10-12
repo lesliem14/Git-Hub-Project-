@@ -106,9 +106,11 @@ See [TESTING.md](../TESTING.md).
 
 ## 8. Social Complaints Sweep (Python worker)
 
-The **Clientèle Social Complaints Sweep** lives in `/workspace/sentiment-sweep`. It is a separate hourly cron/Docker job (Meta + Hello Peter → Excel queue), not part of the Agentra Next.js deploy.
+The **Clientèle Social Complaints Sweep** lives in `/workspace/sentiment-sweep`. It is a separate hourly batch worker (Meta + Hello Peter → Excel queue), not part of the Agentra Next.js deploy.
 
-See [sentiment-sweep/deploy/README.md](../sentiment-sweep/deploy/README.md) and [sentiment-sweep/README.md](../sentiment-sweep/README.md).
+**Enterprise default:** Kubernetes CronJob (typically **AKS** + Key Vault + Azure Files for the Excel share). See [sentiment-sweep/deploy/kubernetes/README.md](../sentiment-sweep/deploy/kubernetes/README.md).
+
+Overview: [sentiment-sweep/deploy/README.md](../sentiment-sweep/deploy/README.md), [sentiment-sweep/README.md](../sentiment-sweep/README.md).
 
 ## Related docs
 

@@ -54,14 +54,17 @@ python main.py report                                   # weekly summary + CSV
 
 ## Schedule
 
-Linux cron:
+**Enterprise (recommended):** Kubernetes **CronJob** on a shared cluster — usually **AKS** where the org already runs Microsoft/SharePoint workloads. Manifests and AKS notes: [deploy/kubernetes/README.md](./deploy/kubernetes/README.md).
+
+**Alternatives:** Docker Compose (POC), Linux cron/systemd, or Windows Task Scheduler for legacy VMs.
+
+Linux cron (single VM):
 ```
 0 * * * *  cd /path/to/sentiment-sweep && .venv/bin/python main.py sweep
 0 7 * * 1  cd /path/to/sentiment-sweep && .venv/bin/python main.py report
 ```
-Windows Task Scheduler: run `.venv\Scripts\python.exe main.py sweep` hourly, "Start in" = project folder.
 
-See [deploy/README.md](./deploy/README.md) for Docker and production hosting.
+See [deploy/README.md](./deploy/README.md) for all hosting options.
 
 ## Tuning
 

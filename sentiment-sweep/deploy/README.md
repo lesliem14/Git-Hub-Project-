@@ -1,38 +1,47 @@
 # Deployment — Social Complaints Sweep
 
-This service is a **scheduled Python worker** (not a web app). Run it hourly on a VM, container host, or Windows server with access to Meta APIs, Hello Peter email/API, and a **restricted** Excel output folder.
+This service is a **scheduled Python worker** (not a web app). It needs outbound access to Meta APIs, Hello Peter email/API, and durable storage for SQLite plus a **restricted** Excel output folder.
 
-## Option A — Docker Compose (recommended)
+## Recommended — Kubernetes CronJob (enterprise)
+
+**This is what most large corporates use:** a shared cluster (usually **AKS** in Microsoft/M365 shops, or EKS/OpenShift elsewhere) with **CronJobs**, **Key Vault–backed secrets**, and **ReadWriteMany** storage for the Excel share (often Azure Files → complaints team / SharePoint).
+
+Full steps: **[kubernetes/README.md](./kubernetes/README.md)**
+
+```bash
+# After building/pushing the image and creating secrets:
+kubectl apply -f deploy/kubernetes/namespace.yaml
+kubectl apply -f deploy/kubernetes/pvc.yaml
+kubectl apply -f deploy/kubernetes/cronjob-sweep.yaml
+kubectl apply -f deploy/kubernetes/cronjob-report.yaml
+```
+
+Schedules are defined in the manifests (`Africa/Johannesburg`: hourly sweep, Monday 07:00 weekly report).
+
+---
+
+## Other options
+
+### Docker Compose (dev / POC / small team)
 
 From `sentiment-sweep/`:
 
 ```bash
 cp .env.example .env
-# Edit .env with production secrets and EXCEL_OUTPUT_DIR=/data/output
-
 docker compose up -d --build
 ```
 
-The container runs `supercronic` with `deploy/crontab` (hourly sweep + weekly report).
+Runs `supercronic` with `deploy/crontab`. Good for local validation, not typical enterprise production.
 
-Volumes (see `docker-compose.yml`):
+### Linux systemd timer
 
-| Mount | Purpose |
-|-------|---------|
-| `./data` → `/app/data` | SQLite (`sweep.db`) — restrict filesystem ACLs |
-| `./output` → `/app/output` | Excel queue (sync to SharePoint if required) |
+Bare-metal or single VM without Kubernetes: copy `sentiment-sweep.service` and `sentiment-sweep.timer` to `/etc/systemd/system/`, venv under `/opt/sentiment-sweep`.
 
-Health check: `python main.py sweep --dry-run`
+### Raw cron / Windows Task Scheduler
 
-## Option B — Linux systemd timer
+See project `README.md`. Windows Task Scheduler remains common in legacy estates; greenfield enterprise batches usually move to K8s CronJobs instead.
 
-1. Install app under `/opt/sentiment-sweep` with venv and `.env`.
-2. Copy `deploy/sentiment-sweep.service` and `deploy/sentiment-sweep.timer` to `/etc/systemd/system/`.
-3. `systemctl daemon-reload && systemctl enable --now sentiment-sweep.timer`
-
-## Option C — Raw cron
-
-Use the crontab lines in the project README; ensure `WorkingDirectory` points at `sentiment-sweep` and the venv Python is used.
+---
 
 ## Environment checklist
 
